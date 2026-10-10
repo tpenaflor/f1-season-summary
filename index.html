@@ -75,6 +75,9 @@
             const resultsSection = document.getElementById('latest-race-results');
             try {
                 const response = await fetch('https://ergast.com/api/f1/current/last/results.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
                 const race = data.MRData.RaceTable.Races[0];
 
@@ -136,7 +139,7 @@
 
             } catch (error) {
                 console.error('Error fetching latest race results:', error);
-                resultsSection.innerHTML = '<h2>Latest F1 Grand Prix Results</h2><p>Failed to load race results. Please try again later.</p>';
+                resultsSection.innerHTML = `<h2>Latest F1 Grand Prix Results</h2><p>Failed to load race results: ${error.message}. Please try again later.</p>`;
             }
         }
 
@@ -144,6 +147,9 @@
             const standingsSection = document.getElementById('driver-standings');
             try {
                 const response = await fetch('https://ergast.com/api/f1/current/driverStandings.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
                 const standings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
@@ -180,7 +186,7 @@
 
             } catch (error) {
                 console.error('Error fetching driver standings:', error);
-                standingsSection.innerHTML = '<h2>Current F1 Driver Standings</h2><p>Failed to load driver standings. Please try again later.</p>';
+                standingsSection.innerHTML = `<h2>Current F1 Driver Standings</h2><p>Failed to load driver standings: ${error.message}. Please try again later.</p>`;
             }
         }
     </script>
