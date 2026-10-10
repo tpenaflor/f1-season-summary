@@ -74,7 +74,7 @@
         async function fetchLatestRaceResults() {
             const resultsSection = document.getElementById('latest-race-results');
             try {
-                const response = await fetch('https://ergast.com/api/f1/current/last/results.json');
+                const response = await fetch('https://ergast.com/api/f1/current/last/results');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -146,7 +146,7 @@
         async function fetchDriverStandings() {
             const standingsSection = document.getElementById('driver-standings');
             try {
-                const response = await fetch('https://ergast.com/api/f1/current/driverStandings.json');
+                const response = await fetch('https://ergast.com/api/f1/current/driverStandings');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
