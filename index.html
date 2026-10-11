@@ -3,80 +3,1219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 Season Summary</title>
+    <title>F1 Season Summary & Driver Standings Progression</title>
+    <!-- Chart.js CDN for interactive championship progression visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
+        :root {
+            --f1-red: #e10600;
+            --f1-red-dark: #b80500;
+            --f1-black: #15151e;
+            --f1-dark-card: #1e1e2d;
+            --bg-color: #f6f7fb;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --p1-gold: #f59e0b;
+            --p2-silver: #9ca3af;
+            --p3-bronze: #d97706;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        /* Top Racing Stripe Header */
+        .top-stripe {
+            height: 6px;
+            background: linear-gradient(90deg, var(--f1-red) 0%, #ff3b30 50%, var(--f1-black) 100%);
+            width: 100%;
+        }
+
+        .header-bar {
+            background-color: var(--f1-black);
+            color: #ffffff;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .f1-badge {
+            background-color: var(--f1-red);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(225, 6, 0, 0.4);
+        }
+
+        .header-titles h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .header-titles p {
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        .live-tag {
+            background-color: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-tag::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 6px #10b981;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
+            padding: 0 16px;
+        }
+
+        /* Standard Cards */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 12px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title-accent {
+            width: 4px;
+            height: 24px;
+            background-color: var(--f1-red);
+            border-radius: 2px;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--f1-black);
+        }
+
+        .section-subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: -8px;
+            margin-bottom: 16px;
+        }
+
+        /* Progression Chart Controls & Toolbar */
+        .chart-controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+        }
+
+        .dropdown-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--f1-black);
+        }
+
+        .season-dropdown {
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--f1-black);
+            background-color: #ffffff;
+            border: 1.5px solid #d1d5db;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 7px 32px 7px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
         }
-        h1, h2 {
-            color: #e10600;
+
+        .season-dropdown:hover {
+            border-color: #9ca3af;
         }
-        .section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
+
+        .season-dropdown:focus {
+            outline: none;
+            border-color: var(--f1-red);
+            box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.15);
         }
-        .section:last-child {
-            border-bottom: none;
+
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
+
+        .filter-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-right: 4px;
+        }
+
+        .btn-filter {
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-filter:hover {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .btn-filter.active {
+            background-color: var(--f1-black);
+            color: #ffffff;
+            border-color: var(--f1-black);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-refresh {
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            color: var(--text-main);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-refresh:hover {
+            background-color: #fef2f2;
+            color: var(--f1-red);
+            border-color: #fca5a5;
+        }
+
+        .cache-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .cache-badge.cached {
+            background-color: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+
+        .cache-badge.fetching {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* Fixed Container Sizing Requirement */
+        .chart-wrapper {
+            position: relative;
+            height: 520px;
+            max-height: 550px;
+            width: 100%;
+        }
+
+        /* Progress Card & Rate Limiting Indicator */
+        .progress-card {
+            background: linear-gradient(135deg, #1e1e2d 0%, #15151e 100%);
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .progress-title-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ff3b30;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-text {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+
+        .progress-rate-note {
+            font-size: 0.78rem;
+            color: #9ca3af;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e10600, #ff5722);
+            border-radius: 4px;
+            transition: width 0.25s ease-out;
+        }
+
+        .progress-footer {
+            font-size: 0.76rem;
+            color: #9ca3af;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Chart Stats & Tips Footer */
+        .chart-footer {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.84rem;
+            color: var(--text-muted);
+        }
+
+        .stat-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--f1-black);
+        }
+
+        .stat-pill span {
+            color: var(--f1-red);
+        }
+
+        /* Latest Race & Standings Results Card */
+        .race-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .summary-metric {
+            background-color: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .metric-label {
+            font-size: 0.76rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .metric-val {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--f1-black);
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            font-size: 0.9rem;
             text-align: left;
+            background-color: #ffffff;
         }
-        th {
-            background-color: #f2f2f2;
+
+        thead th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            border-bottom: 1.5px solid var(--border-color);
         }
-        .loading {
+
+        tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-main);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .pos-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+
+        .pos-1 {
+            background-color: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .pos-2 {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pos-3 {
+            background-color: #ffedd5;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+        .driver-cell {
+            font-weight: 600;
+            color: var(--f1-black);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .driver-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .points-val {
+            font-weight: 700;
+            color: var(--f1-black);
+        }
+
+        .loading-state {
             text-align: center;
-            padding: 20px;
-            font-style: italic;
+            padding: 32px 16px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .error-message {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin: 12px 0;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 768px) {
+            .header-titles h1 {
+                font-size: 1.3rem;
+            }
+            .chart-controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-actions {
+                justify-content: flex-start;
+            }
+            .chart-wrapper {
+                height: 420px;
+                max-height: 450px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>F1 Season Summary</h1>
+    <div class="top-stripe"></div>
 
-        <div class="section" id="latest-race-results">
-            <h2>Latest F1 Grand Prix Results</h2>
-            <div class="loading">Loading latest race results...</div>
+    <header class="header-bar">
+        <div class="header-container">
+            <div class="brand-block">
+                <div class="f1-badge">F1</div>
+                <div class="header-titles">
+                    <h1>FIA Formula One World Championship</h1>
+                    <p>Live Race Results, Driver Standings & Historical Season Progression</p>
+                </div>
+            </div>
+            <div class="live-tag">Official Ergast / Jolpica Data</div>
         </div>
+    </header>
 
-        <div class="section" id="driver-standings">
-            <h2>Current F1 Driver Standings</h2>
-            <div class="loading">Loading driver standings...</div>
-        </div>
-    </div>
+    <main class="container">
+        <!-- Interactive Driver Standings Progression Chart Section -->
+        <section class="card" id="progression-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent"></div>
+                    <h2>Driver Standings Progression</h2>
+                </div>
+                <div id="cache-status-container">
+                    <span id="cache-badge" class="cache-badge cached">⚡ Cached (Instant)</span>
+                </div>
+            </div>
+
+            <p class="section-subtitle">
+                Interactive cumulative points progression by round. Top 10 drivers active by default; toggle any driver via the legend.
+            </p>
+
+            <!-- Controls Toolbar: Season Dropdown, Quick Filters & Refresh -->
+            <div class="chart-controls-bar">
+                <div class="dropdown-group">
+                    <label for="seasonSelect">Championship Season:</label>
+                    <select id="seasonSelect" class="season-dropdown">
+                        <option value="2024" selected>2024 Season</option>
+                        <option value="2023">2023 Season</option>
+                        <option value="2022">2022 Season</option>
+                        <option value="2021">2021 Season</option>
+                        <option value="2020">2020 Season</option>
+                        <option value="2019">2019 Season</option>
+                        <option value="2018">2018 Season</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <span class="filter-label">Quick Filters:</span>
+                    <button type="button" class="btn-filter" id="btn-top5" onclick="setDriverFilter('top5')">Top 5</button>
+                    <button type="button" class="btn-filter active" id="btn-top10" onclick="setDriverFilter('top10')">Top 10</button>
+                    <button type="button" class="btn-filter" id="btn-all" onclick="setDriverFilter('all')">All Drivers</button>
+                    <button type="button" class="btn-filter" id="btn-none" onclick="setDriverFilter('none')">None</button>
+                    <button type="button" class="btn-refresh" id="btn-refresh" onclick="refreshCurrentSeason()" title="Re-fetch fresh data from API">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Progress Indicator (Hidden when cached / complete) -->
+            <div id="progress-container" class="progress-card" style="display: none;">
+                <div class="progress-header">
+                    <div class="progress-title-block">
+                        <div class="spinner"></div>
+                        <span id="progress-text" class="progress-text">Fetching round 1 of 24 (4%)...</span>
+                    </div>
+                    <span class="progress-rate-note">Rate limit: 4 req/sec (260ms delay)</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-footer">
+                    <span>Querying Jolpica Ergast API</span>
+                    <span>Result will be cached in localStorage for instant reload</span>
+                </div>
+            </div>
+
+            <!-- Error Notification -->
+            <div id="chart-error" class="error-message" style="display: none;"></div>
+
+            <!-- Dedicated Chart Container Sizing (Requirement 2) -->
+            <div class="chart-wrapper" style="position: relative; width: 100%; height: 520px; max-height: 550px;"><canvas id="driverStandingsChart"></canvas></div>
+
+            <div class="chart-footer">
+                <div class="stat-pills" id="chart-stat-pills">
+                    <!-- Populated dynamically -->
+                </div>
+                <div>💡 <em>Tip: Click any driver in the legend to toggle their line.</em></div>
+            </div>
+        </section>
+
+        <!-- Latest Grand Prix Results Section -->
+        <section class="card" id="latest-race-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent"></div>
+                    <h2>Latest F1 Grand Prix Results</h2>
+                </div>
+            </div>
+            <div id="latest-race-results">
+                <div class="loading-state">Loading latest race results...</div>
+            </div>
+        </section>
+
+        <!-- Current Driver Standings Table Section -->
+        <section class="card" id="standings-table-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent"></div>
+                    <h2>Current F1 Driver Standings</h2>
+                </div>
+            </div>
+            <div id="driver-standings">
+                <div class="loading-state">Loading driver standings...</div>
+            </div>
+        </section>
+    </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchLatestRaceResults();
-            fetchDriverStandings();
-        });
+        const BASE_URL = 'https://api.jolpi.ca/ergast/f1';
+        let chartInstance = null;
+        let currentSeasonData = null;
+        let currentFetchId = 0;
 
-        const BASE_URL = 'https://api.jolpi.ca/ergast/f1'; // JOLPICA F1 Ergast-compatible API base URL
+        // Distinct, recognizable colors for drivers and teams (Requirement 4)
+        const DRIVER_COLORS = {
+            // Red Bull
+            'max_verstappen': '#1E41FF', // Red Bull Racing Navy
+            'verstappen': '#1E41FF',
+            'perez': '#F5D000',         // Checo Yellow/Amber
+            
+            // McLaren
+            'norris': '#FF8000',        // Papaya Orange
+            'piastri': '#FFB347',       // Lighter Papaya / Amber Accent
+            
+            // Ferrari
+            'leclerc': '#E80020',       // Scuderia Scarlet Red
+            'sainz': '#B30018',         // Deep Crimson Red
+            'bearman': '#FF6B6B',       // Coral Red
+            
+            // Mercedes
+            'hamilton': '#00D2BE',      // Mercedes Petronas Cyan
+            'russell': '#64E9EE',       // Electric Bright Teal
+            'antonelli': '#8AEAE0',
+            
+            // Aston Martin
+            'alonso': '#229971',        // British Racing Green
+            'stroll': '#00594F',        // Dark Forest Green
+            
+            // Alpine
+            'gasly': '#0090FF',         // Alpine Racing Blue
+            'ocon': '#FD4BC7',          // Alpine BWT Pink
+            'doohan': '#48CAE4',
+            
+            // Williams
+            'albon': '#005AFF',         // Williams Royal Blue
+            'colapinto': '#64C4FF',     // Sky Blue
+            'sargeant': '#80B3FF',      // Soft Williams Blue
+            'latifi': '#041E42',
+            
+            // RB / AlphaTauri / Toro Rosso
+            'tsunoda': '#6692FF',       // Electric RB Blue
+            'ricciardo': '#E87A5D',     // Copper/Orange-Red
+            'lawson': '#A0C4E2',        // Slate Blue
+            'de_vries': '#4B6B94',
+            
+            // Haas
+            'hulkenberg': '#DA291C',    // Haas Red
+            'magnussen': '#787878',     // Haas Slate Gray
+            
+            // Kick Sauber / Alfa Romeo
+            'bottas': '#52E252',        // Stake Neon Green
+            'zhou': '#00C853',          // Sauber Emerald Green
+            
+            // Historical
+            'vettel': '#006F62',
+            'raikkonen': '#900000',
+            'giovinazzi': '#8B0000',
+            'mazepin': '#555555',
+            'kubica': '#C70039'
+        };
+
+        const TEAM_COLORS = {
+            'red_bull': '#1E41FF',
+            'mclaren': '#FF8000',
+            'ferrari': '#E80020',
+            'mercedes': '#00D2BE',
+            'aston_martin': '#229971',
+            'alpine': '#0090FF',
+            'williams': '#005AFF',
+            'rb': '#6692FF',
+            'alphatauri': '#6692FF',
+            'toro_rosso': '#002BA8',
+            'haas': '#DA291C',
+            'sauber': '#52E252',
+            'alfa': '#900000',
+            'racing_point': '#F596C7',
+            'renault': '#FFF500'
+        };
+
+        const FALLBACK_PALETTE = [
+            '#E10600', '#FF8000', '#00D2BE', '#1E41FF', '#229971',
+            '#FD4BC7', '#DA291C', '#52E252', '#F5D000', '#9C27B0',
+            '#00BCD4', '#FF5722', '#607D8B', '#3F51B5', '#8BC34A',
+            '#E91E63', '#009688', '#FF9800', '#673AB7', '#795548'
+        ];
+
+        function getDriverColor(driver, index) {
+            const id = (driver.driverId || '').toLowerCase();
+            if (DRIVER_COLORS[id]) {
+                return DRIVER_COLORS[id];
+            }
+            const cId = (driver.constructorId || '').toLowerCase();
+            if (TEAM_COLORS[cId]) {
+                return TEAM_COLORS[cId];
+            }
+            return FALLBACK_PALETTE[index % FALLBACK_PALETTE.length];
+        }
+
+        // ==========================================
+        // Rate Limited Data Fetching & Caching Layer
+        // ==========================================
+
+        async function loadSeasonStandingsProgression(season, forceRefresh = false) {
+            const cacheKey = 'f1_standings_' + season;
+            const progressContainer = document.getElementById('progress-container');
+            const errorContainer = document.getElementById('chart-error');
+            const cacheBadge = document.getElementById('cache-badge');
+            
+            errorContainer.style.display = 'none';
+
+            // 1. Check localStorage first: if cached, render immediately without any network calls!
+            if (!forceRefresh) {
+                const cachedRaw = localStorage.getItem(cacheKey);
+                if (cachedRaw) {
+                    try {
+                        const parsedData = JSON.parse(cachedRaw);
+                        if (parsedData && parsedData.drivers && parsedData.drivers.length > 0) {
+                            progressContainer.style.display = 'none';
+                            cacheBadge.className = 'cache-badge cached';
+                            cacheBadge.textContent = '⚡ Cached (Instant)';
+                            currentSeasonData = parsedData;
+                            renderProgressionChart(parsedData);
+                            return;
+                        }
+                    } catch (err) {
+                        console.warn('Failed to parse cached data, fetching fresh...', err);
+                        localStorage.removeItem(cacheKey);
+                    }
+                }
+            }
+
+            // 2. Not cached: fetch from API with rate limit safeguards
+            const fetchId = ++currentFetchId;
+            progressContainer.style.display = 'block';
+            cacheBadge.className = 'cache-badge fetching';
+            cacheBadge.textContent = '🌐 Fetching...';
+            updateProgressText(`Fetching season schedule for ${season}...`, 0);
+
+            try {
+                // First fetch season info: https://api.jolpi.ca/ergast/f1/${season}/races.json to get total rounds and race names
+                const racesUrl = `${BASE_URL}/${season}/races.json`;
+                const racesResp = await fetch(racesUrl);
+                if (!racesResp.ok) {
+                    throw new Error(`Failed to load season races schedule (HTTP ${racesResp.status})`);
+                }
+                const racesJson = await racesResp.json();
+                const races = racesJson.MRData?.RaceTable?.Races || [];
+
+                if (races.length === 0) {
+                    throw new Error(`No race schedule found for ${season}.`);
+                }
+
+                const totalRounds = races.length;
+                const roundStandingsList = [];
+                const completedRaces = [];
+
+                // 260ms pause before round queries to strictly respect 4 req/sec burst limit
+                await new Promise(resolve => setTimeout(resolve, 260));
+
+                for (let i = 0; i < totalRounds; i++) {
+                    if (fetchId !== currentFetchId) return; // Stale fetch cancelled
+
+                    const roundNum = races[i].round || (i + 1);
+                    const percent = Math.round(((i + 1) / totalRounds) * 100);
+
+                    // Show live progress indicator during fetch: "Fetching round X of Y (Z%)..."
+                    updateProgressText(`Fetching round ${roundNum} of ${totalRounds} (${percent}%)...`, percent);
+
+                    const roundUrl = `${BASE_URL}/${season}/${roundNum}/driverStandings.json`;
+                    const roundResp = await fetch(roundUrl);
+                    if (!roundResp.ok) {
+                        throw new Error(`Failed to load round ${roundNum} standings (HTTP ${roundResp.status})`);
+                    }
+                    const roundJson = await roundResp.json();
+                    const standingsLists = roundJson.MRData?.StandingsTable?.StandingsLists || [];
+
+                    // If a round has no standings yet (future race in in-progress season), stop fetching
+                    if (standingsLists.length === 0) {
+                        break;
+                    }
+
+                    const standings = standingsLists[0].DriverStandings || [];
+                    roundStandingsList.push({
+                        round: roundNum,
+                        raceName: races[i].raceName,
+                        standings: standings
+                    });
+                    completedRaces.push(races[i]);
+
+                    // Pause 260ms between requests to strictly respect the 4 req/sec limit
+                    await new Promise(resolve => setTimeout(resolve, 260));
+                }
+
+                if (fetchId !== currentFetchId) return;
+
+                if (roundStandingsList.length === 0) {
+                    throw new Error(`No driver standings available yet for season ${season}.`);
+                }
+
+                // Parse and transform data structure
+                const parsedData = processStandingsData(season, completedRaces, roundStandingsList);
+
+                // Save to localStorage so future visits are instant
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify(parsedData));
+                    cacheBadge.className = 'cache-badge cached';
+                    cacheBadge.textContent = '⚡ Cached (Instant)';
+                } catch (storeErr) {
+                    console.warn('Could not cache to localStorage:', storeErr);
+                    cacheBadge.className = 'cache-badge cached';
+                    cacheBadge.textContent = '🌐 Live Data';
+                }
+
+                progressContainer.style.display = 'none';
+                currentSeasonData = parsedData;
+                renderProgressionChart(parsedData);
+
+            } catch (error) {
+                if (fetchId === currentFetchId) {
+                    progressContainer.style.display = 'none';
+                    errorContainer.textContent = `Error loading driver standings progression: ${error.message}`;
+                    errorContainer.style.display = 'block';
+                    cacheBadge.textContent = '⚠️ Error';
+                }
+            }
+        }
+
+        function updateProgressText(text, percent) {
+            const textElem = document.getElementById('progress-text');
+            const fillElem = document.getElementById('progress-bar-fill');
+            if (textElem) textElem.textContent = text;
+            if (fillElem) fillElem.style.width = `${percent}%`;
+        }
+
+        function processStandingsData(season, completedRaces, roundStandingsList) {
+            const numRounds = roundStandingsList.length;
+
+            const racesMeta = completedRaces.map((r, idx) => {
+                let shortName = r.raceName
+                    .replace(/Grand Prix/i, '')
+                    .replace(/GP/i, '')
+                    .trim();
+                return {
+                    round: r.round || (idx + 1),
+                    raceName: r.raceName,
+                    shortName: shortName || `R${idx + 1}`,
+                    date: r.date
+                };
+            });
+
+            const driversMap = {};
+
+            roundStandingsList.forEach((roundItem, roundIdx) => {
+                roundItem.standings.forEach(item => {
+                    const id = item.Driver.driverId;
+                    if (!driversMap[id]) {
+                        driversMap[id] = {
+                            driverId: id,
+                            code: item.Driver.code || item.Driver.familyName.substring(0, 3).toUpperCase(),
+                            name: `${item.Driver.givenName} ${item.Driver.familyName}`,
+                            team: item.Constructors?.[0]?.name || 'Unknown',
+                            constructorId: item.Constructors?.[0]?.constructorId || '',
+                            pointsByRound: new Array(numRounds).fill(null),
+                            positionsByRound: new Array(numRounds).fill(null),
+                            latestPoints: 0,
+                            latestPosition: 999
+                        };
+                    }
+                    const pts = parseFloat(item.points);
+                    const pos = parseInt(item.position, 10);
+                    driversMap[id].pointsByRound[roundIdx] = pts;
+                    driversMap[id].positionsByRound[roundIdx] = pos;
+                    driversMap[id].latestPoints = pts;
+                    driversMap[id].latestPosition = pos;
+
+                    if (item.Constructors?.[0]?.name) {
+                        driversMap[id].team = item.Constructors[0].name;
+                        driversMap[id].constructorId = item.Constructors[0].constructorId;
+                    }
+                });
+            });
+
+            const drivers = Object.values(driversMap);
+
+            // Fill points forward for drivers who joined late or missed rounds
+            drivers.forEach(d => {
+                for (let r = 0; r < numRounds; r++) {
+                    if (d.pointsByRound[r] === null) {
+                        d.pointsByRound[r] = r > 0 && d.pointsByRound[r - 1] !== null ? d.pointsByRound[r - 1] : 0;
+                    }
+                }
+            });
+
+            // Sort drivers by final championship rank ascending (P1 first, P2 second, etc.)
+            drivers.sort((a, b) => a.latestPosition - b.latestPosition);
+
+            return {
+                season: season,
+                races: racesMeta,
+                drivers: drivers
+            };
+        }
+
+        // ==========================================
+        // Chart.js Rendering & Interactive Features
+        // ==========================================
+
+        function renderProgressionChart(data) {
+            const ctx = document.getElementById('driverStandingsChart');
+            if (!ctx) return;
+
+            const labels = data.races.map(r => r.shortName);
+
+            // Create datasets for each driver
+            const datasets = data.drivers.map((driver, index) => {
+                const color = getDriverColor(driver, index);
+                return {
+                    label: `${driver.name} (${driver.code})`,
+                    driverName: driver.name,
+                    driverCode: driver.code,
+                    team: driver.team,
+                    data: driver.pointsByRound,
+                    positionData: driver.positionsByRound,
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: index < 3 ? 3 : 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1.5,
+                    tension: 0.25,
+                    spanGaps: true,
+                    // By default, show top 10 drivers active in legend, toggle others off
+                    hidden: index >= 10
+                };
+            });
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // Chart.js options matching all prompt requirements
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    // Container Sizing Requirements (Requirement 2)
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    resizeDelay: 200,
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                boxHeight: 12,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 14,
+                                color: '#1f2937',
+                                font: {
+                                    family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+                                    size: 11.5,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'nearest',
+                            intersect: false,
+                            backgroundColor: 'rgba(21, 21, 30, 0.95)',
+                            titleColor: '#ffffff',
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyColor: '#e5e7eb',
+                            bodyFont: { size: 12 },
+                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            // Interactive tooltips showing: Race Name, Driver Name, Position, Points (Requirement 4)
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    if (!tooltipItems.length) return '';
+                                    const idx = tooltipItems[0].dataIndex;
+                                    const race = data.races[idx];
+                                    return race ? `${race.raceName} (Round ${race.round})` : `Round ${idx + 1}`;
+                                },
+                                label: function(context) {
+                                    const ds = context.dataset;
+                                    const pts = context.parsed.y !== null ? context.parsed.y : 0;
+                                    const pos = ds.positionData ? ds.positionData[context.dataIndex] : null;
+                                    const posStr = pos ? `P${pos}` : 'Unranked';
+                                    const teamStr = ds.team ? ` (${ds.team})` : '';
+                                    return ` ${ds.driverName}${teamStr}: ${pts} pts | Position: ${posStr}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        // Y-axis labeled 'Championship Points' (Requirement 4)
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Championship Points',
+                                color: '#374151',
+                                font: { size: 12.5, weight: '700' }
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.06)'
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                font: { size: 11 }
+                            }
+                        },
+                        // X-axis labeled with Grand Prix short names or Round numbers (Requirement 4)
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Grand Prix (Rounds)',
+                                color: '#374151',
+                                font: { size: 12.5, weight: '700' }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.04)'
+                            },
+                            ticks: {
+                                color: '#6b7280',
+                                font: { size: 10.5 },
+                                maxRotation: 45,
+                                minRotation: 20,
+                                autoSkip: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update stats bar below chart
+            updateChartStatsPills(data);
+        }
+
+        function updateChartStatsPills(data) {
+            const pillsContainer = document.getElementById('chart-stat-pills');
+            if (!pillsContainer) return;
+
+            const leader = data.drivers[0];
+            const runnerUp = data.drivers[1];
+            const totalRaces = data.races.length;
+
+            let html = `<div class="stat-pill">Season: <span>${data.season}</span></div>`;
+            html += `<div class="stat-pill">Races: <span>${totalRaces} Rounds</span></div>`;
+            if (leader) {
+                html += `<div class="stat-pill">P1 Champion/Leader: <span>${leader.name} (${leader.latestPoints} pts)</span></div>`;
+            }
+            if (runnerUp) {
+                const diff = (leader.latestPoints - runnerUp.latestPoints).toFixed(0);
+                html += `<div class="stat-pill">P2: <span>${runnerUp.name}</span> (-${diff} pts)</div>`;
+            }
+            pillsContainer.innerHTML = html;
+        }
+
+        function setDriverFilter(type) {
+            if (!chartInstance) return;
+
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-${type}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            chartInstance.data.datasets.forEach((dataset, index) => {
+                if (type === 'top5') {
+                    dataset.hidden = index >= 5;
+                } else if (type === 'top10') {
+                    dataset.hidden = index >= 10;
+                } else if (type === 'all') {
+                    dataset.hidden = false;
+                } else if (type === 'none') {
+                    dataset.hidden = true;
+                }
+            });
+
+            chartInstance.update();
+        }
+
+        function refreshCurrentSeason() {
+            const season = document.getElementById('seasonSelect').value;
+            loadSeasonStandingsProgression(season, true);
+        }
+
+        // ==========================================
+        // Existing Latest Race & Standings Logic
+        // ==========================================
 
         async function fetchLatestRaceResults() {
             const resultsSection = document.getElementById('latest-race-results');
             try {
-                // Ergast-compatible endpoint for the latest race results
                 const response = await fetch(`${BASE_URL}/current/last/results.json`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -85,120 +1224,157 @@
                 const raceData = data.MRData.RaceTable.Races[0];
 
                 if (!raceData) {
-                    resultsSection.innerHTML = '<h2>Latest F1 Grand Prix Results</h2><p>No recent Grand Prix data available.</p>';
+                    resultsSection.innerHTML = '<p>No recent Grand Prix data available.</p>';
                     return;
                 }
 
                 const raceName = raceData.raceName;
                 const circuitName = raceData.Circuit.circuitName;
-                const raceDate = new Date(raceData.date).toLocaleDateString();
+                const raceDate = new Date(raceData.date).toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
                 const winner = raceData.Results.find(r => r.position === "1");
 
-                let html = `<h2>Latest F1 Grand Prix Results</h2>
-                            <p><strong>Race:</strong> ${raceName}</p>
-                            <p><strong>Circuit:</strong> ${circuitName}</p>
-                            <p><strong>Date:</strong> ${raceDate}</p>`;
+                let html = `
+                    <div class="race-summary-grid">
+                        <div class="summary-metric">
+                            <div class="metric-label">Grand Prix</div>
+                            <div class="metric-val">${raceName}</div>
+                        </div>
+                        <div class="summary-metric">
+                            <div class="metric-label">Circuit</div>
+                            <div class="metric-val">${circuitName}</div>
+                        </div>
+                        <div class="summary-metric">
+                            <div class="metric-label">Date</div>
+                            <div class="metric-val">${raceDate}</div>
+                        </div>
+                        <div class="summary-metric">
+                            <div class="metric-label">Race Winner</div>
+                            <div class="metric-val" style="color: var(--f1-red);">
+                                ${winner ? `${winner.Driver.givenName} ${winner.Driver.familyName}` : 'N/A'}
+                            </div>
+                        </div>
+                    </div>
 
-                if (winner) {
-                    html += `<p><strong>Winner:</strong> ${winner.Driver.givenName} ${winner.Driver.familyName} (${winner.Constructor.name})</p>`;
-                } else {
-                    html += `<p><strong>Winner:</strong> N/A</p>`;
-                }
-
-                // Ergast API does not directly provide 'fastest lap' in this endpoint in a simple field.
-                // It's typically within individual lap data or not a top-level field for race results summary.
-                // For simplicity, we will omit fastest lap for now or integrate if a clear path emerges.
-                html += `<p><strong>Fastest Lap:</strong> N/A (Data not readily available in this endpoint)</p>`;
-
-                // Top 3 Finishers
-                const top3 = raceData.Results.slice(0, 3);
-                if (top3.length > 0) {
-                    html += `<h3>Top 3 Finishers</h3><ul>`;
-                    top3.forEach(result => {
-                        html += `<li>${result.position}. ${result.Driver.givenName} ${result.Driver.familyName} (${result.Constructor.name})</li>`;
-                    });
-                    html += `</ul>`;
-                }
-
-                html += `<h3>Full Race Results</h3>
-                         <table>
-                             <thead>
-                                 <tr>
-                                     <th>Pos</th>
-                                     <th>Driver</th>
-                                     <th>Team</th>
-                                     <th>Laps</th>
-                                     <th>Time</th>
-                                     <th>Points</th>
-                                 </tr>
-                             </thead>
-                             <tbody>`;
+                    <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: var(--f1-black);">Full Race Classification</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Driver</th>
+                                    <th>Team</th>
+                                    <th>Laps</th>
+                                    <th>Time / Status</th>
+                                    <th>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
                 raceData.Results.forEach(result => {
-                    html += `<tr>
-                                 <td>${result.position}</td>
-                                 <td>${result.Driver.givenName} ${result.Driver.familyName}</td>
-                                 <td>${result.Constructor.name}</td>
-                                 <td>${result.laps}</td>
-                                 <td>${result.Time ? result.Time.time : 'N/A'}</td>
-                                 <td>${result.points}</td>
-                             </tr>`;
-                });
-                html += `</tbody></table>`;
+                    const posNum = parseInt(result.position, 10);
+                    const posClass = posNum === 1 ? 'pos-1' : (posNum === 2 ? 'pos-2' : (posNum === 3 ? 'pos-3' : ''));
+                    const driverColor = DRIVER_COLORS[result.Driver.driverId] || '#9ca3af';
 
+                    html += `<tr>
+                                <td><span class="pos-badge ${posClass}">${result.position}</span></td>
+                                <td>
+                                    <span class="driver-cell">
+                                        <span class="driver-dot" style="background-color: ${driverColor};"></span>
+                                        ${result.Driver.givenName} ${result.Driver.familyName}
+                                    </span>
+                                </td>
+                                <td>${result.Constructor.name}</td>
+                                <td>${result.laps}</td>
+                                <td>${result.Time ? result.Time.time : (result.status || 'N/A')}</td>
+                                <td><span class="points-val">${result.points}</span></td>
+                            </tr>`;
+                });
+
+                html += `</tbody></table></div>`;
                 resultsSection.innerHTML = html;
 
             } catch (error) {
                 console.error('Error fetching latest race results:', error);
-                resultsSection.innerHTML = `<h2>Latest F1 Grand Prix Results</h2><p>Failed to load race results: ${error.message}.</p>`;
+                resultsSection.innerHTML = `<div class="error-message">Failed to load race results: ${error.message}</div>`;
             }
         }
 
         async function fetchDriverStandings() {
             const standingsSection = document.getElementById('driver-standings');
             try {
-                // Ergast-compatible endpoint for current driver standings
                 const response = await fetch(`${BASE_URL}/current/driverStandings.json`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                const driverStandings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
+                const driverStandings = data.MRData.StandingsTable.StandingsLists[0]?.DriverStandings;
 
                 if (!driverStandings || driverStandings.length === 0) {
-                    standingsSection.innerHTML = '<h2>Current F1 Driver Standings</h2><p>No driver standings data available.</p>';
+                    standingsSection.innerHTML = '<p>No driver standings data available.</p>';
                     return;
                 }
 
-                let html = `<h2>Current F1 Driver Standings</h2>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Pos</th>
-                                        <th>Driver</th>
-                                        <th>Team</th>
-                                        <th>Points</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                let html = `
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Driver</th>
+                                    <th>Team</th>
+                                    <th>Wins</th>
+                                    <th>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
                 driverStandings.forEach(standing => {
-                    html += `<tr>
-                                 <td>${standing.position}</td>
-                                 <td>${standing.Driver.givenName} ${standing.Driver.familyName}</td>
-                                 <td>${standing.Constructors[0].name}</td>
-                                 <td>${standing.points}</td>
-                             </tr>`;
-                });
-                html += `</tbody></table>`;
+                    const posNum = parseInt(standing.position, 10);
+                    const posClass = posNum === 1 ? 'pos-1' : (posNum === 2 ? 'pos-2' : (posNum === 3 ? 'pos-3' : ''));
+                    const driverColor = DRIVER_COLORS[standing.Driver.driverId] || '#9ca3af';
 
+                    html += `<tr>
+                                <td><span class="pos-badge ${posClass}">${standing.position}</span></td>
+                                <td>
+                                    <span class="driver-cell">
+                                        <span class="driver-dot" style="background-color: ${driverColor};"></span>
+                                        ${standing.Driver.givenName} ${standing.Driver.familyName}
+                                    </span>
+                                </td>
+                                <td>${standing.Constructors[0]?.name || 'N/A'}</td>
+                                <td>${standing.wins || '0'}</td>
+                                <td><span class="points-val">${standing.points}</span></td>
+                            </tr>`;
+                });
+
+                html += `</tbody></table></div>`;
                 standingsSection.innerHTML = html;
 
             } catch (error) {
                 console.error('Error fetching driver standings:', error);
-                standingsSection.innerHTML = `<h2>Current F1 Driver Standings</h2><p>Failed to load driver standings: ${error.message}.</p>`;
+                standingsSection.innerHTML = `<div class="error-message">Failed to load driver standings: ${error.message}</div>`;
             }
         }
+
+        // ==========================================
+        // Page Initialization & Event Listeners
+        // ==========================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchLatestRaceResults();
+            fetchDriverStandings();
+
+            const seasonSelect = document.getElementById('seasonSelect');
+            if (seasonSelect) {
+                seasonSelect.addEventListener('change', (e) => {
+                    loadSeasonStandingsProgression(e.target.value);
+                });
+                // Initial load of Driver Standings Progression Chart
+                loadSeasonStandingsProgression(seasonSelect.value);
+            }
+        });
     </script>
 </body>
 </html>
