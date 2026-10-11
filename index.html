@@ -71,96 +71,51 @@
             fetchDriverStandings();
         });
 
-        const BASE_URL = 'https://api.openf1.org/v1';
+        const BASE_URL = 'http://api.jolpi.ca/ergast/f1'; // JOLPICA F1 Ergast-compatible API base URL
 
         async function fetchLatestRaceResults() {
             const resultsSection = document.getElementById('latest-race-results');
             try {
-                // Get current year
-                const currentYear = new Date().getFullYear();
-
-                // Step 1: Get all meetings for the current year
-                const meetingsResponse = await fetch(`${BASE_URL}/meetings?year=${currentYear}`);
-                if (!meetingsResponse.ok) {
-                    throw new Error(`HTTP error! status: ${meetingsResponse.status}`);
+                // Ergast-compatible endpoint for the latest race results
+                const response = await fetch(`${BASE_URL}/current/last/results.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const allMeetings = await meetingsResponse.json();
+                const data = await response.json();
+                const raceData = data.MRData.RaceTable.Races[0];
 
-                // Filter for past or current meetings and sort to find the latest one
-                const now = new Date();
-                const latestMeeting = allMeetings
-                    .filter(m => new Date(m.date_end) <= now)
-                    .sort((a, b) => new Date(b.date_end) - new Date(a.date_end))[0];
-
-                if (!latestMeeting) {
-                    resultsSection.innerHTML = '<h2>Latest F1 Grand Prix Results</h2><p>No recent Grand Prix data available for the current year.</p>';
+                if (!raceData) {
+                    resultsSection.innerHTML = '<h2>Latest F1 Grand Prix Results</h2><p>No recent Grand Prix data available.</p>';
                     return;
                 }
 
-                // Step 2: Get the Race session for the latest meeting
-                const sessionsResponse = await fetch(`${BASE_URL}/sessions?meeting_key=${latestMeeting.meeting_key}&session_type=Race`);
-                if (!sessionsResponse.ok) {
-                    throw new Error(`HTTP error! status: ${sessionsResponse.status}`);
-                }
-                const raceSessions = await sessionsResponse.json();
-                const raceSession = raceSessions[0]; // Assuming there's only one race session per meeting
+                const raceName = raceData.raceName;
+                const circuitName = raceData.Circuit.circuitName;
+                const raceDate = new Date(raceData.date).toLocaleDateString();
+                const winner = raceData.Results.find(r => r.position === "1");
 
-                if (!raceSession) {
-                    resultsSection.innerHTML = '<h2>Latest F1 Grand Prix Results</h2><p>No Race session found for the latest Grand Prix.</p>';
-                    return;
-                }
-
-                // Step 3: Get session results for the race
-                const sessionResultsResponse = await fetch(`${BASE_URL}/session_result?session_key=${raceSession.session_key}`);
-                if (!sessionResultsResponse.ok) {
-                    throw new Error(`HTTP error! status: ${sessionResultsResponse.status}`);
-                }
-                const raceResults = await sessionResultsResponse.json();
-
-                if (!raceResults || raceResults.length === 0) {
-                    resultsSection.innerHTML = '<h2>Latest F1 Grand Prix Results</h2><p>No results found for the latest Grand Prix.</p>';
-                    return;
-                }
-
-                // Step 4: Get fastest lap data (this needs more specific filtering for a single lap)
-                const lapsResponse = await fetch(`${BASE_URL}/laps?session_key=${raceSession.session_key}&is_fastest=true`);
-                if (!lapsResponse.ok) {
-                     // Log but don't throw, as fastest lap might not always be directly available this way
-                    console.warn(`Could not fetch fastest lap for session_key ${raceSession.session_key}. Status: ${lapsResponse.status}`);
-                }
-                const fastestLaps = lapsResponse.ok ? await lapsResponse.json() : [];
-                const fastestLap = fastestLaps.sort((a, b) => a.lap_duration - b.lap_duration)[0]; // Smallest duration is fastest
-
-                // Extract necessary data
-                const raceName = latestMeeting.meeting_name;
-                const circuitName = latestMeeting.circuit_short_name;
-                const raceDate = new Date(latestMeeting.date_start).toLocaleDateString();
-
-                const winner = raceResults.find(r => r.position === 1);
-                
                 let html = `<h2>Latest F1 Grand Prix Results</h2>
                             <p><strong>Race:</strong> ${raceName}</p>
                             <p><strong>Circuit:</strong> ${circuitName}</p>
                             <p><strong>Date:</strong> ${raceDate}</p>`;
 
                 if (winner) {
-                    html += `<p><strong>Winner:</strong> ${winner.full_name} (${winner.team_name})</p>`;
+                    html += `<p><strong>Winner:</strong> ${winner.Driver.givenName} ${winner.Driver.familyName} (${winner.Constructor.name})</p>`;
                 } else {
                     html += `<p><strong>Winner:</strong> N/A</p>`;
                 }
 
-                if (fastestLap) {
-                    html += `<p><strong>Fastest Lap:</strong> ${fastestLap.lap_duration.toFixed(3)}s (Driver ID: ${fastestLap.driver_number})</p>`;
-                } else {
-                    html += `<p><strong>Fastest Lap:</strong> N/A</p>`;
-                }
-                
+                // Ergast API does not directly provide 'fastest lap' in this endpoint in a simple field.
+                // It's typically within individual lap data or not a top-level field for race results summary.
+                // For simplicity, we will omit fastest lap for now or integrate if a clear path emerges.
+                html += `<p><strong>Fastest Lap:</strong> N/A (Data not readily available in this endpoint)</p>`;
+
                 // Top 3 Finishers
-                const top3 = raceResults.slice(0, 3);
+                const top3 = raceData.Results.slice(0, 3);
                 if (top3.length > 0) {
                     html += `<h3>Top 3 Finishers</h3><ul>`;
-                    top3.forEach(driver => {
-                        html += `<li>${driver.position}. ${driver.full_name} (${driver.team_name})</li>`;
+                    top3.forEach(result => {
+                        html += `<li>${result.position}. ${result.Driver.givenName} ${result.Driver.familyName} (${result.Constructor.name})</li>`;
                     });
                     html += `</ul>`;
                 }
@@ -178,19 +133,19 @@
                                  </tr>
                              </thead>
                              <tbody>`;
-                
-                raceResults.forEach(result => {
+
+                raceData.Results.forEach(result => {
                     html += `<tr>
-                                 <td>${result.position_text}</td>
-                                 <td>${result.full_name}</td>
-                                 <td>${result.team_name}</td>
+                                 <td>${result.position}</td>
+                                 <td>${result.Driver.givenName} ${result.Driver.familyName}</td>
+                                 <td>${result.Constructor.name}</td>
                                  <td>${result.laps}</td>
-                                 <td>${result.time ? result.time : 'N/A'}</td>
+                                 <td>${result.Time ? result.Time.time : 'N/A'}</td>
                                  <td>${result.points}</td>
                              </tr>`;
                 });
                 html += `</tbody></table>`;
-                
+
                 resultsSection.innerHTML = html;
 
             } catch (error) {
@@ -202,31 +157,15 @@
         async function fetchDriverStandings() {
             const standingsSection = document.getElementById('driver-standings');
             try {
-                const currentYear = new Date().getFullYear();
-                const response = await fetch(`${BASE_URL}/championship_drivers?year=${currentYear}`);
+                // Ergast-compatible endpoint for current driver standings
+                const response = await fetch(`${BASE_URL}/current/driverStandings.json`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const championshipDrivers = await response.json();
+                const data = await response.json();
+                const driverStandings = data.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 
-                // The API returns all entries, so we need to find the latest standing for each driver.
-                // Assuming the last entry for each driver in the sorted list is the most recent.
-                // Or, more robustly, filter by the maximum `date` or `meeting_key` if available.
-                // OpenF1 API returns standings in order of meeting_key, so the highest meeting_key for each driver is the latest.
-
-                const driverStandingsMap = new Map();
-                championshipDrivers
-                    .sort((a, b) => b.meeting_key - a.meeting_key) // Sort by meeting_key descending
-                    .forEach(entry => {
-                        if (!driverStandingsMap.has(entry.driver_number)) {
-                            driverStandingsMap.set(entry.driver_number, entry);
-                        }
-                    });
-                
-                const standings = Array.from(driverStandingsMap.values())
-                                    .sort((a, b) => a.position - b.position); // Sort by position for display
-
-                if (!standings || standings.length === 0) {
+                if (!driverStandings || driverStandings.length === 0) {
                     standingsSection.innerHTML = '<h2>Current F1 Driver Standings</h2><p>No driver standings data available.</p>';
                     return;
                 }
@@ -242,24 +181,23 @@
                                     </tr>
                                 </thead>
                                 <tbody>`;
-                
-                standings.forEach(driver => {
+
+                driverStandings.forEach(standing => {
                     html += `<tr>
-                                 <td>${driver.position}</td>
-                                 <td>${driver.full_name}</td>
-                                 <td>${driver.team_name}</td>
-                                 <td>${driver.points}</td>
+                                 <td>${standing.position}</td>
+                                 <td>${standing.Driver.givenName} ${standing.Driver.familyName}</td>
+                                 <td>${standing.Constructors[0].name}</td>
+                                 <td>${standing.points}</td>
                              </tr>`;
                 });
                 html += `</tbody></table>`;
-                
+
                 standingsSection.innerHTML = html;
 
             } catch (error) {
                 console.error('Error fetching driver standings:', error);
                 standingsSection.innerHTML = `<h2>Current F1 Driver Standings</h2><p>Failed to load driver standings: ${error.message}.</p>`;
             }
-        }
         }
     </script>
 </body>
