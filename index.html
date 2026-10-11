@@ -623,7 +623,9 @@
                 <div class="dropdown-group">
                     <label for="seasonSelect">Championship Season:</label>
                     <select id="seasonSelect" class="season-dropdown">
-                        <option value="2024" selected>2024 Season</option>
+                        <option value="2026" selected>2026 Season</option>
+                        <option value="2025">2025 Season</option>
+                        <option value="2024">2024 Season</option>
                         <option value="2023">2023 Season</option>
                         <option value="2022">2022 Season</option>
                         <option value="2021">2021 Season</option>
@@ -717,6 +719,7 @@
             'max_verstappen': '#1E41FF', // Red Bull Racing Navy
             'verstappen': '#1E41FF',
             'perez': '#F5D000',         // Checo Yellow/Amber
+            'hadjar': '#3671C6',
             
             // McLaren
             'norris': '#FF8000',        // Papaya Orange
@@ -752,14 +755,17 @@
             'ricciardo': '#E87A5D',     // Copper/Orange-Red
             'lawson': '#A0C4E2',        // Slate Blue
             'de_vries': '#4B6B94',
+            'arvid_lindblad': '#4E7CFF',
+            'lindblad': '#4E7CFF',
             
             // Haas
             'hulkenberg': '#DA291C',    // Haas Red
             'magnussen': '#787878',     // Haas Slate Gray
             
-            // Kick Sauber / Alfa Romeo
+            // Kick Sauber / Alfa Romeo / Audi
             'bottas': '#52E252',        // Stake Neon Green
             'zhou': '#00C853',          // Sauber Emerald Green
+            'bortoleto': '#10B981',
             
             // Historical
             'vettel': '#006F62',
@@ -782,6 +788,8 @@
             'toro_rosso': '#002BA8',
             'haas': '#DA291C',
             'sauber': '#52E252',
+            'audi': '#C0C0C0',
+            'cadillac': '#C8A051',
             'alfa': '#900000',
             'racing_point': '#F596C7',
             'renault': '#FFF500'
@@ -1209,6 +1217,23 @@
             loadSeasonStandingsProgression(season, true);
         }
 
+        function populateSeasonDropdown(currentYear = 2026, startYear = 1950) {
+            const seasonSelect = document.getElementById('seasonSelect');
+            if (!seasonSelect) return;
+
+            seasonSelect.innerHTML = '';
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year.toString();
+                option.textContent = `${year} Season`;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                seasonSelect.appendChild(option);
+            }
+            seasonSelect.value = currentYear.toString();
+        }
+
         // ==========================================
         // Existing Latest Race & Standings Logic
         // ==========================================
@@ -1363,6 +1388,7 @@
         // ==========================================
 
         document.addEventListener('DOMContentLoaded', () => {
+            populateSeasonDropdown();
             fetchLatestRaceResults();
             fetchDriverStandings();
 
