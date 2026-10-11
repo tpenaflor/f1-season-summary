@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F1 Season Summary</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,26 +63,15 @@
             <h2>Current F1 Driver Standings</h2>
             <div class="loading">Loading driver standings...</div>
         </div>
-
-        <div class="section" id="historical-driver-standings">
-            <h2>Historical Driver Standings Over Season</h2>
-            <div class="season-selector">
-                <label for="season-select">Select Season:</label>
-                <select id="season-select"></select>
-            </div>
-            <canvas id="driverStandingsChart"></canvas>
-            <div class="loading">Loading historical driver standings...</div>
-        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetchLatestRaceResults();
             fetchDriverStandings();
-            setupHistoricalDriverStandings();
         });
 
-        const BASE_URL = 'https://api.jolpi.ca/ergast/f1'; // JOLPICA F1 Ergast-compatible API base URL (HTTPS)
+        const BASE_URL = 'https://api.jolpi.ca/ergast/f1'; // JOLPICA F1 Ergast-compatible API base URL
 
         async function fetchLatestRaceResults() {
             const resultsSection = document.getElementById('latest-race-results');
@@ -211,159 +199,6 @@
                 standingsSection.innerHTML = `<h2>Current F1 Driver Standings</h2><p>Failed to load driver standings: ${error.message}.</p>`;
             }
         }
-
-        let driverStandingsChartInstance = null; // To store the Chart.js instance
-
-        async function setupHistoricalDriverStandings() {
-            const seasonSelect = document.getElementById('season-select');
-            const currentYear = new Date().getFullYear();
-
-            // Populate season dropdown with a range of years
-            for (let year = currentYear; year >= 1950; year--) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                if (year === currentYear) { // Set current year as default selected
-                    option.selected = true;
-                }
-                seasonSelect.appendChild(option);
-            }
-
-            // Event listener for season change
-            seasonSelect.addEventListener('change', (event) => {
-                fetchAndPlotHistoricalDriverStandings(event.target.value);
-            });
-
-            // Initial plot for the current year
-            fetchAndPlotHistoricalDriverStandings(currentYear);
-        }
-
-        async function fetchAndPlotHistoricalDriverStandings(season) {
-            const loadingDiv = document.querySelector('#historical-driver-standings .loading');
-            const chartCanvas = document.getElementById('driverStandingsChart');
-            loadingDiv.style.display = 'block'; // Show loading indicator
-            chartCanvas.style.display = 'none'; // Hide chart while loading
-
-            try {
-                // Fetch all races for the selected season to determine the number of rounds
-                const racesResponse = await fetch(`${BASE_URL}/${season}/results.json`);
-                if (!racesResponse.ok) {
-                    throw new Error(`HTTP error! status: ${racesResponse.status}`);
-                }
-                const racesData = await racesResponse.json();
-                const numRounds = racesData.MRData.RaceTable.Races.length;
-
-                if (numRounds === 0) {
-                    loadingDiv.textContent = `No race data available for ${season}.`;
-                    return;
-                }
-
-                const driverPointsData = {}; // Stores {driverId: {round: points}}
-                const roundsLabels = [];
-
-                for (let round = 1; round <= numRounds; round++) {
-                    roundsLabels.push(`R${round}`);
-                    const standingsResponse = await fetch(`${BASE_URL}/${season}/${round}/driverStandings.json`);
-                    if (!standingsResponse.ok) {
-                        console.warn(`Could not fetch standings for ${season} round ${round}. Status: ${standingsResponse.status}`);
-                        continue; // Skip this round if data is unavailable
-                    }
-                    const standingsData = await standingsResponse.json();
-                    const driverStandings = standingsData.MRData.StandingsTable.StandingsLists[0].DriverStandings;
-
-                    if (driverStandings) {
-                        driverStandings.forEach(standing => {
-                            const driverId = standing.Driver.driverId;
-                            const points = parseInt(standing.points);
-                            
-                            if (!driverPointsData[driverId]) {
-                                driverPointsData[driverId] = {name: `${standing.Driver.givenName} ${standing.Driver.familyName}`, points: []};
-                            }
-                            // Ensure points array is aligned with roundsLabels
-                            while (driverPointsData[driverId].points.length < round - 1) {
-                                driverPointsData[driverId].points.push(null); // Fill missing rounds with null
-                            }
-                            driverPointsData[driverId].points.push(points);
-                        });
-                    }
-                }
-
-                // Normalize data: ensure all drivers have data for all rounds (fill with previous value or 0)
-                const allDriverIds = Object.keys(driverPointsData);
-                allDriverIds.forEach(driverId => {
-                    while (driverPointsData[driverId].points.length < numRounds) {
-                        const lastKnownPoints = driverPointsData[driverId].points.length > 0 ? driverPointsData[driverId].points[driverPointsData[driverId].points.length - 1] : 0;
-                        driverPointsData[driverId].points.push(lastKnownPoints);
-                    }
-                });
-
-                const datasets = allDriverIds.map(driverId => ({
-                    label: driverPointsData[driverId].name,
-                    data: driverPointsData[driverId].points,
-                    borderColor: getRandomColor(), // Helper function for random color
-                    fill: false,
-                    tension: 0.1
-                }));
-
-                if (driverStandingsChartInstance) {
-                    driverStandingsChartInstance.destroy(); // Destroy previous chart instance
-                }
-
-                const ctx = chartCanvas.getContext('2d');
-                driverStandingsChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: roundsLabels,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: `Driver Standings Progression - ${season}`
-                            },
-                        },
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Round'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Points'
-                                },
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-
-                loadingDiv.style.display = 'none'; // Hide loading indicator
-                chartCanvas.style.display = 'block'; // Show chart
-
-            } catch (error) {
-                console.error('Error fetching historical driver standings:', error);
-                loadingDiv.textContent = `Failed to load historical standings for ${season}: ${error.message}.`;
-                loadingDiv.style.display = 'block';
-                chartCanvas.style.display = 'none';
-            }
-        }
-
-        // Helper function to generate a random color for chart lines
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
     </script>
 </body>
 </html>
