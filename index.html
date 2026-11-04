@@ -593,6 +593,753 @@
                 max-height: 450px;
             }
         }
+
+        /* ==========================================================
+           Teammate Head-to-Head Telemetry & Qualifying Pace Deltas (Issue #1)
+           ========================================================== */
+        :root {
+            --telemetry-bg: #0B0E14;
+            --telemetry-card: #121824;
+            --telemetry-border: #232738;
+            --font-mono: "JetBrains Mono", "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+        }
+
+        .main-tabs-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            font-family: var(--font-family);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            padding: 10px 18px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid transparent;
+            border-bottom: none;
+            background-color: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background-color: var(--telemetry-card);
+            border-color: var(--telemetry-border);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00D2BE, #e10600);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .telemetry-section {
+            background: linear-gradient(180deg, var(--telemetry-card) 0%, var(--telemetry-bg) 100%);
+            border: 1px solid var(--telemetry-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .telemetry-header-controls {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* Horizontally Scrollable Constructor Team Selector Pills */
+        .team-pills-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            padding: 6px 0 16px 0;
+            margin-bottom: 18px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(225, 6, 0, 0.5) rgba(255, 255, 255, 0.04);
+        }
+
+        .team-pills-scroll-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .team-pills-scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 3px;
+        }
+
+        .team-pills-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(225, 6, 0, 0.5);
+            border-radius: 3px;
+        }
+
+        .team-pills-list {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: max-content;
+        }
+
+        .team-pill {
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #0B0E14;
+            border: 1.5px solid #232738;
+            color: #9ca3af;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .team-pill:hover {
+            color: #ffffff;
+            border-color: #475569;
+            background-color: #161d2b;
+            transform: translateY(-1px);
+        }
+
+        .team-pill.active {
+            color: #ffffff;
+            background-color: #161f30;
+            border-color: var(--team-neon, #00D2BE);
+            box-shadow: 0 0 16px var(--team-neon-glow, rgba(0, 210, 190, 0.4)), inset 0 0 8px rgba(255, 255, 255, 0.04);
+        }
+
+        .team-pip {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: var(--team-color, #e10600);
+            box-shadow: 0 0 8px var(--team-color, #e10600);
+            display: inline-block;
+        }
+
+        /* Driver Pair Selector */
+        .driver-pair-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #0B0E14;
+            border: 1px solid var(--telemetry-border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .pair-selector-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .driver-pair-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pair-pill-btn {
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--telemetry-border);
+            background-color: #161c28;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .pair-pill-btn.active {
+            background-color: #00D2BE;
+            color: #0B0E14;
+            border-color: #00D2BE;
+            font-weight: 800;
+        }
+
+        /* Driver Duo Hero Banner */
+        .driver-duo-hero {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr 1fr;
+            gap: 16px;
+            align-items: stretch;
+            margin-bottom: 22px;
+        }
+
+        .duo-driver-card {
+            background: linear-gradient(145deg, #121824 0%, #0B0E14 100%);
+            border: 1.5px solid #232738;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.25s ease;
+        }
+
+        .duo-driver-card.duo-left {
+            border-left: 4px solid var(--neon-d1, #1E41FF);
+        }
+
+        .duo-driver-card.duo-right {
+            border-right: 4px solid var(--neon-d2, #FFB347);
+            flex-direction: row-reverse;
+        }
+
+        .driver-number-badge {
+            font-family: var(--font-mono);
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.14);
+            line-height: 1;
+            user-select: none;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .driver-card-info {
+            flex: 1;
+        }
+
+        .driver-card-code {
+            font-family: var(--font-mono);
+            font-size: 1.7rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .duo-left .driver-card-code {
+            color: var(--neon-d1, #ffffff);
+            text-shadow: 0 0 14px var(--neon-d1-glow, transparent);
+        }
+
+        .duo-right .driver-card-code {
+            color: var(--neon-d2, #ffffff);
+            text-shadow: 0 0 14px var(--neon-d2-glow, transparent);
+        }
+
+        .driver-card-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            margin-top: 2px;
+        }
+
+        .driver-card-team {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Central Speed Trap Digital Readout */
+        .telemetry-speedtrap-box {
+            background: linear-gradient(180deg, #0B0E14 0%, #101520 100%);
+            border: 1px solid #232738;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .speedtrap-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .digital-pace-display {
+            font-family: var(--font-mono);
+            font-size: 2.65rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+            margin: 6px 0;
+            color: #00D2BE;
+            text-shadow: 0 0 18px rgba(0, 210, 190, 0.6);
+            transition: color 0.2s ease, text-shadow 0.2s ease;
+        }
+
+        .speedtrap-advantage-text {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        /* Cockpit Mechanical Switch DNF Filter Toggle */
+        .cockpit-toggle-wrap {
+            width: 100%;
+            background-color: #07090e;
+            border: 1px solid #1c2233;
+            border-radius: 8px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .toggle-text-block {
+            text-align: left;
+        }
+
+        .toggle-title {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+        }
+
+        .toggle-desc {
+            display: block;
+            font-size: 0.72rem;
+            color: #64748b;
+        }
+
+        .mech-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .mech-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .mech-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #1a202c;
+            border: 1.5px solid #2d3748;
+            border-radius: 14px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            padding: 2px;
+        }
+
+        .switch-indicator-led {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #718096;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mech-switch input:checked + .mech-slider {
+            background-color: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+
+        .mech-switch input:checked + .mech-slider .switch-indicator-led {
+            transform: translateX(22px);
+            background-color: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        /* 5 KPI Metric Cards */
+        .kpi-telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: #0B0E14;
+            border: 1px solid #1f2739;
+            border-radius: 10px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .kpi-card .kpi-val {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .kpi-card .kpi-sub {
+            font-size: 0.73rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        /* Visualizations Grid */
+        .telemetry-charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.25fr;
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        .telemetry-chart-card {
+            background-color: #0B0E14;
+            border: 1px solid #1f2739;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .telemetry-chart-header {
+            margin-bottom: 14px;
+            border-bottom: 1px solid #1c2333;
+            padding-bottom: 10px;
+        }
+
+        .telemetry-chart-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .chart-subtitle-tag {
+            font-size: 0.74rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Bilateral Delta Bars Table Container */
+        .bilateral-telemetry-container {
+            background-color: #0B0E14;
+            border: 1px solid #1f2739;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .bilateral-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1c2333;
+        }
+
+        .bilateral-header-bar h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .bilateral-legend {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .bilateral-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .bilateral-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            background-color: transparent;
+        }
+
+        .bilateral-table thead th {
+            background-color: #07090e;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 10px 12px;
+            border-bottom: 1.5px solid #232738;
+        }
+
+        .bilateral-table tbody td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #161c28;
+            vertical-align: middle;
+        }
+
+        .bilateral-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.025);
+        }
+
+        .session-badge {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .session-badge.q3 {
+            background-color: rgba(225, 6, 0, 0.15);
+            border: 1px solid rgba(225, 6, 0, 0.4);
+            color: #ff4d4d;
+        }
+
+        .session-badge.q2 {
+            background-color: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+        }
+
+        .session-badge.q1 {
+            background-color: rgba(156, 163, 175, 0.15);
+            border: 1px solid rgba(156, 163, 175, 0.4);
+            color: #9ca3af;
+        }
+
+        .session-badge.na {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #64748b;
+        }
+
+        .time-cell {
+            font-family: var(--font-mono);
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .delta-val {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 800;
+            margin: 0 5px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .delta-val.faster {
+            color: #10b981;
+        }
+
+        .delta-val.slower {
+            color: #94a3b8;
+        }
+
+        /* Bilateral Delta Bar Graphics */
+        .bilateral-bar-wrap {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 14px;
+            background-color: #06080c;
+            border: 1px solid #1c2233;
+            border-radius: 7px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bilateral-half-left {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .bilateral-half-right {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .bilateral-zero-line {
+            width: 2px;
+            height: 100%;
+            background-color: #e10600;
+            box-shadow: 0 0 6px rgba(225, 6, 0, 0.8);
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .bilateral-fill-l {
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            transition: width 0.3s ease;
+        }
+
+        .bilateral-fill-r {
+            height: 100%;
+            border-radius: 0 4px 4px 0;
+            transition: width 0.3s ease;
+        }
+
+        .h2h-cell {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .h2h-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .h2h-badge.winner {
+            background-color: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+
+        .h2h-badge.loser {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+        }
+
+        .dnf-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 4px;
+            text-transform: uppercase;
+        }
+
+        .dnf-pill.mech {
+            background-color: rgba(239, 68, 68, 0.18);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .dnf-pill.driver {
+            background-color: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+        }
+
+        .mech-excluded-badge {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #f87171;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .driver-duo-hero {
+                grid-template-columns: 1fr;
+            }
+            .duo-driver-card.duo-right {
+                flex-direction: row;
+            }
+            .duo-driver-card.duo-right .driver-card-info {
+                text-align: left !important;
+            }
+            .telemetry-charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -612,6 +1359,218 @@
     </header>
 
     <main class="container">
+        <!-- Main Navigation Tabs -->
+        <nav class="main-tabs-nav" aria-label="Dashboard View Navigation">
+            <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
+                <span class="tab-icon">👁️</span> All Telemetry & Standings
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnTelemetry" onclick="switchMainTab('telemetry')">
+                <span class="tab-icon">⚡</span> Teammate Head-to-Head Telemetry
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnProgression" onclick="switchMainTab('progression')">
+                <span class="tab-icon">📈</span> Standings Progression
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnResults" onclick="switchMainTab('results')">
+                <span class="tab-icon">🏁</span> Latest Race & Driver Standings
+            </button>
+        </nav>
+
+        <!-- Teammate Head-to-Head Telemetry & Qualifying Pace Deltas Section (Issue #1) -->
+        <section class="card telemetry-section" id="teammate-telemetry-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent" style="background-color: #00D2BE; box-shadow: 0 0 10px #00D2BE;"></div>
+                    <h2>Teammate Head-to-Head Telemetry & Qualifying Pace Deltas</h2>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="telemetrySeasonSelect">Telemetry Season:</label>
+                        <select id="telemetrySeasonSelect" class="season-dropdown" onchange="onTelemetrySeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                            <option value="2025">2025 Season</option>
+                            <option value="2026">2026 Season</option>
+                        </select>
+                    </div>
+                    <span id="telemetryCacheBadge" class="cache-badge cached">⚡ Cached (Instant)</span>
+                    <button type="button" class="btn-refresh" id="btnTelemetryRefresh" onclick="refreshTelemetryData()" title="Re-fetch fresh telemetry data from API">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Telemetry
+                    </button>
+                </div>
+            </div>
+
+            <p class="section-subtitle">
+                Intra-team comparative telemetry: qualifying lap pace deltas in fastest shared sessions (Q1/Q2/Q3), bilateral delta distributions, race head-to-head records, and mechanical DNF filtering.
+            </p>
+
+            <!-- Telemetry Live Progress Bar (Hidden when cached/complete) -->
+            <div id="telemetryProgressContainer" class="progress-card" style="display: none;">
+                <div class="progress-header">
+                    <div class="progress-title-block">
+                        <div class="spinner"></div>
+                        <span id="telemetryProgressText" class="progress-text">Fetching qualifying telemetry...</span>
+                    </div>
+                    <span class="progress-rate-note">Jolpica F1 Telemetry Feed</span>
+                </div>
+                <div class="progress-track">
+                    <div id="telemetryProgressBarFill" class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-footer">
+                    <span>Querying qualifying.json & results.json</span>
+                    <span>Cached in localStorage for instant switching</span>
+                </div>
+            </div>
+
+            <!-- Telemetry Error Notification -->
+            <div id="telemetryError" class="error-message" style="display: none;"></div>
+
+            <!-- Horizontally Scrollable Constructor Team Selector Pills -->
+            <div class="team-pills-scroll-wrapper">
+                <div class="team-pills-list" id="telemetryTeamPills">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Driver Pair Selector (Shown if constructor fielded > 2 drivers) -->
+            <div id="driverPairSelectorContainer" class="driver-pair-container" style="display: none;">
+                <span class="pair-selector-label">Teammate Pairing:</span>
+                <div id="driverPairButtons" class="driver-pair-pills"></div>
+            </div>
+
+            <!-- Telemetry Main Content -->
+            <div id="telemetryMainContent">
+                <!-- Driver Duo Hero Banner & Central Speed Trap Readout -->
+                <div class="driver-duo-hero" id="driverDuoHero">
+                    <!-- Driver 1 Card -->
+                    <div class="duo-driver-card duo-left" id="driverCard1">
+                        <div class="driver-number-badge" id="driverNumber1">--</div>
+                        <div class="driver-card-info">
+                            <div class="driver-card-code" id="driverCode1">---</div>
+                            <div class="driver-card-name" id="driverName1">Driver 1</div>
+                            <div class="driver-card-team" id="driverTeam1">Constructor</div>
+                        </div>
+                    </div>
+
+                    <!-- Central Speed Trap & Mechanical DNF Toggle -->
+                    <div class="telemetry-speedtrap-box">
+                        <div class="speedtrap-tag">MEDIAN QUALIFYING PACE MARGIN</div>
+                        <div class="digital-pace-display" id="medianDeltaDisplay">0 ms</div>
+                        <div class="speedtrap-advantage-text" id="medianAdvantageText">LOADING TELEMETRY...</div>
+                        
+                        <!-- Mechanical Switch DNF Filter Toggle -->
+                        <div class="cockpit-toggle-wrap">
+                            <div class="toggle-text-block">
+                                <span class="toggle-title">MECHANICAL DNF FILTER</span>
+                                <span class="toggle-desc" id="mechDnfStatusDesc">Exclude mechanical retirements from race H2H</span>
+                            </div>
+                            <label class="mech-switch" title="Exclude mechanical retirements">
+                                <input type="checkbox" id="mechDnfToggle" checked onchange="onMechDnfToggleChange(this.checked)">
+                                <span class="mech-slider">
+                                    <span class="switch-indicator-led"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Driver 2 Card -->
+                    <div class="duo-driver-card duo-right" id="driverCard2">
+                        <div class="driver-card-info" style="text-align: right;">
+                            <div class="driver-card-code" id="driverCode2">---</div>
+                            <div class="driver-card-name" id="driverName2">Driver 2</div>
+                            <div class="driver-card-team" id="driverTeam2">Constructor</div>
+                        </div>
+                        <div class="driver-number-badge" id="driverNumber2">--</div>
+                    </div>
+                </div>
+
+                <!-- 5 Telemetry KPI Metric Cards -->
+                <div class="kpi-telemetry-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Qualifying Head-to-Head</div>
+                        <div class="kpi-val" id="kpiQualH2H">-- - --</div>
+                        <div class="kpi-sub" id="kpiQualSub">Fastest shared session (Q1/Q2/Q3)</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Race Head-to-Head</div>
+                        <div class="kpi-val" id="kpiRaceH2H">-- - --</div>
+                        <div class="kpi-sub" id="kpiRaceSub">Excluding mechanical DNFs</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Median Pace Margin</div>
+                        <div class="kpi-val" id="kpiMedianPace">-- ms</div>
+                        <div class="kpi-sub" id="kpiMedianSub">Intra-team lap time delta</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Avg Grid-to-Finish Gain</div>
+                        <div class="kpi-val" id="kpiGridGain">-- vs --</div>
+                        <div class="kpi-sub" id="kpiGridSub">Positions gained/lost per GP</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Points Share</div>
+                        <div class="kpi-val" id="kpiPointsShare">--% / --%</div>
+                        <div class="kpi-sub" id="kpiPointsSub">Team championship contribution</div>
+                    </div>
+                </div>
+
+                <!-- Chart.js Visualizations Grid -->
+                <div class="telemetry-charts-grid">
+                    <!-- Dynamic Radar Chart -->
+                    <div class="telemetry-chart-card">
+                        <div class="telemetry-chart-header">
+                            <h3>Driver Telemetry Radar Comparison</h3>
+                            <span class="chart-subtitle-tag">Qualifying Pace • Race Head-to-Head • Grid Gain • Points Share</span>
+                        </div>
+                        <div class="radar-chart-wrapper" style="position: relative; height: 390px; width: 100%;">
+                            <canvas id="telemetryRadarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Floating Horizontal Delta Bar Chart -->
+                    <div class="telemetry-chart-card">
+                        <div class="telemetry-chart-header">
+                            <h3>Qualifying Pace Delta per Grand Prix (s)</h3>
+                            <span class="chart-subtitle-tag">Zero-center baseline • Left: Driver 1 Faster | Right: Driver 2 Faster</span>
+                        </div>
+                        <div class="delta-chart-wrapper" style="position: relative; height: 390px; width: 100%;">
+                            <canvas id="telemetryDeltaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bilateral Delta Bars & Grand Prix Telemetry Table -->
+                <div class="bilateral-telemetry-container">
+                    <div class="bilateral-header-bar">
+                        <h3>Bilateral Qualifying Pace Deltas & Race Head-to-Head Breakdown</h3>
+                        <span class="bilateral-legend">
+                            <span class="legend-dot" style="background-color: var(--f1-red);"></span> Zero-Center Baseline
+                        </span>
+                    </div>
+                    <div class="bilateral-table-responsive">
+                        <table class="bilateral-table" id="bilateralTelemetryTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 15%;">Grand Prix</th>
+                                    <th style="width: 8%; text-align: center;">Session</th>
+                                    <th style="width: 17%; text-align: right;" id="thDriver1Col">Driver 1</th>
+                                    <th style="width: 28%; text-align: center;">Bilateral Pace Delta Bar</th>
+                                    <th style="width: 17%; text-align: left;" id="thDriver2Col">Driver 2</th>
+                                    <th style="width: 15%; text-align: center;">Race Result & DNF</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bilateralTableBody">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Interactive Driver Standings Progression Chart Section -->
         <section class="card" id="progression-section">
             <div class="section-header">
@@ -1393,6 +2352,1092 @@
             }
         }
 
+        // ==========================================================
+        // Teammate Head-to-Head Telemetry & Qualifying Pace Deltas (Issue #1)
+        // ==========================================================
+
+        const CONSTRUCTOR_METADATA = {
+            'red_bull': { name: 'Red Bull Racing', neon: '#1E41FF', secondary: '#F5D000' },
+            'mclaren': { name: 'McLaren', neon: '#FF8000', secondary: '#FFB347' },
+            'ferrari': { name: 'Ferrari', neon: '#E80020', secondary: '#FF6B6B' },
+            'mercedes': { name: 'Mercedes-AMG', neon: '#00D2BE', secondary: '#8AEAE0' },
+            'aston_martin': { name: 'Aston Martin', neon: '#229971', secondary: '#00E5B3' },
+            'alpine': { name: 'Alpine', neon: '#0090FF', secondary: '#FD4BC7' },
+            'williams': { name: 'Williams', neon: '#005AFF', secondary: '#64C4FF' },
+            'rb': { name: 'RB Cash App', neon: '#6692FF', secondary: '#E87A5D' },
+            'alphatauri': { name: 'AlphaTauri', neon: '#6692FF', secondary: '#E87A5D' },
+            'toro_rosso': { name: 'Toro Rosso', neon: '#002BA8', secondary: '#E87A5D' },
+            'sauber': { name: 'Kick Sauber', neon: '#52E252', secondary: '#00E676' },
+            'kick_sauber': { name: 'Kick Sauber', neon: '#52E252', secondary: '#00E676' },
+            'alfa': { name: 'Alfa Romeo', neon: '#900000', secondary: '#C0C0C0' },
+            'haas': { name: 'Haas F1 Team', neon: '#DA291C', secondary: '#9E9E9E' },
+            'racing_point': { name: 'Racing Point', neon: '#F596C7', secondary: '#00D2BE' },
+            'renault': { name: 'Renault', neon: '#FFF500', secondary: '#60A5FA' }
+        };
+
+        let currentTelemetrySeason = '2024';
+        let currentTelemetryData = null;
+        let selectedConstructorId = 'red_bull';
+        let selectedDriverPairIndex = 0;
+        let excludeMechanicalDnfs = true;
+        let telemetryRadarChartInstance = null;
+        let telemetryDeltaChartInstance = null;
+        let telemetryFetchId = 0;
+
+        /**
+         * Parse Q1, Q2, Q3 lap times (e.g. "1:29.179" or "89.179") to milliseconds
+         */
+        function parseLapTimeToMs(timeStr) {
+            if (!timeStr || typeof timeStr !== 'string') return null;
+            const clean = timeStr.trim();
+            if (!clean) return null;
+            const parts = clean.split(':');
+            if (parts.length === 2) {
+                const mins = parseFloat(parts[0]);
+                const secs = parseFloat(parts[1]);
+                if (isNaN(mins) || isNaN(secs)) return null;
+                return Math.round((mins * 60 + secs) * 1000);
+            } else if (parts.length === 1) {
+                const secs = parseFloat(parts[0]);
+                if (isNaN(secs)) return null;
+                return Math.round(secs * 1000);
+            }
+            return null;
+        }
+
+        function isMechanicalDnf(status) {
+            if (!status || typeof status !== 'string') return false;
+            const s = status.trim();
+            if (s === 'Finished' || s === 'Lapped' || s.startsWith('+')) {
+                return false;
+            }
+            const lower = s.toLowerCase();
+            if (
+                lower.includes('collision') ||
+                lower.includes('accident') ||
+                lower.includes('spun off') ||
+                lower.includes('disqualified') ||
+                lower.includes('damage') ||
+                lower === 'dq'
+            ) {
+                return false;
+            }
+            return true;
+        }
+
+        function isDnfStatus(status) {
+            if (!status || typeof status !== 'string') return false;
+            const s = status.trim();
+            return !(s === 'Finished' || s === 'Lapped' || s.startsWith('+'));
+        }
+
+        function hexToRgba(hex, alpha) {
+            const clean = (hex || '#00D2BE').replace('#', '');
+            const r = parseInt(clean.substring(0, 2), 16) || 0;
+            const g = parseInt(clean.substring(2, 4), 16) || 210;
+            const b = parseInt(clean.substring(4, 6), 16) || 190;
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        async function fetchAllTelemetryPages(endpoint, season, onProgress) {
+            const allRaces = [];
+            let offset = 0;
+            let total = null;
+            const limit = 1000;
+
+            while (total === null || offset < total) {
+                const url = `${BASE_URL}/${season}/${endpoint}.json?limit=${limit}&offset=${offset}`;
+                const resp = await fetch(url);
+                if (!resp.ok) {
+                    throw new Error(`Failed to fetch ${endpoint} (HTTP ${resp.status})`);
+                }
+                const data = await resp.json();
+                const mrData = data.MRData;
+                total = parseInt(mrData.total, 10) || 0;
+                const races = mrData.RaceTable?.Races || [];
+                allRaces.push(...races);
+
+                const pageLimit = parseInt(mrData.limit, 10) || 100;
+                offset += pageLimit;
+
+                if (onProgress && total > 0) {
+                    const pct = Math.min(100, Math.round((Math.min(offset, total) / total) * 100));
+                    onProgress(pct, endpoint, Math.min(offset, total), total);
+                }
+
+                if (offset < total) {
+                    await new Promise(resolve => setTimeout(resolve, 260));
+                } else {
+                    break;
+                }
+            }
+            return allRaces;
+        }
+
+        function mergeRacesByRound(raceList, resultKey) {
+            const roundMap = {};
+            raceList.forEach(race => {
+                const rnd = parseInt(race.round, 10);
+                if (!roundMap[rnd]) {
+                    let shortName = (race.raceName || '')
+                        .replace(/Grand Prix/i, '')
+                        .replace(/GP/i, '')
+                        .trim();
+                    roundMap[rnd] = {
+                        season: race.season,
+                        round: rnd,
+                        raceName: race.raceName,
+                        shortName: shortName || `R${rnd}`,
+                        date: race.date,
+                        [resultKey]: []
+                    };
+                }
+                const items = race[resultKey] || [];
+                roundMap[rnd][resultKey].push(...items);
+            });
+            return Object.values(roundMap).sort((a, b) => a.round - b.round);
+        }
+
+        async function loadTelemetrySeason(season, forceRefresh = false) {
+            currentTelemetrySeason = season;
+            const cacheKey = `f1_telemetry_v1_${season}`;
+            const progressContainer = document.getElementById('telemetryProgressContainer');
+            const progressText = document.getElementById('telemetryProgressText');
+            const progressFill = document.getElementById('telemetryProgressBarFill');
+            const errorContainer = document.getElementById('telemetryError');
+            const cacheBadge = document.getElementById('telemetryCacheBadge');
+            const mainContent = document.getElementById('telemetryMainContent');
+
+            if (errorContainer) errorContainer.style.display = 'none';
+
+            if (!forceRefresh) {
+                const cachedRaw = localStorage.getItem(cacheKey);
+                if (cachedRaw) {
+                    try {
+                        const parsed = JSON.parse(cachedRaw);
+                        if (parsed && parsed.constructors && Object.keys(parsed.constructors).length > 0) {
+                            if (progressContainer) progressContainer.style.display = 'none';
+                            if (cacheBadge) {
+                                cacheBadge.className = 'cache-badge cached';
+                                cacheBadge.textContent = '⚡ Cached (Instant)';
+                            }
+                            if (mainContent) mainContent.style.display = 'block';
+                            currentTelemetryData = parsed;
+                            initializeConstructorSelection(parsed);
+                            return;
+                        }
+                    } catch (e) {
+                        localStorage.removeItem(cacheKey);
+                    }
+                }
+            }
+
+            const fetchId = ++telemetryFetchId;
+            if (progressContainer) progressContainer.style.display = 'block';
+            if (cacheBadge) {
+                cacheBadge.className = 'cache-badge fetching';
+                cacheBadge.textContent = '🌐 Fetching...';
+            }
+
+            const setProgress = (text, pct) => {
+                if (progressText) progressText.textContent = text;
+                if (progressFill) progressFill.style.width = `${pct}%`;
+            };
+
+            try {
+                setProgress(`Fetching ${season} qualifying sessions...`, 5);
+                const qualRaw = await fetchAllTelemetryPages('qualifying', season, (pct, ep, curr, tot) => {
+                    if (fetchId === telemetryFetchId) {
+                        setProgress(`Fetching ${season} qualifying telemetry (${curr}/${tot})...`, Math.round(pct * 0.5));
+                    }
+                });
+
+                if (fetchId !== telemetryFetchId) return;
+
+                await new Promise(r => setTimeout(r, 260));
+                if (fetchId !== telemetryFetchId) return;
+
+                setProgress(`Fetching ${season} race results & DNF telemetry...`, 52);
+                const resultsRaw = await fetchAllTelemetryPages('results', season, (pct, ep, curr, tot) => {
+                    if (fetchId === telemetryFetchId) {
+                        setProgress(`Fetching ${season} race results (${curr}/${tot})...`, 50 + Math.round(pct * 0.5));
+                    }
+                });
+
+                if (fetchId !== telemetryFetchId) return;
+
+                const qualRounds = mergeRacesByRound(qualRaw, 'QualifyingResults');
+                const resRounds = mergeRacesByRound(resultsRaw, 'Results');
+
+                if (qualRounds.length === 0 && resRounds.length === 0) {
+                    throw new Error(`No qualifying or race telemetry available yet for the ${season} season. Select 2024 or 2023 for complete telemetry data.`);
+                }
+
+                const processed = processSeasonTelemetry(season, qualRounds, resRounds);
+
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify(processed));
+                    if (cacheBadge) {
+                        cacheBadge.className = 'cache-badge cached';
+                        cacheBadge.textContent = '⚡ Cached (Instant)';
+                    }
+                } catch (e) {
+                    if (cacheBadge) {
+                        cacheBadge.className = 'cache-badge cached';
+                        cacheBadge.textContent = '🌐 Live Data';
+                    }
+                }
+
+                if (progressContainer) progressContainer.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'block';
+                currentTelemetryData = processed;
+                initializeConstructorSelection(processed);
+
+            } catch (err) {
+                if (fetchId === telemetryFetchId) {
+                    if (progressContainer) progressContainer.style.display = 'none';
+                    if (errorContainer) {
+                        errorContainer.innerHTML = `${err.message} <button type="button" class="btn-filter" style="margin-left:10px;" onclick="switchTelemetryToSeason('2024')">Load 2024 Season</button>`;
+                        errorContainer.style.display = 'block';
+                    }
+                    if (cacheBadge) cacheBadge.textContent = '⚠️ Unavailable';
+                }
+            }
+        }
+
+        function switchTelemetryToSeason(season) {
+            const sel = document.getElementById('telemetrySeasonSelect');
+            if (sel) sel.value = season;
+            loadTelemetrySeason(season);
+        }
+
+        function processSeasonTelemetry(season, qualRounds, resRounds) {
+            const allRoundNums = new Set();
+            const roundMetaMap = {};
+
+            qualRounds.forEach(r => {
+                allRoundNums.add(r.round);
+                roundMetaMap[r.round] = { round: r.round, raceName: r.raceName, shortName: r.shortName, date: r.date };
+            });
+            resRounds.forEach(r => {
+                allRoundNums.add(r.round);
+                if (!roundMetaMap[r.round]) {
+                    roundMetaMap[r.round] = { round: r.round, raceName: r.raceName, shortName: r.shortName, date: r.date };
+                }
+            });
+
+            const sortedRounds = Array.from(allRoundNums).sort((a, b) => a - b);
+            const qualByRound = {};
+            qualRounds.forEach(r => { qualByRound[r.round] = r.QualifyingResults || []; });
+            const resByRound = {};
+            resRounds.forEach(r => { resByRound[r.round] = r.Results || []; });
+
+            const constructors = {};
+
+            const ensureConstructor = (cObj) => {
+                const cid = cObj.constructorId;
+                if (!constructors[cid]) {
+                    const meta = CONSTRUCTOR_METADATA[cid] || {
+                        name: cObj.name || cid,
+                        neon: TEAM_COLORS[cid] || '#00D2BE',
+                        secondary: '#FFB347'
+                    };
+                    constructors[cid] = {
+                        constructorId: cid,
+                        name: cObj.name || meta.name,
+                        neon: meta.neon,
+                        secondary: meta.secondary,
+                        driversMap: {},
+                        totalTeamPoints: 0
+                    };
+                }
+                return constructors[cid];
+            };
+
+            const registerDriver = (teamObj, dObj, points = 0) => {
+                const did = dObj.driverId;
+                if (!teamObj.driversMap[did]) {
+                    teamObj.driversMap[did] = {
+                        driverId: did,
+                        code: dObj.code || dObj.familyName.substring(0, 3).toUpperCase(),
+                        name: `${dObj.givenName} ${dObj.familyName}`,
+                        givenName: dObj.givenName,
+                        familyName: dObj.familyName,
+                        number: dObj.permanentNumber || '--',
+                        roundsCount: 0,
+                        points: 0
+                    };
+                }
+                teamObj.driversMap[did].roundsCount += 1;
+                teamObj.driversMap[did].points += points;
+                teamObj.totalTeamPoints += points;
+            };
+
+            sortedRounds.forEach(rnd => {
+                const qList = qualByRound[rnd] || [];
+                const rList = resByRound[rnd] || [];
+
+                rList.forEach(entry => {
+                    if (entry.Constructor && entry.Driver) {
+                        const team = ensureConstructor(entry.Constructor);
+                        registerDriver(team, entry.Driver, parseFloat(entry.points || 0));
+                    }
+                });
+
+                qList.forEach(entry => {
+                    if (entry.Constructor && entry.Driver) {
+                        const team = ensureConstructor(entry.Constructor);
+                        if (!team.driversMap[entry.Driver.driverId]) {
+                            registerDriver(team, entry.Driver, 0);
+                        }
+                    }
+                });
+            });
+
+            // Build round-by-round lookup per constructor
+            Object.values(constructors).forEach(team => {
+                const driversList = Object.values(team.driversMap).sort((a, b) => {
+                    if (b.roundsCount !== a.roundsCount) return b.roundsCount - a.roundsCount;
+                    return b.points - a.points;
+                });
+                team.drivers = driversList;
+
+                // Create driver pairings (Primary duo first, plus any reserve/replacement pairings)
+                const pairings = [];
+                if (driversList.length >= 2) {
+                    pairings.push([driversList[0], driversList[1]]);
+                    for (let i = 2; i < driversList.length; i++) {
+                        pairings.push([driversList[0], driversList[i]]);
+                        pairings.push([driversList[1], driversList[i]]);
+                    }
+                } else if (driversList.length === 1) {
+                    pairings.push([driversList[0], driversList[0]]);
+                }
+                team.pairings = pairings;
+            });
+
+            return {
+                season: season,
+                rounds: sortedRounds.map(r => roundMetaMap[r]),
+                qualByRound: qualByRound,
+                resByRound: resByRound,
+                constructors: constructors
+            };
+        }
+
+        function initializeConstructorSelection(data) {
+            const cList = Object.values(data.constructors).sort((a, b) => b.totalTeamPoints - a.totalTeamPoints);
+            if (cList.length === 0) return;
+
+            if (!data.constructors[selectedConstructorId]) {
+                selectedConstructorId = cList[0].constructorId;
+            }
+            selectedDriverPairIndex = 0;
+            renderTeamSelectorPills(cList);
+            renderSelectedConstructorTelemetry();
+        }
+
+        function renderTeamSelectorPills(constructorsList) {
+            const container = document.getElementById('telemetryTeamPills');
+            if (!container) return;
+
+            container.innerHTML = constructorsList.map(team => {
+                const isActive = team.constructorId === selectedConstructorId ? 'active' : '';
+                const glowRgba = hexToRgba(team.neon, 0.45);
+                return `
+                    <button type="button"
+                        class="team-pill ${isActive}"
+                        style="--team-color: ${team.neon}; --team-neon: ${team.neon}; --team-neon-glow: ${glowRgba};"
+                        onclick="selectTelemetryConstructor('${team.constructorId}')">
+                        <span class="team-pip"></span>
+                        <span>${team.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectTelemetryConstructor(constructorId) {
+            if (!currentTelemetryData || !currentTelemetryData.constructors[constructorId]) return;
+            selectedConstructorId = constructorId;
+            selectedDriverPairIndex = 0;
+
+            const cList = Object.values(currentTelemetryData.constructors).sort((a, b) => b.totalTeamPoints - a.totalTeamPoints);
+            renderTeamSelectorPills(cList);
+            renderSelectedConstructorTelemetry();
+        }
+
+        function selectTelemetryDriverPair(pairIdx) {
+            selectedDriverPairIndex = pairIdx;
+            renderSelectedConstructorTelemetry();
+        }
+
+        function onMechDnfToggleChange(checked) {
+            excludeMechanicalDnfs = checked;
+            const desc = document.getElementById('mechDnfStatusDesc');
+            if (desc) {
+                desc.textContent = checked
+                    ? 'Exclude mechanical retirements from race H2H'
+                    : 'Include all race classifications & retirements';
+            }
+            renderSelectedConstructorTelemetry();
+        }
+
+        function onTelemetrySeasonChange(season) {
+            loadTelemetrySeason(season, false);
+        }
+
+        function refreshTelemetryData() {
+            const sel = document.getElementById('telemetrySeasonSelect');
+            const season = sel ? sel.value : currentTelemetrySeason;
+            loadTelemetrySeason(season, true);
+        }
+
+        function computePairTelemetry(data, team, d1, d2) {
+            const roundDetails = [];
+            const validDeltasMs = [];
+            let qualWins1 = 0;
+            let qualWins2 = 0;
+            let raceWins1 = 0;
+            let raceWins2 = 0;
+            let mechExcludedCount = 0;
+            let points1 = 0;
+            let points2 = 0;
+            let gridGainSum1 = 0;
+            let gridGainCount1 = 0;
+            let gridGainSum2 = 0;
+            let gridGainCount2 = 0;
+
+            data.rounds.forEach(roundMeta => {
+                const rnd = roundMeta.round;
+                const qEntries = data.qualByRound[rnd] || [];
+                const rEntries = data.resByRound[rnd] || [];
+
+                const q1Entry = qEntries.find(e => e.Driver?.driverId === d1.driverId && e.Constructor?.constructorId === team.constructorId);
+                const q2Entry = qEntries.find(e => e.Driver?.driverId === d2.driverId && e.Constructor?.constructorId === team.constructorId);
+
+                const r1Entry = rEntries.find(e => e.Driver?.driverId === d1.driverId && e.Constructor?.constructorId === team.constructorId);
+                const r2Entry = rEntries.find(e => e.Driver?.driverId === d2.driverId && e.Constructor?.constructorId === team.constructorId);
+
+                if (!q1Entry && !q2Entry && !r1Entry && !r2Entry) {
+                    return;
+                }
+
+                // Fastest shared qualifying session comparison (Q3 -> Q2 -> Q1)
+                let sharedSession = null;
+                let ms1 = null;
+                let ms2 = null;
+                let timeStr1 = null;
+                let timeStr2 = null;
+                let deltaMs = null;
+
+                if (q1Entry && q2Entry && d1.driverId !== d2.driverId) {
+                    for (const session of ['Q3', 'Q2', 'Q1']) {
+                        const t1 = parseLapTimeToMs(q1Entry[session]);
+                        const t2 = parseLapTimeToMs(q2Entry[session]);
+                        if (t1 !== null && t2 !== null) {
+                            sharedSession = session;
+                            ms1 = t1;
+                            ms2 = t2;
+                            timeStr1 = q1Entry[session];
+                            timeStr2 = q2Entry[session];
+                            deltaMs = ms1 - ms2;
+                            break;
+                        }
+                    }
+                }
+
+                if (sharedSession !== null && deltaMs !== null) {
+                    validDeltasMs.push(deltaMs);
+                    if (deltaMs < 0) qualWins1++;
+                    else if (deltaMs > 0) qualWins2++;
+                }
+
+                // Race Head-to-Head, Grid vs Finish, DNF tracking
+                let hasRaceBoth = false;
+                let pos1 = null;
+                let pos2 = null;
+                let grid1 = null;
+                let grid2 = null;
+                let status1 = '';
+                let status2 = '';
+                let isDnf1 = false;
+                let isDnf2 = false;
+                let isMech1 = false;
+                let isMech2 = false;
+                let isExcludedMech = false;
+                let raceWinner = null;
+
+                if (r1Entry) {
+                    pos1 = parseInt(r1Entry.position, 10) || null;
+                    grid1 = parseInt(r1Entry.grid, 10) || 0;
+                    status1 = r1Entry.status || 'Finished';
+                    points1 += parseFloat(r1Entry.points || 0);
+                    isDnf1 = isDnfStatus(status1);
+                    isMech1 = isMechanicalDnf(status1);
+                    if (grid1 > 0 && pos1 !== null && !isDnf1) {
+                        gridGainSum1 += (grid1 - pos1);
+                        gridGainCount1++;
+                    }
+                }
+
+                if (r2Entry) {
+                    pos2 = parseInt(r2Entry.position, 10) || null;
+                    grid2 = parseInt(r2Entry.grid, 10) || 0;
+                    status2 = r2Entry.status || 'Finished';
+                    points2 += parseFloat(r2Entry.points || 0);
+                    isDnf2 = isDnfStatus(status2);
+                    isMech2 = isMechanicalDnf(status2);
+                    if (grid2 > 0 && pos2 !== null && !isDnf2) {
+                        gridGainSum2 += (grid2 - pos2);
+                        gridGainCount2++;
+                    }
+                }
+
+                if (r1Entry && r2Entry && d1.driverId !== d2.driverId) {
+                    hasRaceBoth = true;
+                    if (excludeMechanicalDnfs && (isMech1 || isMech2)) {
+                        isExcludedMech = true;
+                        mechExcludedCount++;
+                    } else if (pos1 !== null && pos2 !== null) {
+                        if (pos1 < pos2) {
+                            raceWins1++;
+                            raceWinner = 'd1';
+                        } else if (pos2 < pos1) {
+                            raceWins2++;
+                            raceWinner = 'd2';
+                        }
+                    }
+                }
+
+                roundDetails.push({
+                    round: rnd,
+                    raceName: roundMeta.raceName,
+                    shortName: roundMeta.shortName,
+                    hasSharedQual: sharedSession !== null,
+                    sharedSession: sharedSession || 'N/A',
+                    ms1: ms1,
+                    ms2: ms2,
+                    timeStr1: timeStr1 || (q1Entry?.Q1 || 'No Time'),
+                    timeStr2: timeStr2 || (q2Entry?.Q1 || 'No Time'),
+                    deltaMs: deltaMs,
+                    hasRaceBoth: hasRaceBoth,
+                    pos1: pos1,
+                    pos2: pos2,
+                    grid1: grid1,
+                    grid2: grid2,
+                    status1: status1,
+                    status2: status2,
+                    isDnf1: isDnf1,
+                    isDnf2: isDnf2,
+                    isMech1: isMech1,
+                    isMech2: isMech2,
+                    isExcludedMech: isExcludedMech,
+                    raceWinner: raceWinner
+                });
+            });
+
+            // Calculate median pace delta in milliseconds
+            let medianDeltaMs = 0;
+            if (validDeltasMs.length > 0) {
+                const sorted = [...validDeltasMs].sort((a, b) => a - b);
+                const mid = Math.floor(sorted.length / 2);
+                medianDeltaMs = sorted.length % 2 !== 0
+                    ? sorted[mid]
+                    : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+            }
+
+            const avgGridGain1 = gridGainCount1 > 0 ? (gridGainSum1 / gridGainCount1) : 0;
+            const avgGridGain2 = gridGainCount2 > 0 ? (gridGainSum2 / gridGainCount2) : 0;
+
+            return {
+                roundDetails,
+                qualWins1,
+                qualWins2,
+                sharedQualCount: validDeltasMs.length,
+                medianDeltaMs,
+                raceWins1,
+                raceWins2,
+                mechExcludedCount,
+                points1,
+                points2,
+                avgGridGain1,
+                avgGridGain2
+            };
+        }
+
+        function renderSelectedConstructorTelemetry() {
+            if (!currentTelemetryData) return;
+            const team = currentTelemetryData.constructors[selectedConstructorId];
+            if (!team || !team.pairings || team.pairings.length === 0) return;
+
+            // Render pair selector if > 1 pairing
+            const pairContainer = document.getElementById('driverPairSelectorContainer');
+            const pairButtons = document.getElementById('driverPairButtons');
+            if (team.pairings.length > 1 && pairContainer && pairButtons) {
+                pairContainer.style.display = 'flex';
+                pairButtons.innerHTML = team.pairings.map((pair, idx) => {
+                    const activeClass = idx === selectedDriverPairIndex ? 'active' : '';
+                    return `<button type="button" class="pair-pill-btn ${activeClass}" onclick="selectTelemetryDriverPair(${idx})">${pair[0].code} vs ${pair[1].code}</button>`;
+                }).join('');
+            } else if (pairContainer) {
+                pairContainer.style.display = 'none';
+            }
+
+            const pair = team.pairings[selectedDriverPairIndex] || team.pairings[0];
+            const d1 = pair[0];
+            const d2 = pair[1];
+
+            const d1Color = DRIVER_COLORS[d1.driverId] || team.neon;
+            let d2Color = DRIVER_COLORS[d2.driverId] || team.secondary;
+            if (d1Color.toLowerCase() === d2Color.toLowerCase()) {
+                d2Color = team.secondary || '#FFB347';
+            }
+
+            const stats = computePairTelemetry(currentTelemetryData, team, d1, d2);
+
+            // Update Hero Driver Cards
+            const card1 = document.getElementById('driverCard1');
+            const card2 = document.getElementById('driverCard2');
+            if (card1) {
+                card1.style.setProperty('--neon-d1', d1Color);
+                card1.style.setProperty('--neon-d1-glow', hexToRgba(d1Color, 0.5));
+            }
+            if (card2) {
+                card2.style.setProperty('--neon-d2', d2Color);
+                card2.style.setProperty('--neon-d2-glow', hexToRgba(d2Color, 0.5));
+            }
+
+            document.getElementById('driverNumber1').textContent = `#${d1.number}`;
+            document.getElementById('driverCode1').textContent = d1.code;
+            document.getElementById('driverName1').textContent = d1.name;
+            document.getElementById('driverTeam1').textContent = `${team.name} • ${stats.points1} PTS`;
+
+            document.getElementById('driverNumber2').textContent = `#${d2.number}`;
+            document.getElementById('driverCode2').textContent = d2.code;
+            document.getElementById('driverName2').textContent = d2.name;
+            document.getElementById('driverTeam2').textContent = `${team.name} • ${stats.points2} PTS`;
+
+            // Update Central Speed Trap Digital Readout
+            const medianDisplay = document.getElementById('medianDeltaDisplay');
+            const medianAdvText = document.getElementById('medianAdvantageText');
+            if (stats.sharedQualCount > 0) {
+                const sign = stats.medianDeltaMs > 0 ? '+' : '';
+                medianDisplay.textContent = `${sign}${stats.medianDeltaMs} ms`;
+                const advDriver = stats.medianDeltaMs <= 0 ? d1 : d2;
+                const advColor = stats.medianDeltaMs <= 0 ? d1Color : d2Color;
+                const secAbs = (Math.abs(stats.medianDeltaMs) / 1000).toFixed(3);
+                medianDisplay.style.color = advColor;
+                medianDisplay.style.textShadow = `0 0 18px ${hexToRgba(advColor, 0.65)}`;
+                medianAdvText.textContent = stats.medianDeltaMs === 0
+                    ? `EVEN MEDIAN PACE (0.000s)`
+                    : `▲ ${advDriver.code} PACE ADVANTAGE (-${secAbs}s / ${Math.abs(stats.medianDeltaMs)} ms)`;
+            } else {
+                medianDisplay.textContent = `N/A`;
+                medianAdvText.textContent = `NO SHARED QUALIFYING SESSIONS`;
+            }
+
+            // Update 5 KPI Metric Cards
+            document.getElementById('kpiQualH2H').innerHTML = `<span style="color:${d1Color}">${stats.qualWins1}</span> - <span style="color:${d2Color}">${stats.qualWins2}</span>`;
+            document.getElementById('kpiQualSub').textContent = `${stats.sharedQualCount} shared sessions (${d1.code} vs ${d2.code})`;
+
+            document.getElementById('kpiRaceH2H').innerHTML = `<span style="color:${d1Color}">${stats.raceWins1}</span> - <span style="color:${d2Color}">${stats.raceWins2}</span>`;
+            document.getElementById('kpiRaceSub').textContent = excludeMechanicalDnfs
+                ? `Excl. ${stats.mechExcludedCount} mechanical DNF${stats.mechExcludedCount === 1 ? '' : 's'}`
+                : `All shared race classifications`;
+
+            const medSign = stats.medianDeltaMs > 0 ? '+' : '';
+            document.getElementById('kpiMedianPace').textContent = `${medSign}${stats.medianDeltaMs} ms`;
+            document.getElementById('kpiMedianSub').textContent = `${medSign}${(stats.medianDeltaMs / 1000).toFixed(3)}s (${d1.code} vs ${d2.code})`;
+
+            const g1Sign = stats.avgGridGain1 >= 0 ? '+' : '';
+            const g2Sign = stats.avgGridGain2 >= 0 ? '+' : '';
+            document.getElementById('kpiGridGain').innerHTML = `<span style="color:${d1Color}">${g1Sign}${stats.avgGridGain1.toFixed(1)}</span> / <span style="color:${d2Color}">${g2Sign}${stats.avgGridGain2.toFixed(1)}</span>`;
+            document.getElementById('kpiGridSub').textContent = `Avg positions gained per finish`;
+
+            const totalPairPts = stats.points1 + stats.points2;
+            const share1 = totalPairPts > 0 ? ((stats.points1 / totalPairPts) * 100).toFixed(1) : '50.0';
+            const share2 = totalPairPts > 0 ? ((stats.points2 / totalPairPts) * 100).toFixed(1) : '50.0';
+            document.getElementById('kpiPointsShare').innerHTML = `<span style="color:${d1Color}">${share1}%</span> / <span style="color:${d2Color}">${share2}%</span>`;
+            document.getElementById('kpiPointsSub').textContent = `${stats.points1} pts vs ${stats.points2} pts`;
+
+            // Render Charts & Bilateral Table
+            renderTelemetryRadarChart(d1, d2, d1Color, d2Color, stats);
+            renderTelemetryDeltaChart(d1, d2, d1Color, d2Color, stats.roundDetails);
+            renderBilateralTelemetryTable(d1, d2, d1Color, d2Color, stats.roundDetails);
+        }
+
+        function renderTelemetryRadarChart(d1, d2, d1Color, d2Color, stats) {
+            const ctx = document.getElementById('telemetryRadarChart');
+            if (!ctx) return;
+
+            const totalQual = stats.qualWins1 + stats.qualWins2;
+            const qualScore1 = totalQual > 0 ? (stats.qualWins1 / totalQual) * 100 : 50;
+            const qualScore2 = totalQual > 0 ? (stats.qualWins2 / totalQual) * 100 : 50;
+
+            const totalRace = stats.raceWins1 + stats.raceWins2;
+            const raceScore1 = totalRace > 0 ? (stats.raceWins1 / totalRace) * 100 : 50;
+            const raceScore2 = totalRace > 0 ? (stats.raceWins2 / totalRace) * 100 : 50;
+
+            const gridScore1 = Math.min(100, Math.max(10, 50 + stats.avgGridGain1 * 10));
+            const gridScore2 = Math.min(100, Math.max(10, 50 + stats.avgGridGain2 * 10));
+
+            const totalPts = stats.points1 + stats.points2;
+            const ptsScore1 = totalPts > 0 ? (stats.points1 / totalPts) * 100 : 50;
+            const ptsScore2 = totalPts > 0 ? (stats.points2 / totalPts) * 100 : 50;
+
+            if (telemetryRadarChartInstance) {
+                telemetryRadarChartInstance.destroy();
+            }
+
+            telemetryRadarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Qualifying Pace', 'Race Head-to-Head', 'Grid Gain', 'Points Share'],
+                    datasets: [
+                        {
+                            label: `${d1.name} (${d1.code})`,
+                            data: [qualScore1, raceScore1, gridScore1, ptsScore1],
+                            borderColor: d1Color,
+                            backgroundColor: hexToRgba(d1Color, 0.25),
+                            borderWidth: 2.5,
+                            pointBackgroundColor: d1Color,
+                            pointBorderColor: '#0B0E14',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: `${d2.name} (${d2.code})`,
+                            data: [qualScore2, raceScore2, gridScore2, ptsScore2],
+                            borderColor: d2Color,
+                            backgroundColor: hexToRgba(d2Color, 0.25),
+                            borderWidth: 2.5,
+                            pointBackgroundColor: d2Color,
+                            pointBorderColor: '#0B0E14',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    resizeDelay: 150,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                stepSize: 25,
+                                display: false,
+                                backdropColor: 'transparent'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)'
+                            },
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.14)'
+                            },
+                            pointLabels: {
+                                color: '#e2e8f0',
+                                font: {
+                                    family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                                    size: 11.5,
+                                    weight: '700'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { size: 12, weight: '600' },
+                                usePointStyle: true,
+                                boxWidth: 10,
+                                padding: 14
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(11, 14, 20, 0.95)',
+                            borderColor: '#232738',
+                            borderWidth: 1,
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            callbacks: {
+                                label: (context) => ` ${context.dataset.label}: ${context.raw.toFixed(1)}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTelemetryDeltaChart(d1, d2, d1Color, d2Color, roundDetails) {
+            const ctx = document.getElementById('telemetryDeltaChart');
+            if (!ctx) return;
+
+            const labels = roundDetails.map(r => r.shortName);
+            const deltasSec = roundDetails.map(r => {
+                if (!r.hasSharedQual || r.deltaMs === null) return 0;
+                // Clamp extreme wet/spin outliers to +/- 2.5s so chart remains readable
+                const sec = r.deltaMs / 1000;
+                return Math.max(-2.5, Math.min(2.5, sec));
+            });
+
+            const barColors = roundDetails.map(r => {
+                if (!r.hasSharedQual || r.deltaMs === null) return 'rgba(255,255,255,0.08)';
+                return r.deltaMs <= 0 ? hexToRgba(d1Color, 0.85) : hexToRgba(d2Color, 0.85);
+            });
+
+            const borderColors = roundDetails.map(r => {
+                if (!r.hasSharedQual || r.deltaMs === null) return 'rgba(255,255,255,0.15)';
+                return r.deltaMs <= 0 ? d1Color : d2Color;
+            });
+
+            let maxAbs = 0.5;
+            deltasSec.forEach(v => {
+                if (Math.abs(v) > maxAbs) maxAbs = Math.abs(v);
+            });
+            const axisBound = Math.ceil((maxAbs + 0.15) * 10) / 10;
+
+            if (telemetryDeltaChartInstance) {
+                telemetryDeltaChartInstance.destroy();
+            }
+
+            telemetryDeltaChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Lap Pace Delta (s)`,
+                        data: deltasSec,
+                        backgroundColor: barColors,
+                        borderColor: borderColors,
+                        borderWidth: 1.5,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    resizeDelay: 150,
+                    scales: {
+                        x: {
+                            min: -axisBound,
+                            max: axisBound,
+                            title: {
+                                display: true,
+                                text: `◄ ${d1.code} Faster (s)  |  0.000s Baseline  |  ${d2.code} Faster (s) ►`,
+                                color: '#94a3b8',
+                                font: { size: 11, weight: '700' }
+                            },
+                            grid: {
+                                color: (context) => context.tick?.value === 0 ? '#e10600' : 'rgba(255, 255, 255, 0.05)',
+                                lineWidth: (context) => context.tick?.value === 0 ? 2 : 1
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { family: 'monospace', size: 10 },
+                                callback: (val) => val === 0 ? '0.0s' : (val > 0 ? `+${val.toFixed(1)}s` : `${val.toFixed(1)}s`)
+                            }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#cbd5e1',
+                                font: { size: 10.5, weight: '600' },
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(11, 14, 20, 0.95)',
+                            borderColor: '#232738',
+                            borderWidth: 1,
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            callbacks: {
+                                title: (items) => {
+                                    if (!items.length) return '';
+                                    const r = roundDetails[items[0].dataIndex];
+                                    return `${r.raceName} (Round ${r.round})`;
+                                },
+                                label: (context) => {
+                                    const r = roundDetails[context.dataIndex];
+                                    if (!r.hasSharedQual || r.deltaMs === null) {
+                                        return ' No shared qualifying lap time';
+                                    }
+                                    const fasterCode = r.deltaMs <= 0 ? d1.code : d2.code;
+                                    const absSec = (Math.abs(r.deltaMs) / 1000).toFixed(3);
+                                    return [
+                                        ` Shared Session: ${r.sharedSession}`,
+                                        ` ${d1.code}: ${r.timeStr1}`,
+                                        ` ${d2.code}: ${r.timeStr2}`,
+                                        ` Pace Delta: ${fasterCode} -${absSec}s (${r.deltaMs > 0 ? '+' : ''}${r.deltaMs} ms)`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBilateralTelemetryTable(d1, d2, d1Color, d2Color, roundDetails) {
+            const th1 = document.getElementById('thDriver1Col');
+            const th2 = document.getElementById('thDriver2Col');
+            const tbody = document.getElementById('bilateralTableBody');
+            if (!tbody) return;
+
+            if (th1) th1.innerHTML = `<span style="color:${d1Color}">${d1.code}</span> Lap & Delta`;
+            if (th2) th2.innerHTML = `<span style="color:${d2Color}">${d2.code}</span> Lap & Delta`;
+
+            const maxRefMs = 1000; // 1.000s full scale for bilateral visual bar
+
+            tbody.innerHTML = roundDetails.map(r => {
+                const sessClass = r.hasSharedQual ? r.sharedSession.toLowerCase() : 'na';
+                let leftWidth = 0;
+                let rightWidth = 0;
+                let d1DeltaBadge = '';
+                let d2DeltaBadge = '';
+
+                if (r.hasSharedQual && r.deltaMs !== null) {
+                    const absMs = Math.abs(r.deltaMs);
+                    const absSecStr = (absMs / 1000).toFixed(3);
+                    const pct = Math.min(100, Math.round((absMs / maxRefMs) * 100));
+
+                    if (r.deltaMs < 0) {
+                        leftWidth = pct;
+                        d1DeltaBadge = `<span class="delta-val faster">-${absSecStr}s</span>`;
+                        d2DeltaBadge = `<span class="delta-val slower">+${absSecStr}s</span>`;
+                    } else if (r.deltaMs > 0) {
+                        rightWidth = pct;
+                        d1DeltaBadge = `<span class="delta-val slower">+${absSecStr}s</span>`;
+                        d2DeltaBadge = `<span class="delta-val faster">-${absSecStr}s</span>`;
+                    } else {
+                        d1DeltaBadge = `<span class="delta-val">0.000s</span>`;
+                        d2DeltaBadge = `<span class="delta-val">0.000s</span>`;
+                    }
+                } else {
+                    d1DeltaBadge = `<span class="delta-val slower">--</span>`;
+                    d2DeltaBadge = `<span class="delta-val slower">--</span>`;
+                }
+
+                // Race H2H cell
+                let raceHtml = '<span style="color:#64748b;">N/A</span>';
+                if (r.pos1 !== null || r.pos2 !== null) {
+                    const p1Label = r.isDnf1 ? 'DNF' : (r.pos1 ? `P${r.pos1}` : '--');
+                    const p2Label = r.isDnf2 ? 'DNF' : (r.pos2 ? `P${r.pos2}` : '--');
+
+                    const b1Class = r.isExcludedMech ? 'h2h-badge loser' : (r.raceWinner === 'd1' ? 'h2h-badge winner' : 'h2h-badge loser');
+                    const b2Class = r.isExcludedMech ? 'h2h-badge loser' : (r.raceWinner === 'd2' ? 'h2h-badge winner' : 'h2h-badge loser');
+
+                    const dnf1Tag = r.isDnf1
+                        ? `<span class="dnf-pill ${r.isMech1 ? 'mech' : 'driver'}" title="${r.status1}">${r.status1}</span>`
+                        : '';
+                    const dnf2Tag = r.isDnf2
+                        ? `<span class="dnf-pill ${r.isMech2 ? 'mech' : 'driver'}" title="${r.status2}">${r.status2}</span>`
+                        : '';
+
+                    const exclTag = r.isExcludedMech
+                        ? `<span class="mech-excluded-badge">Mech DNF Excluded</span>`
+                        : '';
+
+                    raceHtml = `
+                        <span class="${b1Class}">${d1.code} ${p1Label}${dnf1Tag}</span>
+                        <span style="color:#475569; margin:0 3px;">vs</span>
+                        <span class="${b2Class}">${d2.code} ${p2Label}${dnf2Tag}</span>
+                        ${exclTag}
+                    `;
+                }
+
+                return `
+                    <tr>
+                        <td>
+                            <span style="font-family:var(--font-mono); color:#64748b; font-size:0.78rem; margin-right:6px;">R${String(r.round).padStart(2, '0')}</span>
+                            <strong style="color:#f3f4f6;">${r.shortName}</strong>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="session-badge ${sessClass}">${r.sharedSession}</span>
+                        </td>
+                        <td class="time-cell" style="text-align:right;">
+                            <span>${r.timeStr1}</span>
+                            ${d1DeltaBadge}
+                        </td>
+                        <td>
+                            <div class="bilateral-bar-wrap" title="${d1.code} vs ${d2.code}">
+                                <div class="bilateral-half-left">
+                                    <div class="bilateral-fill-l" style="width:${leftWidth}%; background-color:${d1Color}; box-shadow:0 0 8px ${d1Color};"></div>
+                                </div>
+                                <div class="bilateral-zero-line"></div>
+                                <div class="bilateral-half-right">
+                                    <div class="bilateral-fill-r" style="width:${rightWidth}%; background-color:${d2Color}; box-shadow:0 0 8px ${d2Color};"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="time-cell" style="text-align:left;">
+                            ${d2DeltaBadge}
+                            <span>${r.timeStr2}</span>
+                        </td>
+                        <td class="h2h-cell">
+                            ${raceHtml}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function switchMainTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const telemetrySec = document.getElementById('teammate-telemetry-section');
+            const progressionSec = document.getElementById('progression-section');
+            const latestRaceSec = document.getElementById('latest-race-section');
+            const standingsTableSec = document.getElementById('standings-table-section');
+
+            if (tabId === 'telemetry') {
+                if (telemetrySec) telemetrySec.style.display = 'block';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'progression') {
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'block';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'results') {
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'block';
+                if (standingsTableSec) standingsTableSec.style.display = 'block';
+            } else {
+                if (telemetrySec) telemetrySec.style.display = 'block';
+                if (progressionSec) progressionSec.style.display = 'block';
+                if (latestRaceSec) latestRaceSec.style.display = 'block';
+                if (standingsTableSec) standingsTableSec.style.display = 'block';
+            }
+
+            setTimeout(() => {
+                if (chartInstance) chartInstance.resize();
+                if (telemetryRadarChartInstance) telemetryRadarChartInstance.resize();
+                if (telemetryDeltaChartInstance) telemetryDeltaChartInstance.resize();
+            }, 50);
+        }
+
+        window.addEventListener('resize', () => {
+            if (telemetryRadarChartInstance) telemetryRadarChartInstance.resize();
+            if (telemetryDeltaChartInstance) telemetryDeltaChartInstance.resize();
+            if (chartInstance) chartInstance.resize();
+        });
+
         // ==========================================
         // Page Initialization & Event Listeners
         // ==========================================
@@ -1409,6 +3454,11 @@
                 });
                 // Initial load of Driver Standings Progression Chart
                 loadSeasonStandingsProgression(seasonSelect.value);
+            }
+
+            const telemetrySeasonSelect = document.getElementById('telemetrySeasonSelect');
+            if (telemetrySeasonSelect) {
+                loadTelemetrySeason(telemetrySeasonSelect.value);
             }
         });
     </script>
