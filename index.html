@@ -1340,6 +1340,643 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ==========================================================
+           Pit Stop Crew Performance Matrix & Stationary Benchmarks (Issue #2)
+           ========================================================== */
+        :root {
+            --neon-green: #00FF66;
+            --neon-green-glow: rgba(0, 255, 102, 0.45);
+            --neon-amber: #FFB800;
+            --neon-amber-glow: rgba(255, 184, 0, 0.45);
+            --neon-red: #FF3366;
+            --neon-red-glow: rgba(255, 51, 102, 0.45);
+            --telemetry-surface: #0D1117;
+            --telemetry-surface-card: #121824;
+        }
+
+        .pitstop-section {
+            background: linear-gradient(180deg, var(--telemetry-surface-card) 0%, var(--telemetry-surface) 100%);
+            border: 1px solid var(--telemetry-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .pitstop-header-accent {
+            background-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .pitstop-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 14px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: #090C10;
+            border: 1px solid var(--telemetry-border);
+            border-radius: 8px;
+        }
+
+        .pitstop-selectors-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        /* Top HUD KPI Cards */
+        .pitstop-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .pitstop-kpi-card {
+            background: var(--telemetry-surface);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .pitstop-kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: #384258;
+        }
+
+        .pitstop-kpi-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--card-accent, var(--neon-green)), transparent);
+        }
+
+        .pitstop-kpi-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pitstop-kpi-val {
+            font-family: var(--font-mono);
+            font-size: 1.85rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .pitstop-kpi-sub {
+            font-size: 0.78rem;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .val-neon-green {
+            color: var(--neon-green);
+            text-shadow: 0 0 12px var(--neon-green-glow);
+        }
+
+        .val-neon-amber {
+            color: var(--neon-amber);
+            text-shadow: 0 0 10px var(--neon-amber-glow);
+        }
+
+        .val-neon-red {
+            color: var(--neon-red);
+            text-shadow: 0 0 10px var(--neon-red-glow);
+        }
+
+        .val-neon-cyan {
+            color: #00D2BE;
+            text-shadow: 0 0 10px rgba(0, 210, 190, 0.45);
+        }
+
+        /* Distribution Visualization Container */
+        .pitstop-chart-container {
+            background: var(--telemetry-surface);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .pitstop-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pitstop-chart-header h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pitstop-chart-legend-pills {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+
+        .pitstop-legend-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pitstop-legend-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        /* Sub-2.5s Flawless Box Odometer Badges Grid */
+        .flawless-odometer-section {
+            background: var(--telemetry-surface);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .pitstop-subhead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pitstop-subhead h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .odometer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+        }
+
+        .odometer-card {
+            background: #090C10;
+            border: 1px solid var(--telemetry-border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid var(--team-color, #00D2BE);
+            transition: all 0.2s ease;
+        }
+
+        .odometer-card:hover {
+            transform: translateY(-2px);
+            border-color: #384258;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+        }
+
+        .odometer-team-name {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #E2E8F0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .odometer-readout-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 6px 0;
+        }
+
+        .odometer-digits {
+            font-family: var(--font-mono);
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green-glow);
+            letter-spacing: 0.5px;
+        }
+
+        .odometer-digits .denom {
+            font-size: 0.85rem;
+            color: #64748B;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
+        .odometer-pct-badge {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(0, 255, 102, 0.12);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 102, 0.3);
+        }
+
+        .odometer-pct-badge.amber {
+            background: rgba(255, 184, 0, 0.12);
+            color: var(--neon-amber);
+            border-color: rgba(255, 184, 0, 0.3);
+        }
+
+        .odometer-pct-badge.muted {
+            background: rgba(148, 163, 184, 0.1);
+            color: #94A3B8;
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .odometer-meter-track {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+            margin-bottom: 8px;
+        }
+
+        .odometer-meter-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .odometer-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: #94A3B8;
+        }
+
+        .odometer-card-footer strong {
+            font-family: var(--font-mono);
+            color: #F1F5F9;
+        }
+
+        /* DHL Fastest Pit Stop Leaderboard */
+        .dhl-leaderboard-section {
+            background: var(--telemetry-surface);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .dhl-brand-tag {
+            background: linear-gradient(135deg, #FFCC00, #FFB800);
+            color: #D40511;
+            font-weight: 900;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 4px rgba(255, 204, 0, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dhl-ranks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
+
+        .dhl-rank-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #090C10;
+            border: 1px solid var(--telemetry-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            transition: all 0.2s ease;
+        }
+
+        .dhl-rank-item:hover {
+            border-color: #3B4760;
+            background: #0E131C;
+        }
+
+        .dhl-rank-item.rank-1 {
+            border-color: rgba(245, 158, 11, 0.6);
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, #090C10 100%);
+        }
+
+        .dhl-rank-item.rank-2 {
+            border-color: rgba(156, 163, 175, 0.5);
+            background: linear-gradient(90deg, rgba(156, 163, 175, 0.08) 0%, #090C10 100%);
+        }
+
+        .dhl-rank-item.rank-3 {
+            border-color: rgba(217, 119, 6, 0.5);
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.08) 0%, #090C10 100%);
+        }
+
+        .dhl-rank-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dhl-pos-badge {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 900;
+            width: 32px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: #171E2D;
+            color: #94A3B8;
+            border: 1px solid #283348;
+        }
+
+        .dhl-pos-badge.gold {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+            border: none;
+        }
+
+        .dhl-pos-badge.silver {
+            background: linear-gradient(135deg, #E2E8F0, #94A3B8);
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 0 6px rgba(148, 163, 184, 0.4);
+            border: none;
+        }
+
+        .dhl-pos-badge.bronze {
+            background: linear-gradient(135deg, #D97706, #78350F);
+            color: #FFF;
+            font-weight: 900;
+            box-shadow: 0 0 6px rgba(217, 119, 6, 0.4);
+            border: none;
+        }
+
+        .dhl-driver-code {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .dhl-driver-sub {
+            font-size: 0.72rem;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dhl-team-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dhl-timing-right {
+            text-align: right;
+        }
+
+        .dhl-stationary-time {
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green-glow);
+        }
+
+        .dhl-lap-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: #64748B;
+        }
+
+        /* Constructor Crew Performance Matrix Table */
+        .pitstop-matrix-section {
+            background: var(--telemetry-surface);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .pitstop-table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--telemetry-border);
+        }
+
+        .pitstop-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+            text-align: left;
+            background: #090C10;
+        }
+
+        .pitstop-table th {
+            background: #121824;
+            color: #94A3B8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--telemetry-border);
+            white-space: nowrap;
+        }
+
+        .pitstop-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #E2E8F0;
+            white-space: nowrap;
+        }
+
+        .pitstop-table tr:hover td {
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .pitstop-team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .pitstop-team-pill-bar {
+            width: 4px;
+            height: 18px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .table-mono-num {
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .iqr-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .iqr-badge.tight {
+            background: rgba(0, 255, 102, 0.12);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 102, 0.3);
+        }
+
+        .iqr-badge.medium {
+            background: rgba(255, 184, 0, 0.12);
+            color: var(--neon-amber);
+            border: 1px solid rgba(255, 184, 0, 0.3);
+        }
+
+        .iqr-badge.wide {
+            background: rgba(255, 51, 102, 0.12);
+            color: var(--neon-red);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        /* Outlier Demarcation Badges */
+        .outlier-tag {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .outlier-tag.amber {
+            background: rgba(255, 184, 0, 0.15);
+            color: var(--neon-amber);
+            border: 1px solid rgba(255, 184, 0, 0.4);
+        }
+
+        .outlier-tag.red {
+            background: rgba(255, 51, 102, 0.15);
+            color: var(--neon-red);
+            border: 1px solid rgba(255, 51, 102, 0.4);
+        }
+
+        .outlier-tag.clean {
+            background: rgba(255, 255, 255, 0.05);
+            color: #64748B;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Segregated Outlier Panel */
+        .segregated-outliers-panel {
+            background: #090C10;
+            border: 1px solid rgba(255, 184, 0, 0.25);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 18px;
+        }
+
+        .outliers-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--neon-amber);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .outliers-chips-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .outlier-chip {
+            background: #141923;
+            border: 1px solid #232C3D;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .outlier-chip.critical {
+            border-color: rgba(255, 51, 102, 0.4);
+        }
+
+        .outlier-chip.warning {
+            border-color: rgba(255, 184, 0, 0.4);
+        }
+
     </style>
 </head>
 <body>
@@ -1364,6 +2001,9 @@
             <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
                 <span class="tab-icon">👁️</span> All Telemetry & Standings
             </button>
+            <button type="button" class="tab-btn" id="tabBtnPitStops" onclick="switchMainTab('pitstops')">
+                <span class="tab-icon">⏱️</span> Pit Stop Performance Matrix
+            </button>
             <button type="button" class="tab-btn" id="tabBtnTelemetry" onclick="switchMainTab('telemetry')">
                 <span class="tab-icon">⚡</span> Teammate Head-to-Head Telemetry
             </button>
@@ -1374,6 +2014,216 @@
                 <span class="tab-icon">🏁</span> Latest Race & Driver Standings
             </button>
         </nav>
+
+        <!-- Pit Stop Crew Performance Matrix & Stationary Benchmarks Section (Issue #2) -->
+        <section class="card telemetry-section pitstop-section" id="pitstop-matrix-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent pitstop-header-accent"></div>
+                    <h2>Pit Stop Crew Performance Matrix & Stationary Benchmarks</h2>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="pitStopSeasonSelect">Championship Season:</label>
+                        <select id="pitStopSeasonSelect" class="season-dropdown" onchange="onPitStopSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2025">2025 Season</option>
+                            <option value="2026">2026 Season</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="pitStopRoundSelect">Race / Round Event:</label>
+                        <select id="pitStopRoundSelect" class="season-dropdown" onchange="onPitStopRoundChange(this.value)">
+                            <option value="all" selected>All Season (Full Season Aggregation)</option>
+                            <option value="1">Round 1: Bahrain Grand Prix</option>
+                        </select>
+                    </div>
+                    <span id="pitStopCacheBadge" class="cache-badge cached">⚡ Cached (Instant)</span>
+                    <button type="button" class="btn-refresh" id="btnPitStopRefresh" onclick="refreshPitStopData()" title="Re-fetch fresh pit stop data from API">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Pit Telemetry
+                    </button>
+                </div>
+            </div>
+
+            <p class="section-subtitle">
+                High-frequency pit lane telemetry: constructor crew stationary durations, IQR distribution spreads, sub-2.5s flawless box rate, DHL fastest pit stop leaderboard, and outlier penalty segregation.
+            </p>
+
+            <!-- Cockpit Controls Bar: Outlier Penalty Segregation Toggle & Filter Info -->
+            <div class="pitstop-controls-row">
+                <div class="pitstop-selectors-group">
+                    <div class="cockpit-toggle-wrap" style="margin: 0;">
+                        <div class="toggle-text-block">
+                            <span class="toggle-title">OUTLIER & PENALTY SEGREGATION</span>
+                            <span class="toggle-desc" id="pitStopOutlierDesc">Isolate crew baseline speed (stops &gt;5.0s / 10.0s penalties & repairs segregated)</span>
+                        </div>
+                        <label class="mech-switch" title="Segregate penalties and repair stops">
+                            <input type="checkbox" id="pitStopOutlierToggle" checked onchange="onPitStopOutlierToggleChange(this.checked)">
+                            <span class="mech-slider">
+                                <span class="switch-indicator-led"></span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="stat-pills" id="pitStopQuickStatsPills">
+                    <!-- Dynamic mini chips -->
+                </div>
+            </div>
+
+            <!-- Pit Stop Live Progress Indicator (Hidden when cached/complete) -->
+            <div id="pitStopProgressContainer" class="progress-card" style="display: none;">
+                <div class="progress-header">
+                    <div class="progress-title-block">
+                        <div class="spinner"></div>
+                        <span id="pitStopProgressText" class="progress-text">Fetching pit stop telemetry...</span>
+                    </div>
+                    <span class="progress-rate-note">Jolpica Ergast Pitstop Feed</span>
+                </div>
+                <div class="progress-track">
+                    <div id="pitStopProgressBarFill" class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-footer">
+                    <span>Querying pitstops.json & results.json</span>
+                    <span>Cached in localStorage for instant switching</span>
+                </div>
+            </div>
+
+            <!-- Pit Stop Error Notification -->
+            <div id="pitStopError" class="error-message" style="display: none;"></div>
+
+            <!-- Main Pit Stop Telemetry Content -->
+            <div id="pitStopMainContent">
+                <!-- 4 Top KPI Telemetry HUD Cards -->
+                <div class="pitstop-kpi-grid">
+                    <div class="pitstop-kpi-card" style="--card-accent: var(--neon-green);">
+                        <div class="pitstop-kpi-label">
+                            <span>Fastest Stop (DHL Award)</span>
+                            <span class="dhl-brand-tag">DHL</span>
+                        </div>
+                        <div class="pitstop-kpi-val val-neon-green" id="kpiPitFastest">-- s</div>
+                        <div class="pitstop-kpi-sub" id="kpiPitFastestSub">Calculating event minimum...</div>
+                    </div>
+                    <div class="pitstop-kpi-card" style="--card-accent: #00D2BE;">
+                        <div class="pitstop-kpi-label">
+                            <span>Field Median Stationary</span>
+                            <span>⏱️ 50th %</span>
+                        </div>
+                        <div class="pitstop-kpi-val val-neon-cyan" id="kpiPitMedian">-- s</div>
+                        <div class="pitstop-kpi-sub" id="kpiPitMedianSub">Clean stops baseline</div>
+                    </div>
+                    <div class="pitstop-kpi-card" style="--card-accent: var(--neon-green);">
+                        <div class="pitstop-kpi-label">
+                            <span>Flawless Box Rate (&lt;2.50s)</span>
+                            <span>⚡ SPEED</span>
+                        </div>
+                        <div class="pitstop-kpi-val val-neon-green" id="kpiPitFlawless">--%</div>
+                        <div class="pitstop-kpi-sub" id="kpiPitFlawlessSub">-- of -- stops</div>
+                    </div>
+                    <div class="pitstop-kpi-card" style="--card-accent: var(--neon-amber);">
+                        <div class="pitstop-kpi-label">
+                            <span>Flagged Outliers (&gt;5.0s)</span>
+                            <span>⚠️ INCIDENTS</span>
+                        </div>
+                        <div class="pitstop-kpi-val val-neon-amber" id="kpiPitOutliers">--</div>
+                        <div class="pitstop-kpi-sub" id="kpiPitOutliersSub">Penalties & wing changes</div>
+                    </div>
+                </div>
+
+                <!-- Box-and-Whisker / Horizontal Distribution Chart.js Visualization -->
+                <div class="pitstop-chart-container">
+                    <div class="pitstop-chart-header">
+                        <h3>
+                            <span>📊</span> Constructor Pit Stop Duration Spreads &amp; Stationary Benchmarks
+                        </h3>
+                        <div class="pitstop-chart-legend-pills">
+                            <span class="pitstop-legend-pill">
+                                <span class="pitstop-legend-indicator" style="background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green);"></span> Fastest Stop (Min)
+                            </span>
+                            <span class="pitstop-legend-pill">
+                                <span class="pitstop-legend-indicator" style="background: #FFFFFF;"></span> Median Stationary Time
+                            </span>
+                            <span class="pitstop-legend-pill">
+                                <span class="pitstop-legend-indicator" style="background: rgba(0, 210, 190, 0.65); border: 1px solid #00D2BE;"></span> Interquartile Range (Q1 - Q3)
+                            </span>
+                            <span class="pitstop-legend-pill">
+                                <span class="pitstop-legend-indicator" style="background: rgba(255, 184, 0, 0.4); border: 1px dashed #FFB800;"></span> Outlier Demarcation (&gt;5s)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper" style="position: relative; width: 100%; height: 420px; max-height: 440px;">
+                        <canvas id="pitStopDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Sub-2.5s 'Flawless Box' Metric Odometer Grid -->
+                <div class="flawless-odometer-section">
+                    <div class="pitstop-subhead">
+                        <h3><span>⚡</span> Sub-2.5s "Flawless Box" Metric Counters (Odometer Badges)</h3>
+                        <span class="odometer-legend" style="font-size: 0.78rem; color: #94A3B8;">Neon Digital Odometer Tracking Stationary Stops &lt; 2.50s</span>
+                    </div>
+                    <div class="odometer-grid" id="pitStopOdometerGrid">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- DHL Fastest Pit Stop Leaderboard (Top 10) -->
+                <div class="dhl-leaderboard-section">
+                    <div class="pitstop-subhead">
+                        <h3>
+                            <span class="dhl-brand-tag">DHL</span>
+                            Fastest Pit Stop Leaderboard (Top 10 Monospace Badges)
+                        </h3>
+                        <span style="font-size: 0.78rem; color: #94A3B8;">Ranked by stationary duration with lap attribution</span>
+                    </div>
+                    <div class="dhl-ranks-grid" id="pitStopDhlLeaderboard">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- Constructor Crew Performance Matrix Table -->
+                <div class="pitstop-matrix-section">
+                    <div class="pitstop-subhead">
+                        <h3><span>🏁</span> Constructor Crew Performance Matrix &amp; Statistical Benchmark</h3>
+                        <span style="font-size: 0.78rem; color: #94A3B8;">Median, IQR Consistency, Spread, and Segregated Penalties</span>
+                    </div>
+                    <div class="pitstop-table-wrapper">
+                        <table class="pitstop-table" id="pitStopMatrixTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%; text-align: center;">Rank</th>
+                                    <th style="width: 22%;">Constructor Team</th>
+                                    <th style="width: 8%; text-align: center;">Stops</th>
+                                    <th style="width: 13%; text-align: right;">Fastest Stop</th>
+                                    <th style="width: 11%; text-align: right;">Median Time</th>
+                                    <th style="width: 13%; text-align: center;">Q1 - Q3 Spread</th>
+                                    <th style="width: 10%; text-align: center;">IQR Consistency</th>
+                                    <th style="width: 10%; text-align: center;">Flawless &lt;2.5s</th>
+                                    <th style="width: 8%; text-align: center;">Outliers</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pitStopMatrixTableBody">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Flagged Outliers & Penalty Segregation Panel -->
+                    <div class="segregated-outliers-panel" id="pitStopOutliersDrawer">
+                        <div class="outliers-panel-header">
+                            <span>Flagged Outliers &amp; Incidents Panel (&gt;5.0s / &gt;10.0s)</span>
+                            <span id="pitStopOutlierIsolationStatus" style="font-size: 0.72rem; color: #94A3B8;">Segregated from baseline crew statistics</span>
+                        </div>
+                        <div class="outliers-chips-list" id="pitStopOutliersChips">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Teammate Head-to-Head Telemetry & Qualifying Pace Deltas Section (Issue #1) -->
         <section class="card telemetry-section" id="teammate-telemetry-section">
