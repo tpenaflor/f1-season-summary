@@ -10,13 +10,14 @@
         :root {
             --f1-red: #e10600;
             --f1-red-dark: #b80500;
-            --f1-black: #15151e;
-            --f1-dark-card: #1e1e2d;
-            --bg-color: #f6f7fb;
-            --card-bg: #ffffff;
-            --border-color: #e5e7eb;
-            --text-main: #111827;
-            --text-muted: #6b7280;
+            --f1-black: #0c0d12;
+            --f1-dark-card: #151822;
+            --bg-color: #0c0d12;
+            --card-bg: #151822;
+            --border-color: #232738;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --header-bar: #0c0d12;
             --p1-gold: #f59e0b;
             --p2-silver: #9ca3af;
             --p3-bronze: #d97706;
@@ -40,16 +41,17 @@
         /* Top Racing Stripe Header */
         .top-stripe {
             height: 6px;
-            background: linear-gradient(90deg, var(--f1-red) 0%, #ff3b30 50%, var(--f1-black) 100%);
+            background: linear-gradient(90deg, var(--f1-red) 0%, #ff3b30 50%, #0c0d12 100%);
             width: 100%;
         }
 
         .header-bar {
-            background-color: var(--f1-black);
+            background-color: var(--header-bar);
             color: #ffffff;
             padding: 24px 20px;
             margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .header-container {
@@ -89,7 +91,7 @@
 
         .header-titles p {
             font-size: 0.9rem;
-            color: #9ca3af;
+            color: var(--text-muted);
             margin-top: 2px;
         }
 
@@ -127,14 +129,15 @@
             background-color: var(--card-bg);
             border-radius: 12px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
             padding: 24px;
             margin-bottom: 24px;
-            transition: box-shadow 0.2s ease;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         .card:hover {
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+            border-color: rgba(225, 6, 0, 0.35);
         }
 
         .section-header {
@@ -144,7 +147,7 @@
             flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 18px;
-            border-bottom: 2px solid #f3f4f6;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
         }
 
@@ -164,7 +167,7 @@
         h2 {
             font-size: 1.35rem;
             font-weight: 700;
-            color: var(--f1-black);
+            color: var(--text-main);
         }
 
         .section-subtitle {
@@ -181,7 +184,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
-            background-color: #f9fafb;
+            background-color: #0f1118;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 14px 18px;
@@ -197,35 +200,40 @@
         .dropdown-group label {
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--f1-black);
+            color: var(--text-main);
         }
 
         .season-dropdown {
             font-family: inherit;
             font-size: 0.92rem;
             font-weight: 600;
-            color: var(--f1-black);
-            background-color: #ffffff;
-            border: 1.5px solid #d1d5db;
+            color: var(--text-main);
+            background-color: #1a1e2b;
+            border: 1.5px solid var(--border-color);
             border-radius: 8px;
             padding: 7px 32px 7px 12px;
             cursor: pointer;
             transition: all 0.2s ease;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 10px center;
             background-size: 16px;
         }
 
         .season-dropdown:hover {
-            border-color: #9ca3af;
+            border-color: #4b5563;
         }
 
         .season-dropdown:focus {
             outline: none;
             border-color: var(--f1-red);
-            box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.15);
+            box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.25);
+        }
+
+        .season-dropdown option {
+            background-color: #151822;
+            color: var(--text-main);
         }
 
         .filter-actions {
@@ -248,23 +256,23 @@
             font-weight: 600;
             padding: 6px 14px;
             border-radius: 6px;
-            border: 1px solid #d1d5db;
-            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            background-color: #1a1e2b;
             color: var(--text-main);
             cursor: pointer;
             transition: all 0.15s ease;
         }
 
         .btn-filter:hover {
-            background-color: #f3f4f6;
-            border-color: #9ca3af;
+            background-color: #24293a;
+            border-color: #4b5563;
         }
 
         .btn-filter.active {
-            background-color: var(--f1-black);
+            background-color: var(--f1-red);
             color: #ffffff;
-            border-color: var(--f1-black);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            border-color: var(--f1-red);
+            box-shadow: 0 2px 8px rgba(225, 6, 0, 0.4);
         }
 
         .btn-refresh {
@@ -273,8 +281,8 @@
             font-weight: 600;
             padding: 6px 12px;
             border-radius: 6px;
-            border: 1px solid #d1d5db;
-            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            background-color: #1a1e2b;
             color: var(--text-main);
             cursor: pointer;
             display: inline-flex;
@@ -284,9 +292,9 @@
         }
 
         .btn-refresh:hover {
-            background-color: #fef2f2;
-            color: var(--f1-red);
-            border-color: #fca5a5;
+            background-color: rgba(225, 6, 0, 0.15);
+            color: #ff5757;
+            border-color: rgba(225, 6, 0, 0.4);
         }
 
         .cache-badge {
@@ -300,15 +308,15 @@
         }
 
         .cache-badge.cached {
-            background-color: #ecfdf5;
-            color: #059669;
-            border: 1px solid #a7f3d0;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .cache-badge.fetching {
-            background-color: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #bfdbfe;
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
         /* Fixed Container Sizing Requirement */
@@ -321,12 +329,13 @@
 
         /* Progress Card & Rate Limiting Indicator */
         .progress-card {
-            background: linear-gradient(135deg, #1e1e2d 0%, #15151e 100%);
+            background: linear-gradient(135deg, #181c28 0%, #0f1118 100%);
             color: #ffffff;
             border-radius: 10px;
+            border: 1px solid var(--border-color);
             padding: 16px 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         }
 
         .progress-header {
@@ -347,7 +356,7 @@
         .spinner {
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-top-color: #ff3b30;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -365,13 +374,13 @@
 
         .progress-rate-note {
             font-size: 0.78rem;
-            color: #9ca3af;
+            color: var(--text-muted);
         }
 
         .progress-track {
             width: 100%;
             height: 8px;
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(255, 255, 255, 0.08);
             border-radius: 4px;
             overflow: hidden;
             margin-bottom: 8px;
@@ -382,12 +391,13 @@
             width: 0%;
             background: linear-gradient(90deg, #e10600, #ff5722);
             border-radius: 4px;
+            box-shadow: 0 0 10px rgba(225, 6, 0, 0.5);
             transition: width 0.25s ease-out;
         }
 
         .progress-footer {
             font-size: 0.76rem;
-            color: #9ca3af;
+            color: var(--text-muted);
             display: flex;
             justify-content: space-between;
         }
@@ -414,17 +424,17 @@
         }
 
         .stat-pill {
-            background-color: #f3f4f6;
-            border: 1px solid #e5e7eb;
+            background-color: #1a1e2b;
+            border: 1px solid var(--border-color);
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--f1-black);
+            color: var(--text-main);
         }
 
         .stat-pill span {
-            color: var(--f1-red);
+            color: #ff4d4d;
         }
 
         /* Latest Race & Standings Results Card */
@@ -436,7 +446,7 @@
         }
 
         .summary-metric {
-            background-color: #f9fafb;
+            background-color: #0f1118;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 12px 16px;
@@ -454,7 +464,7 @@
         .metric-val {
             font-size: 1.05rem;
             font-weight: 700;
-            color: var(--f1-black);
+            color: var(--text-main);
         }
 
         /* Tables */
@@ -470,12 +480,12 @@
             border-collapse: collapse;
             font-size: 0.9rem;
             text-align: left;
-            background-color: #ffffff;
+            background-color: var(--card-bg);
         }
 
         thead th {
-            background-color: #f8fafc;
-            color: #475569;
+            background-color: #0f1118;
+            color: #94a3b8;
             font-weight: 700;
             font-size: 0.8rem;
             text-transform: uppercase;
@@ -486,7 +496,7 @@
 
         tbody td {
             padding: 10px 14px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--border-color);
             color: var(--text-main);
         }
 
@@ -495,7 +505,7 @@
         }
 
         tbody tr:hover {
-            background-color: #f9fafb;
+            background-color: rgba(255, 255, 255, 0.03);
         }
 
         .pos-badge {
@@ -507,31 +517,31 @@
             border-radius: 6px;
             font-weight: 700;
             font-size: 0.82rem;
-            background-color: #f1f5f9;
-            color: #334155;
+            background-color: #232738;
+            color: #cbd5e1;
         }
 
         .pos-1 {
-            background-color: #fef3c7;
-            color: #b45309;
-            border: 1px solid #fde68a;
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
         }
 
         .pos-2 {
-            background-color: #f1f5f9;
-            color: #475569;
-            border: 1px solid #e2e8f0;
+            background-color: rgba(156, 163, 175, 0.2);
+            color: #e2e8f0;
+            border: 1px solid rgba(156, 163, 175, 0.4);
         }
 
         .pos-3 {
-            background-color: #ffedd5;
-            color: #c2410c;
-            border: 1px solid #fed7aa;
+            background-color: rgba(217, 119, 6, 0.2);
+            color: #fdba74;
+            border: 1px solid rgba(217, 119, 6, 0.4);
         }
 
         .driver-cell {
             font-weight: 600;
-            color: var(--f1-black);
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -546,7 +556,7 @@
 
         .points-val {
             font-weight: 700;
-            color: var(--f1-black);
+            color: var(--text-main);
         }
 
         .loading-state {
@@ -557,9 +567,9 @@
         }
 
         .error-message {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #b91c1c;
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
             padding: 14px 18px;
             border-radius: 8px;
             font-size: 0.9rem;
@@ -1045,7 +1055,7 @@
                     pointRadius: 3,
                     pointHoverRadius: 6,
                     pointBackgroundColor: color,
-                    pointBorderColor: '#ffffff',
+                    pointBorderColor: '#151822',
                     pointBorderWidth: 1.5,
                     tension: 0.25,
                     spanGaps: true,
@@ -1084,7 +1094,7 @@
                                 usePointStyle: true,
                                 pointStyle: 'circle',
                                 padding: 14,
-                                color: '#1f2937',
+                                color: '#d1d5db',
                                 font: {
                                     family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
                                     size: 11.5,
@@ -1096,12 +1106,12 @@
                             enabled: true,
                             mode: 'nearest',
                             intersect: false,
-                            backgroundColor: 'rgba(21, 21, 30, 0.95)',
-                            titleColor: '#ffffff',
+                            backgroundColor: 'rgba(21, 24, 34, 0.95)',
+                            titleColor: '#f3f4f6',
                             titleFont: { size: 13, weight: 'bold' },
-                            bodyColor: '#e5e7eb',
+                            bodyColor: '#d1d5db',
                             bodyFont: { size: 12 },
-                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                            borderColor: '#232738',
                             borderWidth: 1,
                             padding: 12,
                             boxPadding: 6,
@@ -1131,15 +1141,15 @@
                             title: {
                                 display: true,
                                 text: 'Championship Points',
-                                color: '#374151',
+                                color: '#9ca3af',
                                 font: { size: 12.5, weight: '700' }
                             },
                             beginAtZero: true,
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.06)'
+                                color: 'rgba(255, 255, 255, 0.06)'
                             },
                             ticks: {
-                                color: '#6b7280',
+                                color: '#9ca3af',
                                 font: { size: 11 }
                             }
                         },
@@ -1148,14 +1158,14 @@
                             title: {
                                 display: true,
                                 text: 'Grand Prix (Rounds)',
-                                color: '#374151',
+                                color: '#9ca3af',
                                 font: { size: 12.5, weight: '700' }
                             },
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.04)'
+                                color: 'rgba(255, 255, 255, 0.06)'
                             },
                             ticks: {
-                                color: '#6b7280',
+                                color: '#9ca3af',
                                 font: { size: 10.5 },
                                 maxRotation: 45,
                                 minRotation: 20,
@@ -1282,7 +1292,7 @@
                         </div>
                     </div>
 
-                    <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: var(--f1-black);">Full Race Classification</h3>
+                    <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: var(--text-main);">Full Race Classification</h3>
                     <div class="table-responsive">
                         <table>
                             <thead>
