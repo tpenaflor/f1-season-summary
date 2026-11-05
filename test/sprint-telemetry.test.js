@@ -153,8 +153,8 @@ describe('Issue #6: Pre-2021 Seasons & Sprint Graceful Telemetry', () => {
         assert.ok(Array.isArray(sprints2019));
         assert.equal(sprints2019.length, 0, '2019 should have 0 sprint races');
       } catch (err) {
-        if (err.message && (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND'))) {
-          t.skip('Network unreachable - skipping live Jolpica API test');
+        if (err.message && (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND') || err.message.includes('429'))) {
+          t.skip('Network unreachable or rate limited (429) - skipping live Jolpica API test');
           return;
         }
         throw err;
@@ -168,8 +168,8 @@ describe('Issue #6: Pre-2021 Seasons & Sprint Graceful Telemetry', () => {
         assert.equal(sprints2024.length, 6, '2024 should have 6 sprint host venues');
         assert.ok(sprints2024[0].SprintResults.length > 0, 'Sprint venues should contain SprintResults');
       } catch (err) {
-        if (err.message && (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND'))) {
-          t.skip('Network unreachable - skipping live Jolpica API test');
+        if (err.message && (err.message.includes('fetch failed') || err.message.includes('ENOTFOUND') || err.message.includes('429'))) {
+          t.skip('Network unreachable or rate limited (429) - skipping live Jolpica API test');
           return;
         }
         throw err;

@@ -1977,6 +1977,146 @@
             border-color: rgba(255, 184, 0, 0.4);
         }
 
+        /* Pit Stop Pre-2012 / Empty Pit Stop Placeholder UI (Issue #7) */
+        .cache-badge.no-pitstop {
+            background-color: rgba(255, 184, 0, 0.15);
+            color: var(--neon-amber);
+            border: 1px solid rgba(255, 184, 0, 0.4);
+        }
+
+        .pitstop-placeholder-card {
+            background: #090C10;
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 32px 24px;
+            text-align: center;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pitstop-placeholder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-amber));
+            box-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        .pitstop-placeholder-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 102, 0.12);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 999px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .pitstop-placeholder-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #F8FAFC;
+            margin-bottom: 12px;
+            line-height: 1.35;
+        }
+
+        .pitstop-placeholder-desc {
+            font-size: 0.92rem;
+            color: #94A3B8;
+            max-width: 680px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        .pitstop-placeholder-history-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 840px;
+            margin: 0 auto 28px;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .pitstop-placeholder-history-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pitstop-history-item {
+            background: #0E131F;
+            border: 1px solid #1E2738;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .pitstop-history-item .hist-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pitstop-history-item .hist-val {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #E2E8F0;
+        }
+
+        .pitstop-history-item .hist-detail {
+            font-size: 0.76rem;
+            color: #94A3B8;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .pitstop-switch-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pitstop-switch-btn {
+            font-family: var(--font-family);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #F8FAFC;
+            background: linear-gradient(135deg, rgba(0, 255, 102, 0.15) 0%, rgba(0, 210, 190, 0.15) 100%);
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pitstop-switch-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 102, 0.3) 0%, rgba(0, 210, 190, 0.3) 100%);
+            box-shadow: 0 0 14px var(--neon-green-glow);
+            transform: translateY(-1px);
+        }
+
         /* ==========================================================
            Championship Clinch Permutations & Title Math Engine (Issue #3)
            ========================================================== */
@@ -4007,6 +4147,14 @@
                             <option value="2023">2023 Season</option>
                             <option value="2022">2022 Season</option>
                             <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                            <option value="2018">2018 Season</option>
+                            <option value="2015">2015 Season</option>
+                            <option value="2012">2012 Season (Inaugural Timing)</option>
+                            <option value="2011">2011 Season (Pre-2012: No Timing)</option>
+                            <option value="2010">2010 Season (Pre-2012: No Timing)</option>
+                            <option value="2005">2005 Season (Pre-2012: No Timing)</option>
                             <option value="2025">2025 Season</option>
                             <option value="2026">2026 Season</option>
                         </select>
@@ -4071,6 +4219,9 @@
 
             <!-- Pit Stop Error Notification -->
             <div id="pitStopError" class="error-message" style="display: none;"></div>
+
+            <!-- Pre-2012 / Missing Data Empty-State Placeholder UI (Issue #7) -->
+            <div id="pitStopPlaceholder" class="pitstop-placeholder-card" style="display: none;"></div>
 
             <!-- Main Pit Stop Telemetry Content -->
             <div id="pitStopMainContent">
@@ -7858,6 +8009,95 @@
 
         const renderSprintDisparityAnalysis = renderSprintData;
 
+        // =========================================================
+        // Pit Stop Telemetry & Pre-2012 Safe Fallback (Issue #7)
+        // =========================================================
+        const pitStopState = {
+            season: '2024',
+            round: 'all',
+            pitstops: [],
+            races: [],
+            isLoading: false
+        };
+
+        function renderPitStopPlaceholder(season) {
+            const placeholderEl = document.getElementById('pitStopPlaceholder');
+            if (!placeholderEl) return;
+            const s = season || pitStopState.season || 'this season';
+            placeholderEl.innerHTML = `
+                <div class="pitstop-placeholder-badge">
+                    <span>ℹ️ PIT STOP DATA UNAVAILABLE</span>
+                </div>
+                <h3 class="pitstop-placeholder-title">${s} Formula 1 Season: No Pit Stop Telemetry</h3>
+                <p class="pitstop-placeholder-desc">
+                    Official pit stop timing telemetry in Ergast / Jolpica is available starting from the 2012 season onward. Seasons prior to 2012 (${s}) do not have digitized stationary duration or pit lane timing records in the database.
+                </p>
+                <div class="pitstop-placeholder-history-grid">
+                    <div class="pitstop-history-item">
+                        <div class="hist-label"><span>⏱️ Timing Introduced</span></div>
+                        <div class="hist-val">2012 Season</div>
+                        <div class="hist-detail">Electronic pit stop timing records were first officially captured in the 2012 championship.</div>
+                    </div>
+                    <div class="pitstop-history-item">
+                        <div class="hist-label"><span>📊 Historical Scope</span></div>
+                        <div class="hist-val">${s} Season</div>
+                        <div class="hist-detail">Pit stop durations and lap timestamps are unavailable for this season.</div>
+                    </div>
+                    <div class="pitstop-history-item">
+                        <div class="hist-label"><span>⚡ Modern Telemetry</span></div>
+                        <div class="hist-val">2012 – Present</div>
+                        <div class="hist-detail">Select season 2012 or later to view crew performance, DHL fastest stop benchmarks, and box durations.</div>
+                    </div>
+                </div>
+                <div class="pitstop-switch-actions">
+                    <button type="button" class="pitstop-switch-btn" onclick="const sel = document.getElementById('pitStopSeasonSelect'); if (sel) { sel.value = '2024'; } onPitStopSeasonChange('2024');">
+                        <span>⚡ Switch to 2024 Season</span>
+                    </button>
+                    <button type="button" class="pitstop-switch-btn" onclick="const sel = document.getElementById('pitStopSeasonSelect'); if (sel) { sel.value = '2012'; } onPitStopSeasonChange('2012');">
+                        <span>⚡ Switch to Inaugural 2012 Season</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        async function loadPitStopTelemetry(season, forceRefresh = false) {
+            season = String(season || pitStopState.season || '2024');
+            pitStopState.season = season;
+            const seasonNum = parseInt(season, 10);
+            const placeholderEl = document.getElementById('pitStopPlaceholder');
+            const mainContentEl = document.getElementById('pitStopMainContent');
+            const badge = document.getElementById('pitStopCacheBadge');
+            const errEl = document.getElementById('pitStopError');
+            const progressEl = document.getElementById('pitStopProgressContainer');
+            if (errEl) errEl.style.display = 'none';
+            if (progressEl) progressEl.style.display = 'none';
+
+            // Guard against pre-2012 seasons (Issue #7)
+            if (seasonNum < 2012) {
+                pitStopState.pitstops = [];
+                pitStopState.races = [];
+                if (placeholderEl) {
+                    placeholderEl.style.display = 'block';
+                    renderPitStopPlaceholder(season);
+                }
+                if (mainContentEl) {
+                    mainContentEl.style.display = 'none';
+                }
+                if (badge) {
+                    badge.className = 'cache-badge no-pitstop';
+                    badge.textContent = 'ℹ️ No Timing (Pre-2012)';
+                }
+                return;
+            }
+
+            if (placeholderEl) placeholderEl.style.display = 'none';
+            if (mainContentEl) mainContentEl.style.display = 'block';
+            if (badge) {
+                badge.className = 'cache-badge cached';
+                badge.textContent = '⚡ Live Telemetry';
+            }
+        }
+
         // Safe Pit Stop handlers so all existing controls remain error-free
         function onPitStopSeasonChange(season) {
             if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(season);
@@ -8004,6 +8244,11 @@
             if (constructorSeasonSelect) {
                 loadConstructorAtrData(constructorSeasonSelect.value, false);
             }
+
+            const pitStopSeasonSelect = document.getElementById('pitStopSeasonSelect');
+            if (pitStopSeasonSelect) {
+                loadPitStopTelemetry(pitStopSeasonSelect.value, false);
+            }
         });
 
         if (typeof window !== 'undefined') {
@@ -8020,6 +8265,11 @@
             window.computeSprintDisparityMetrics = computeSprintDisparityMetrics;
             window.fetchAllJolpicaPages = fetchAllJolpicaPages;
             window.BASE_URL = BASE_URL;
+            window.loadPitStopTelemetry = loadPitStopTelemetry;
+            window.renderPitStopPlaceholder = renderPitStopPlaceholder;
+            window.pitStopState = pitStopState;
+            window.onPitStopSeasonChange = onPitStopSeasonChange;
+            window.refreshPitStopData = refreshPitStopData;
         }
         if (typeof module !== 'undefined' && module.exports) {
             module.exports = {
@@ -8035,7 +8285,12 @@
                 setSprintComparisonScope,
                 computeSprintDisparityMetrics,
                 fetchAllJolpicaPages,
-                BASE_URL
+                BASE_URL,
+                loadPitStopTelemetry,
+                renderPitStopPlaceholder,
+                pitStopState,
+                onPitStopSeasonChange,
+                refreshPitStopData
             };
         }
     </script>
