@@ -2407,6 +2407,340 @@
             color: #718096;
             border: 1px solid var(--clinch-muted);
         }
+
+        /* ==========================================================
+           Sprint Weekend vs Grand Prix Scoring Disparity Analysis (Issue #4)
+           ========================================================== */
+        :root {
+            --sprint-bg: #0A0D13;
+            --sprint-surface: #0D1117;
+            --sprint-card: #121722;
+            --sprint-purple: #9B51E0;
+            --sprint-purple-bright: #B574F5;
+            --sprint-purple-glow: rgba(155, 81, 224, 0.38);
+            --sprint-cyan: #00E5FF;
+            --sprint-cyan-glow: rgba(0, 229, 255, 0.35);
+            --sprint-gold: #D4AF37;
+            --sprint-gold-glow: rgba(212, 175, 55, 0.35);
+            --sprint-graphite: #4A5568;
+            --sprint-border: #1E2636;
+        }
+
+        .sprint-section {
+            background: linear-gradient(180deg, var(--sprint-surface) 0%, var(--sprint-bg) 100%);
+            border: 1px solid var(--sprint-border);
+            box-shadow: 0 10px 38px rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .sprint-header-accent {
+            background: linear-gradient(180deg, var(--sprint-purple) 0%, var(--sprint-cyan) 100%);
+            box-shadow: 0 0 14px var(--sprint-purple);
+        }
+
+        .sprint-venue-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #080B10;
+            border: 1px solid var(--sprint-border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            min-height: 58px;
+        }
+
+        .sprint-venue-label {
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .sprint-venue-pills {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .sprint-venue-pill {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94A3B8;
+            background: #101520;
+            border: 1px solid #222B3C;
+            border-radius: 999px;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            height: 32px;
+        }
+
+        .sprint-venue-pill:hover {
+            color: #F8FAFC;
+            border-color: var(--sprint-purple);
+            background: rgba(155, 81, 224, 0.12);
+        }
+
+        .sprint-venue-pill.active {
+            background: linear-gradient(135deg, rgba(155, 81, 224, 0.28) 0%, rgba(0, 229, 255, 0.16) 100%);
+            color: #FFFFFF;
+            border-color: var(--sprint-purple);
+            box-shadow: 0 0 12px var(--sprint-purple-glow);
+        }
+
+        .sprint-venue-pill .pill-round {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--sprint-cyan);
+        }
+
+        .sprint-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 1024px) {
+            .sprint-kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sprint-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sprint-kpi-card {
+            background: var(--sprint-bg);
+            border: 1px solid var(--sprint-border);
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            min-height: 108px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .sprint-kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--kpi-accent, var(--sprint-purple));
+            box-shadow: 0 0 10px var(--kpi-accent, var(--sprint-purple));
+        }
+
+        .sprint-kpi-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.85px;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .sprint-kpi-val {
+            font-family: var(--font-mono);
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #F8FAFC;
+            letter-spacing: -0.4px;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sprint-kpi-sub {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-top: 6px;
+            font-family: var(--font-mono);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sprint-chart-card {
+            background: var(--sprint-bg);
+            border: 1px solid var(--sprint-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 22px;
+        }
+
+        .sprint-subhead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--sprint-border);
+        }
+
+        .sprint-subhead h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #F8FAFC;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sprint-legend-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 0.76rem;
+            color: #CBD5E1;
+            font-family: var(--font-mono);
+        }
+
+        .sprint-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sprint-legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .sprint-chart-wrapper {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .sprint-table-card {
+            background: var(--sprint-bg);
+            border: 1px solid var(--sprint-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .sprint-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #1A2232;
+            border-radius: 8px;
+            min-height: 320px;
+        }
+
+        .sprint-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .sprint-table th {
+            background: #101622;
+            color: #94A3B8;
+            font-size: 0.71rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            padding: 11px 12px;
+            border-bottom: 1px solid var(--sprint-border);
+            white-space: nowrap;
+        }
+
+        .sprint-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(30, 38, 54, 0.65);
+            color: #E2E8F0;
+            vertical-align: middle;
+        }
+
+        .sprint-table tbody tr:hover td {
+            background: rgba(155, 81, 224, 0.06);
+        }
+
+        .sdi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--font-mono);
+            font-size: 0.73rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .sdi-badge.specialist {
+            background: rgba(155, 81, 224, 0.16);
+            color: var(--sprint-cyan);
+            border: 1px solid var(--sprint-purple);
+            box-shadow: 0 0 10px rgba(155, 81, 224, 0.25);
+        }
+
+        .sdi-badge.grinder {
+            background: rgba(212, 175, 55, 0.14);
+            color: var(--sprint-gold);
+            border: 1px solid rgba(212, 175, 55, 0.65);
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.18);
+        }
+
+        .sdi-badge.neutral {
+            background: rgba(74, 85, 104, 0.2);
+            color: #94A3B8;
+            border: 1px solid var(--sprint-graphite);
+        }
+
+        .sprint-split-bar {
+            width: 100%;
+            max-width: 110px;
+            height: 6px;
+            background: #1A2232;
+            border-radius: 999px;
+            overflow: hidden;
+            display: inline-flex;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        .sprint-split-fill {
+            height: 100%;
+            transition: width 0.25s ease;
+        }
     </style>
 </head>
 <body>
@@ -2431,6 +2765,9 @@
             <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
                 <span class="tab-icon">👁️</span> All Telemetry & Standings
             </button>
+            <button type="button" class="tab-btn" id="tabBtnSprint" onclick="switchMainTab('sprint')">
+                <span class="tab-icon">⚡</span> Sprint vs GP Disparity
+            </button>
             <button type="button" class="tab-btn" id="tabBtnClinch" onclick="switchMainTab('clinch')">
                 <span class="tab-icon">🏆</span> Championship Clinch Engine
             </button>
@@ -2447,6 +2784,144 @@
                 <span class="tab-icon">🏁</span> Latest Race & Driver Standings
             </button>
         </nav>
+
+        <!-- Sprint Weekend vs Grand Prix Scoring Disparity Analysis Section (Issue #4) -->
+        <section class="card telemetry-section sprint-section" id="sprint-disparity-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent sprint-header-accent"></div>
+                    <h2>Sprint Weekend vs Grand Prix Scoring Disparity Analysis</h2>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="clinch-mode-toggle" role="group" aria-label="GP Points Comparison Scope">
+                        <button type="button" class="clinch-mode-btn active" id="btnSprintScopeSeason" onclick="setSprintComparisonScope('season')">
+                            🌐 Full Season GP Share
+                        </button>
+                        <button type="button" class="clinch-mode-btn" id="btnSprintScopeWeekends" onclick="setSprintComparisonScope('weekends')">
+                            ⚡ Sprint Weekends Only
+                        </button>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="sprintSeasonSelect">Season:</label>
+                        <select id="sprintSeasonSelect" class="season-dropdown" onchange="onSprintSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season (6 Sprints)</option>
+                            <option value="2023">2023 Season (6 Sprints)</option>
+                            <option value="2022">2022 Season (3 Sprints)</option>
+                            <option value="2021">2021 Season (3 Sprints)</option>
+                        </select>
+                    </div>
+                    <span id="sprintCacheBadge" class="cache-badge cached">⚡ Live Telemetry</span>
+                    <button type="button" class="btn-refresh" id="btnSprintRefresh" onclick="refreshSprintDisparityData()" title="Re-fetch Sprint & Grand Prix scoring data">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Sprint Data
+                    </button>
+                </div>
+            </div>
+
+            <p class="section-subtitle">
+                Saturday Sprint Shootout vs. Sunday Feature Race scoring efficiency: quantifying the Sprint Dominance Index (SDI), Saturday Specialists (SDI &gt; 1.0), and Sunday Grinders (SDI &lt; 1.0) across F1 Sprint host venues.
+            </p>
+
+            <div id="sprintError" class="error-message" style="display: none;"></div>
+
+            <!-- Sprint Host Venue Filter Pills -->
+            <div class="sprint-venue-bar">
+                <div class="sprint-venue-label">
+                    <span>⚡ SPRINT HOST VENUES:</span>
+                </div>
+                <div class="sprint-venue-pills" id="sprintVenuePills">
+                    <button type="button" class="sprint-venue-pill active" onclick="selectSprintVenue('all')">
+                        <span>🏁 All Sprint Venues</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- High-Level KPI Metric Cards -->
+            <div class="sprint-kpi-grid" id="sprintKpiGrid">
+                <div class="sprint-kpi-card" style="--kpi-accent: var(--sprint-purple);">
+                    <div class="sprint-kpi-label">
+                        <span>TOTAL SPRINT POINTS CONTESTED</span>
+                        <span style="color: var(--sprint-purple);">⚡ POOL</span>
+                    </div>
+                    <div class="sprint-kpi-val" id="sprintKpiPoolVal">216 PTS</div>
+                    <div class="sprint-kpi-sub" id="sprintKpiPoolSub">6 Sprint Events • Max 48 PTS / Driver</div>
+                </div>
+                <div class="sprint-kpi-card" style="--kpi-accent: var(--sprint-cyan);">
+                    <div class="sprint-kpi-label">
+                        <span>TOP SATURDAY SPECIALIST</span>
+                        <span style="color: var(--sprint-cyan);">⚡ SDI &gt; 1.0</span>
+                    </div>
+                    <div class="sprint-kpi-val" id="sprintKpiSpecialistName">Carlos Sainz</div>
+                    <div class="sprint-kpi-sub" id="sprintKpiSpecialistSub">SDI 1.39 • 28 Sprint PTS (9.7% Share)</div>
+                </div>
+                <div class="sprint-kpi-card" style="--kpi-accent: var(--sprint-gold);">
+                    <div class="sprint-kpi-label">
+                        <span>TOP SUNDAY GRINDER</span>
+                        <span style="color: var(--sprint-gold);">☀️ SDI &lt; 1.0</span>
+                    </div>
+                    <div class="sprint-kpi-val" id="sprintKpiGrinderName">Fernando Alonso</div>
+                    <div class="sprint-kpi-sub" id="sprintKpiGrinderSub">SDI 0.00 • 100.0% Sunday GP Share (70 PTS)</div>
+                </div>
+                <div class="sprint-kpi-card" style="--kpi-accent: #B574F5;">
+                    <div class="sprint-kpi-label">
+                        <span>SPRINT POINTS LEADER</span>
+                        <span style="color: #B574F5;">👑 SATURDAY P1</span>
+                    </div>
+                    <div class="sprint-kpi-val" id="sprintKpiLeaderName">Max Verstappen</div>
+                    <div class="sprint-kpi-sub" id="sprintKpiLeaderSub">38 Sprint PTS • 4 Sprint Wins (Avg P2.7)</div>
+                </div>
+            </div>
+
+            <!-- Chart.js Stacked Horizontal Bar Chart -->
+            <div class="sprint-chart-card">
+                <div class="sprint-subhead">
+                    <h3><span>📊</span> Sprint Points vs. Sunday Feature Race Points Breakdown</h3>
+                    <div class="sprint-legend-group">
+                        <span class="sprint-legend-item">
+                            <span class="sprint-legend-swatch" style="background: #9B51E0; box-shadow: 0 0 8px #9B51E0;"></span>
+                            Saturday Sprint Points (#9B51E0)
+                        </span>
+                        <span class="sprint-legend-item">
+                            <span class="sprint-legend-swatch" style="background: linear-gradient(90deg, #1E41FF, #FF8000, #E80020);"></span>
+                            Sunday Grand Prix Points (Constructor Color)
+                        </span>
+                    </div>
+                </div>
+                <div class="sprint-chart-wrapper">
+                    <canvas id="sprintDisparityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Sprint Dominance Index (SDI) Leaderboard Table -->
+            <div class="sprint-table-card">
+                <div class="sprint-subhead">
+                    <h3><span>⚡</span> Sprint Dominance Index (SDI) Telemetry Leaderboard</h3>
+                    <span style="font-size: 0.76rem; color: #94A3B8; font-family: var(--font-mono);" id="sprintFormulaSubtitle">
+                        SDI = (Sprint Pts Earned / Sprint Pts Available) ÷ (GP Pts Earned / GP Pts Available)
+                    </span>
+                </div>
+                <div class="sprint-table-wrapper">
+                    <table class="sprint-table" id="sprintDisparityTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;">Rank</th>
+                                <th style="width: 18%;">Driver</th>
+                                <th style="width: 14%;">Team</th>
+                                <th style="width: 9%; text-align: right;">Total Pts</th>
+                                <th style="width: 14%; text-align: right;">Sprint Pts (% Total)</th>
+                                <th style="width: 14%; text-align: right;">GP Pts (% Total)</th>
+                                <th style="width: 8%; text-align: center;">Sprint Avg Fin</th>
+                                <th style="width: 8%; text-align: center;">GP Avg Fin</th>
+                                <th style="width: 10%; text-align: center;">SDI Badge</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sprintDisparityTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
         <!-- Championship Clinch Permutations & Title Math Engine Section (Issue #3) -->
         <section class="card telemetry-section clinch-section" id="clinch-engine-section">
@@ -5555,6 +6030,789 @@
             }).join('');
         }
 
+        // ==========================================================
+        // Sprint Weekend vs Grand Prix Scoring Disparity Analysis (Issue #4)
+        // ==========================================================
+
+        let sprintDisparityChartInstance = null;
+
+        let sprintState = {
+            season: '2024',
+            venueRound: 'all', // 'all' or specific round string e.g. '5', '6'
+            scope: 'season',   // 'season' (Full Season GP) | 'weekends' (Sprint Weekends Only)
+            sprints: [],
+            results: [],
+            standings: []
+        };
+
+        const SPRINT_VENUE_LABELS = {
+            'Chinese Grand Prix': 'Shanghai',
+            'Miami Grand Prix': 'Miami',
+            'Austrian Grand Prix': 'Spielberg',
+            'United States Grand Prix': 'Austin',
+            'São Paulo Grand Prix': 'São Paulo',
+            'Brazilian Grand Prix': 'São Paulo',
+            'Qatar Grand Prix': 'Lusail',
+            'Azerbaijan Grand Prix': 'Baku',
+            'Belgian Grand Prix': 'Spa-Francorchamps',
+            'Emilia Romagna Grand Prix': 'Imola',
+            'British Grand Prix': 'Silverstone',
+            'Italian Grand Prix': 'Monza'
+        };
+
+        const SPRINT_FALLBACK_2024 = {
+            sprints: [
+                {
+                    round: '5', raceName: 'Chinese Grand Prix',
+                    Circuit: { circuitName: 'Shanghai International Circuit', Location: { locality: 'Shanghai' } },
+                    SprintResults: [
+                        { position: '1', points: '8', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '2', points: '7', Driver: { driverId: 'hamilton', code: 'HAM', givenName: 'Lewis', familyName: 'Hamilton' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '3', points: '6', Driver: { driverId: 'perez', code: 'PER', givenName: 'Sergio', familyName: 'Pérez' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '4', points: '5', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '5', points: '4', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '6', points: '3', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '7', points: '2', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '8', points: '1', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } }
+                    ]
+                },
+                {
+                    round: '6', raceName: 'Miami Grand Prix',
+                    Circuit: { circuitName: 'Miami International Autodrome', Location: { locality: 'Miami' } },
+                    SprintResults: [
+                        { position: '1', points: '8', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '2', points: '7', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '3', points: '6', Driver: { driverId: 'perez', code: 'PER', givenName: 'Sergio', familyName: 'Pérez' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '4', points: '5', Driver: { driverId: 'ricciardo', code: 'RIC', givenName: 'Daniel', familyName: 'Ricciardo' }, Constructor: { constructorId: 'rb', name: 'RB F1 Team' } },
+                        { position: '5', points: '4', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '6', points: '3', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '7', points: '2', Driver: { driverId: 'hulkenberg', code: 'HUL', givenName: 'Nico', familyName: 'Hülkenberg' }, Constructor: { constructorId: 'haas', name: 'Haas F1 Team' } },
+                        { position: '8', points: '1', Driver: { driverId: 'tsunoda', code: 'TSU', givenName: 'Yuki', familyName: 'Tsunoda' }, Constructor: { constructorId: 'rb', name: 'RB F1 Team' } }
+                    ]
+                },
+                {
+                    round: '11', raceName: 'Austrian Grand Prix',
+                    Circuit: { circuitName: 'Red Bull Ring', Location: { locality: 'Spielberg' } },
+                    SprintResults: [
+                        { position: '1', points: '8', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '2', points: '7', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '3', points: '6', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '4', points: '5', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '5', points: '4', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '6', points: '3', Driver: { driverId: 'hamilton', code: 'HAM', givenName: 'Lewis', familyName: 'Hamilton' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '7', points: '2', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '8', points: '1', Driver: { driverId: 'perez', code: 'PER', givenName: 'Sergio', familyName: 'Pérez' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } }
+                    ]
+                },
+                {
+                    round: '19', raceName: 'United States Grand Prix',
+                    Circuit: { circuitName: 'Circuit of the Americas', Location: { locality: 'Austin' } },
+                    SprintResults: [
+                        { position: '1', points: '8', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '2', points: '7', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '3', points: '6', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '4', points: '5', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '5', points: '4', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '6', points: '3', Driver: { driverId: 'hamilton', code: 'HAM', givenName: 'Lewis', familyName: 'Hamilton' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '7', points: '2', Driver: { driverId: 'magnussen', code: 'MAG', givenName: 'Kevin', familyName: 'Magnussen' }, Constructor: { constructorId: 'haas', name: 'Haas F1 Team' } },
+                        { position: '8', points: '1', Driver: { driverId: 'hulkenberg', code: 'HUL', givenName: 'Nico', familyName: 'Hülkenberg' }, Constructor: { constructorId: 'haas', name: 'Haas F1 Team' } }
+                    ]
+                },
+                {
+                    round: '21', raceName: 'São Paulo Grand Prix',
+                    Circuit: { circuitName: 'Autódromo José Carlos Pace', Location: { locality: 'São Paulo' } },
+                    SprintResults: [
+                        { position: '1', points: '8', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '2', points: '7', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '3', points: '6', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '4', points: '5', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } },
+                        { position: '5', points: '4', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '6', points: '3', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '7', points: '2', Driver: { driverId: 'gasly', code: 'GAS', givenName: 'Pierre', familyName: 'Gasly' }, Constructor: { constructorId: 'alpine', name: 'Alpine F1 Team' } },
+                        { position: '8', points: '1', Driver: { driverId: 'perez', code: 'PER', givenName: 'Sergio', familyName: 'Pérez' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } }
+                    ]
+                },
+                {
+                    round: '23', raceName: 'Qatar Grand Prix',
+                    Circuit: { circuitName: 'Lusail International Circuit', Location: { locality: 'Lusail' } },
+                    SprintResults: [
+                        { position: '1', points: '8', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '2', points: '7', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' } },
+                        { position: '3', points: '6', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '4', points: '5', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '5', points: '4', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' } },
+                        { position: '6', points: '3', Driver: { driverId: 'hamilton', code: 'HAM', givenName: 'Lewis', familyName: 'Hamilton' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' } },
+                        { position: '7', points: '2', Driver: { driverId: 'hulkenberg', code: 'HUL', givenName: 'Nico', familyName: 'Hülkenberg' }, Constructor: { constructorId: 'haas', name: 'Haas F1 Team' } },
+                        { position: '8', points: '1', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' } }
+                    ]
+                }
+            ],
+            standings: [
+                { position: '1', points: '437', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructors: [{ constructorId: 'red_bull', name: 'Red Bull' }] },
+                { position: '2', points: '374', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructors: [{ constructorId: 'mclaren', name: 'McLaren' }] },
+                { position: '3', points: '356', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructors: [{ constructorId: 'ferrari', name: 'Ferrari' }] },
+                { position: '4', points: '292', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructors: [{ constructorId: 'mclaren', name: 'McLaren' }] },
+                { position: '5', points: '290', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructors: [{ constructorId: 'ferrari', name: 'Ferrari' }] },
+                { position: '6', points: '245', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructors: [{ constructorId: 'mercedes', name: 'Mercedes' }] },
+                { position: '7', points: '223', Driver: { driverId: 'hamilton', code: 'HAM', givenName: 'Lewis', familyName: 'Hamilton' }, Constructors: [{ constructorId: 'mercedes', name: 'Mercedes' }] },
+                { position: '8', points: '152', Driver: { driverId: 'perez', code: 'PER', givenName: 'Sergio', familyName: 'Pérez' }, Constructors: [{ constructorId: 'red_bull', name: 'Red Bull' }] },
+                { position: '9', points: '70', Driver: { driverId: 'alonso', code: 'ALO', givenName: 'Fernando', familyName: 'Alonso' }, Constructors: [{ constructorId: 'aston_martin', name: 'Aston Martin' }] },
+                { position: '10', points: '42', Driver: { driverId: 'gasly', code: 'GAS', givenName: 'Pierre', familyName: 'Gasly' }, Constructors: [{ constructorId: 'alpine', name: 'Alpine F1 Team' }] },
+                { position: '11', points: '41', Driver: { driverId: 'hulkenberg', code: 'HUL', givenName: 'Nico', familyName: 'Hülkenberg' }, Constructors: [{ constructorId: 'haas', name: 'Haas F1 Team' }] },
+                { position: '12', points: '30', Driver: { driverId: 'tsunoda', code: 'TSU', givenName: 'Yuki', familyName: 'Tsunoda' }, Constructors: [{ constructorId: 'rb', name: 'RB F1 Team' }] },
+                { position: '13', points: '24', Driver: { driverId: 'stroll', code: 'STR', givenName: 'Lance', familyName: 'Stroll' }, Constructors: [{ constructorId: 'aston_martin', name: 'Aston Martin' }] },
+                { position: '14', points: '23', Driver: { driverId: 'ocon', code: 'OCO', givenName: 'Esteban', familyName: 'Ocon' }, Constructors: [{ constructorId: 'alpine', name: 'Alpine F1 Team' }] },
+                { position: '15', points: '16', Driver: { driverId: 'magnussen', code: 'MAG', givenName: 'Kevin', familyName: 'Magnussen' }, Constructors: [{ constructorId: 'haas', name: 'Haas F1 Team' }] },
+                { position: '16', points: '12', Driver: { driverId: 'albon', code: 'ALB', givenName: 'Alexander', familyName: 'Albon' }, Constructors: [{ constructorId: 'williams', name: 'Williams' }] },
+                { position: '17', points: '12', Driver: { driverId: 'ricciardo', code: 'RIC', givenName: 'Daniel', familyName: 'Ricciardo' }, Constructors: [{ constructorId: 'rb', name: 'RB F1 Team' }] }
+            ]
+        };
+
+        function getSprintVenueShortName(race) {
+            if (!race) return 'Sprint';
+            if (SPRINT_VENUE_LABELS[race.raceName]) {
+                return SPRINT_VENUE_LABELS[race.raceName];
+            }
+            if (race.Circuit?.Location?.locality) {
+                return race.Circuit.Location.locality;
+            }
+            return (race.raceName || 'Sprint').replace(/Grand Prix/i, '').trim();
+        }
+
+        function setSprintComparisonScope(scope) {
+            sprintState.scope = scope;
+            const btnSeason = document.getElementById('btnSprintScopeSeason');
+            const btnWeekends = document.getElementById('btnSprintScopeWeekends');
+            if (btnSeason) btnSeason.classList.toggle('active', scope === 'season');
+            if (btnWeekends) btnWeekends.classList.toggle('active', scope === 'weekends');
+            renderSprintDisparityAnalysis();
+        }
+
+        function onSprintSeasonChange(season) {
+            sprintState.season = season;
+            sprintState.venueRound = 'all';
+            loadSprintDisparityData(season, false);
+        }
+
+        function selectSprintVenue(round) {
+            sprintState.venueRound = String(round);
+            document.querySelectorAll('#sprintVenuePills .sprint-venue-pill').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-round') === String(round));
+            });
+            renderSprintDisparityAnalysis();
+        }
+
+        function refreshSprintDisparityData() {
+            loadSprintDisparityData(sprintState.season, true);
+        }
+
+        async function fetchAllJolpicaPages(season, endpoint, resultKey) {
+            const roundMap = {};
+            let offset = 0;
+            let total = null;
+            const limit = 1000;
+
+            while (total === null || offset < total) {
+                const url = `${BASE_URL}/${season}/${endpoint}.json?limit=${limit}&offset=${offset}`;
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} fetching ${endpoint}`);
+                const data = await resp.json();
+                const mrData = data?.MRData;
+                total = parseInt(mrData?.total || '0', 10);
+                const pageLimit = parseInt(mrData?.limit || '100', 10);
+                const races = mrData?.RaceTable?.Races || [];
+
+                races.forEach(r => {
+                    const rnd = String(r.round);
+                    if (!roundMap[rnd]) {
+                        roundMap[rnd] = {
+                            season: r.season,
+                            round: rnd,
+                            raceName: r.raceName,
+                            date: r.date,
+                            Circuit: r.Circuit,
+                            [resultKey]: []
+                        };
+                    }
+                    const list = r[resultKey] || [];
+                    roundMap[rnd][resultKey].push(...list);
+                });
+
+                offset += pageLimit;
+                if (offset >= total) break;
+            }
+
+            return Object.values(roundMap).sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+        }
+
+        async function loadSprintDisparityData(season, forceRefresh = false) {
+            const cacheKey = `f1_sprint_disparity_v1_${season}`;
+            const badge = document.getElementById('sprintCacheBadge');
+            const errEl = document.getElementById('sprintError');
+            if (errEl) errEl.style.display = 'none';
+
+            if (!forceRefresh) {
+                const cached = localStorage.getItem(cacheKey);
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && Array.isArray(parsed.sprints) && parsed.sprints.length > 0) {
+                            sprintState.sprints = parsed.sprints;
+                            sprintState.results = parsed.results || [];
+                            sprintState.standings = parsed.standings || [];
+                            if (badge) {
+                                badge.className = 'cache-badge cached';
+                                badge.textContent = '⚡ Cached (Instant)';
+                            }
+                            renderSprintVenuePills();
+                            renderSprintDisparityAnalysis();
+                            return;
+                        }
+                    } catch (e) {
+                        localStorage.removeItem(cacheKey);
+                    }
+                }
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge fetching';
+                badge.textContent = '🌐 Syncing Sprint Telemetry...';
+            }
+
+            try {
+                const [sprints, results, standingsResp] = await Promise.all([
+                    fetchAllJolpicaPages(season, 'sprint', 'SprintResults'),
+                    fetchAllJolpicaPages(season, 'results', 'Results'),
+                    fetch(`${BASE_URL}/${season}/driverStandings.json`).then(r => r.ok ? r.json() : null)
+                ]);
+
+                const standings = standingsResp?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings || [];
+
+                if (!sprints || sprints.length === 0) {
+                    throw new Error(`No Sprint data returned for ${season}`);
+                }
+
+                sprintState.sprints = sprints;
+                sprintState.results = results;
+                sprintState.standings = standings;
+
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify({ sprints, results, standings }));
+                } catch (e) { /* storage quota ignore */ }
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Live Verified';
+                }
+
+                renderSprintVenuePills();
+                renderSprintDisparityAnalysis();
+            } catch (err) {
+                console.warn('Sprint API fallback activated:', err);
+                sprintState.sprints = SPRINT_FALLBACK_2024.sprints;
+                sprintState.results = [];
+                sprintState.standings = SPRINT_FALLBACK_2024.standings;
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Offline Telemetry';
+                }
+
+                renderSprintVenuePills();
+                renderSprintDisparityAnalysis();
+            }
+        }
+
+        function renderSprintVenuePills() {
+            const container = document.getElementById('sprintVenuePills');
+            if (!container) return;
+
+            const sprints = sprintState.sprints || [];
+            const allActive = sprintState.venueRound === 'all' ? 'active' : '';
+
+            let html = `
+                <button type="button" class="sprint-venue-pill ${allActive}" data-round="all" onclick="selectSprintVenue('all')">
+                    <span>🏁 All Sprint Venues (${sprints.length})</span>
+                </button>
+            `;
+
+            sprints.forEach(sp => {
+                const shortVenue = getSprintVenueShortName(sp);
+                const isActive = String(sprintState.venueRound) === String(sp.round) ? 'active' : '';
+                html += `
+                    <button type="button" class="sprint-venue-pill ${isActive}" data-round="${sp.round}" onclick="selectSprintVenue('${sp.round}')">
+                        <span>${shortVenue}</span>
+                        <span class="pill-round">R${sp.round}</span>
+                    </button>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function computeSprintDisparityMetrics() {
+            const season = sprintState.season;
+            const venueRound = sprintState.venueRound;
+            const isSingleVenue = venueRound !== 'all';
+            const useWeekendOnlyScope = isSingleVenue || sprintState.scope === 'weekends';
+
+            const filteredSprints = isSingleVenue
+                ? (sprintState.sprints || []).filter(r => String(r.round) === String(venueRound))
+                : (sprintState.sprints || []);
+
+            const sprintRoundSet = new Set(filteredSprints.map(r => String(r.round)));
+
+            const allResults = sprintState.results || [];
+            const filteredGpRaces = isSingleVenue
+                ? allResults.filter(r => String(r.round) === String(venueRound))
+                : (useWeekendOnlyScope
+                    ? allResults.filter(r => sprintRoundSet.has(String(r.round)))
+                    : allResults);
+
+            // Max points per single driver per session
+            const maxSprintPtsPerDriver = season === '2021' ? 3 : 8;
+            const maxGpPtsPerDriver = 26;
+
+            const numSprintSessions = Math.max(1, filteredSprints.length);
+            const numGpSessions = filteredGpRaces.length > 0
+                ? filteredGpRaces.length
+                : (isSingleVenue ? 1 : (useWeekendOnlyScope ? numSprintSessions : 24));
+
+            const sprintPtsAvailablePerDriver = numSprintSessions * maxSprintPtsPerDriver;
+            const gpPtsAvailablePerDriver = numGpSessions * maxGpPtsPerDriver;
+
+            const driversMap = {};
+
+            function ensureDriver(dObj, cObj) {
+                if (!dObj || !dObj.driverId) return null;
+                const id = dObj.driverId;
+                if (!driversMap[id]) {
+                    driversMap[id] = {
+                        driverId: id,
+                        code: dObj.code || id.substring(0, 3).toUpperCase(),
+                        name: `${dObj.givenName || ''} ${dObj.familyName || ''}`.trim() || id,
+                        constructorId: cObj?.constructorId || 'unknown',
+                        teamName: cObj?.name || 'Formula 1 Team',
+                        sprintPts: 0,
+                        gpPts: 0,
+                        standingsTotalPts: null,
+                        sprintFinishes: [],
+                        gpFinishes: [],
+                        sprintWins: 0,
+                        gpWins: 0
+                    };
+                } else if (cObj && cObj.constructorId && driversMap[id].constructorId === 'unknown') {
+                    driversMap[id].constructorId = cObj.constructorId;
+                    driversMap[id].teamName = cObj.name || driversMap[id].teamName;
+                }
+                return driversMap[id];
+            }
+
+            // 1. Seed from driverStandings if available
+            (sprintState.standings || []).forEach(st => {
+                const cObj = st.Constructors?.[0];
+                const d = ensureDriver(st.Driver, cObj);
+                if (d) {
+                    d.standingsTotalPts = parseFloat(st.points) || 0;
+                }
+            });
+
+            // 2. Aggregate Sprint results
+            let totalSprintPoolContested = 0;
+            filteredSprints.forEach(race => {
+                (race.SprintResults || []).forEach(res => {
+                    const d = ensureDriver(res.Driver, res.Constructor);
+                    if (!d) return;
+                    const pts = parseFloat(res.points) || 0;
+                    const pos = parseInt(res.position, 10);
+                    d.sprintPts += pts;
+                    totalSprintPoolContested += pts;
+                    if (!isNaN(pos) && pos > 0) {
+                        d.sprintFinishes.push(pos);
+                        if (pos === 1) d.sprintWins += 1;
+                    }
+                });
+            });
+
+            // 3. Aggregate GP results
+            filteredGpRaces.forEach(race => {
+                (race.Results || []).forEach(res => {
+                    const d = ensureDriver(res.Driver, res.Constructor);
+                    if (!d) return;
+                    const pts = parseFloat(res.points) || 0;
+                    const pos = parseInt(res.position, 10);
+                    d.gpPts += pts;
+                    if (!isNaN(pos) && pos > 0) {
+                        d.gpFinishes.push(pos);
+                        if (pos === 1) d.gpWins += 1;
+                    }
+                });
+            });
+
+            // If fallback mode has no detailed GP race array and we're looking at full season, derive GP pts from standings
+            if (filteredGpRaces.length === 0 && !isSingleVenue) {
+                Object.values(driversMap).forEach(d => {
+                    if (d.standingsTotalPts !== null) {
+                        d.gpPts = Math.max(0, d.standingsTotalPts - d.sprintPts);
+                    }
+                });
+            }
+
+            const rows = Object.values(driversMap).map(d => {
+                // If Full Season scope and all venues selected, reconcile with official standings if available
+                let gpPts = d.gpPts;
+                if (!isSingleVenue && !useWeekendOnlyScope && d.standingsTotalPts !== null && filteredGpRaces.length === 0) {
+                    gpPts = Math.max(0, d.standingsTotalPts - d.sprintPts);
+                }
+                const sprintPts = d.sprintPts;
+                const totalPts = sprintPts + gpPts;
+
+                const sprintSharePct = totalPts > 0 ? (sprintPts / totalPts) * 100 : 0;
+                const gpSharePct = totalPts > 0 ? (gpPts / totalPts) * 100 : 0;
+
+                const sprintAvgFin = d.sprintFinishes.length > 0
+                    ? (d.sprintFinishes.reduce((a, b) => a + b, 0) / d.sprintFinishes.length)
+                    : null;
+                const gpAvgFin = d.gpFinishes.length > 0
+                    ? (d.gpFinishes.reduce((a, b) => a + b, 0) / d.gpFinishes.length)
+                    : null;
+
+                // SDI = (Sprint Points Earned / Sprint Points Available) / (GP Points Earned / GP Points Available)
+                const sprintNorm = sprintPtsAvailablePerDriver > 0 ? (sprintPts / sprintPtsAvailablePerDriver) : 0;
+                const gpNorm = gpPtsAvailablePerDriver > 0 ? (gpPts / gpPtsAvailablePerDriver) : 0;
+
+                let sdi = null;
+                let sdiDisplay = 'N/A';
+                let sdiCategory = 'neutral';
+
+                if (sprintPts === 0 && gpPts === 0) {
+                    sdi = null;
+                    sdiDisplay = 'N/A (0 PTS)';
+                    sdiCategory = 'neutral';
+                } else if (gpPts === 0 && sprintPts > 0) {
+                    sdi = 99.99; // Safeguard zero division
+                    sdiDisplay = '100% Sprint';
+                    sdiCategory = 'specialist';
+                } else if (gpNorm > 0) {
+                    sdi = sprintNorm / gpNorm;
+                    sdiDisplay = sdi.toFixed(2);
+                    if (sdi > 1.005) {
+                        sdiCategory = 'specialist';
+                    } else if (sdi < 0.995) {
+                        sdiCategory = 'grinder';
+                    } else {
+                        sdiCategory = 'neutral';
+                    }
+                }
+
+                return {
+                    ...d,
+                    sprintPts,
+                    gpPts,
+                    totalPts,
+                    sprintSharePct,
+                    gpSharePct,
+                    sprintAvgFin,
+                    gpAvgFin,
+                    sdi,
+                    sdiDisplay,
+                    sdiCategory,
+                    teamColor: TEAM_COLORS[d.constructorId] || '#00E5FF'
+                };
+            });
+
+            // Sort by total points descending, then sprint points descending
+            rows.sort((a, b) => {
+                if (b.totalPts !== a.totalPts) return b.totalPts - a.totalPts;
+                if (b.sprintPts !== a.sprintPts) return b.sprintPts - a.sprintPts;
+                const aFin = a.sprintAvgFin ?? 99;
+                const bFin = b.sprintAvgFin ?? 99;
+                return aFin - bFin;
+            });
+
+            return {
+                rows,
+                totalSprintPoolContested: totalSprintPoolContested || (numSprintSessions * (season === '2021' ? 6 : 36)),
+                numSprintSessions,
+                numGpSessions,
+                sprintPtsAvailablePerDriver,
+                gpPtsAvailablePerDriver
+            };
+        }
+
+        function renderSprintDisparityAnalysis() {
+            const metrics = computeSprintDisparityMetrics();
+            const rows = metrics.rows;
+
+            // 1. Update KPI Cards
+            const poolValEl = document.getElementById('sprintKpiPoolVal');
+            const poolSubEl = document.getElementById('sprintKpiPoolSub');
+            if (poolValEl) poolValEl.textContent = `${metrics.totalSprintPoolContested} PTS`;
+            if (poolSubEl) {
+                poolSubEl.textContent = `${metrics.numSprintSessions} Sprint Event${metrics.numSprintSessions > 1 ? 's' : ''} • Max ${metrics.sprintPtsAvailablePerDriver} PTS / Driver`;
+            }
+
+            // Top Saturday Specialist (highest SDI > 1.0 among meaningful scorers, or any scorer)
+            const specialists = rows.filter(r => r.sdi !== null && r.sdi > 1.0 && r.sprintPts > 0);
+            const meaningfulSpecialists = specialists.filter(r => r.totalPts >= 10);
+            const specialistPool = meaningfulSpecialists.length > 0 ? meaningfulSpecialists : specialists;
+            specialistPool.sort((a, b) => b.sdi - a.sdi);
+            const topSpecialist = specialistPool[0] || null;
+
+            const specNameEl = document.getElementById('sprintKpiSpecialistName');
+            const specSubEl = document.getElementById('sprintKpiSpecialistSub');
+            if (topSpecialist) {
+                if (specNameEl) specNameEl.textContent = topSpecialist.name;
+                if (specSubEl) {
+                    specSubEl.textContent = `SDI ${topSpecialist.sdiDisplay} • ${topSpecialist.sprintPts} Sprint PTS (${topSpecialist.sprintSharePct.toFixed(1)}% Share)`;
+                }
+            } else {
+                if (specNameEl) specNameEl.textContent = 'None Recorded';
+                if (specSubEl) specSubEl.textContent = 'No driver exceeded SDI 1.0 threshold';
+            }
+
+            // Top Sunday Grinder (lowest SDI < 1.0 with GP points > 0)
+            const grinders = rows.filter(r => r.gpPts > 0 && r.sdi !== null && r.sdi < 1.0);
+            const meaningfulGrinders = grinders.filter(r => r.gpPts >= 10);
+            const grinderPool = meaningfulGrinders.length > 0 ? meaningfulGrinders : grinders;
+            grinderPool.sort((a, b) => {
+                if (a.sdi !== b.sdi) return a.sdi - b.sdi;
+                return b.gpPts - a.gpPts;
+            });
+            const topGrinder = grinderPool[0] || null;
+
+            const grindNameEl = document.getElementById('sprintKpiGrinderName');
+            const grindSubEl = document.getElementById('sprintKpiGrinderSub');
+            if (topGrinder) {
+                if (grindNameEl) grindNameEl.textContent = topGrinder.name;
+                if (grindSubEl) {
+                    grindSubEl.textContent = `SDI ${topGrinder.sdiDisplay} • ${topGrinder.gpSharePct.toFixed(1)}% Sunday GP (${topGrinder.gpPts} PTS)`;
+                }
+            } else {
+                if (grindNameEl) grindNameEl.textContent = 'None Recorded';
+                if (grindSubEl) grindSubEl.textContent = 'All scorers weighted toward Saturday';
+            }
+
+            // Sprint Points Leader
+            const sprintSorted = [...rows].sort((a, b) => {
+                if (b.sprintPts !== a.sprintPts) return b.sprintPts - a.sprintPts;
+                return (a.sprintAvgFin ?? 99) - (b.sprintAvgFin ?? 99);
+            });
+            const sprintLeader = sprintSorted[0] || null;
+            const leaderNameEl = document.getElementById('sprintKpiLeaderName');
+            const leaderSubEl = document.getElementById('sprintKpiLeaderSub');
+            if (sprintLeader && sprintLeader.sprintPts > 0) {
+                if (leaderNameEl) leaderNameEl.textContent = sprintLeader.name;
+                if (leaderSubEl) {
+                    const avgStr = sprintLeader.sprintAvgFin !== null ? `Avg P${sprintLeader.sprintAvgFin.toFixed(1)}` : '';
+                    leaderSubEl.textContent = `${sprintLeader.sprintPts} Sprint PTS • ${sprintLeader.sprintWins} Win${sprintLeader.sprintWins === 1 ? '' : 's'} (${avgStr})`;
+                }
+            } else {
+                if (leaderNameEl) leaderNameEl.textContent = 'N/A';
+                if (leaderSubEl) leaderSubEl.textContent = 'No Sprint points recorded';
+            }
+
+            // 2. Render Chart.js Stacked Horizontal Bar Chart
+            renderSprintDisparityChart(rows);
+
+            // 3. Render SDI Leaderboard Table
+            renderSprintDisparityTable(rows);
+        }
+
+        function renderSprintDisparityChart(rows) {
+            const ctx = document.getElementById('sprintDisparityChart');
+            if (!ctx) return;
+
+            const activeRows = rows.filter(r => r.totalPts > 0).slice(0, 12);
+            const displayRows = activeRows.length > 0 ? activeRows : rows.slice(0, 10);
+
+            const labels = displayRows.map(r => `${r.code} (${r.name.split(' ').pop()})`);
+            const sprintData = displayRows.map(r => r.sprintPts);
+            const gpData = displayRows.map(r => r.gpPts);
+            const gpColors = displayRows.map(r => hexToRgba(r.teamColor, 0.82));
+            const gpBorders = displayRows.map(r => r.teamColor);
+
+            if (sprintDisparityChartInstance) {
+                sprintDisparityChartInstance.destroy();
+            }
+
+            sprintDisparityChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '⚡ Sprint Points (Saturday)',
+                            data: sprintData,
+                            backgroundColor: 'rgba(155, 81, 224, 0.88)',
+                            borderColor: '#9B51E0',
+                            hoverBackgroundColor: '#B574F5',
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '🏁 Grand Prix Points (Sunday)',
+                            data: gpData,
+                            backgroundColor: gpColors,
+                            borderColor: gpBorders,
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        axis: 'y',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 13, 19, 0.96)',
+                            titleColor: '#F8FAFC',
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyColor: '#E2E8F0',
+                            bodyFont: { family: 'monospace', size: 12 },
+                            borderColor: '#9B51E0',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                title: (items) => {
+                                    const idx = items[0]?.dataIndex;
+                                    const d = displayRows[idx];
+                                    return d ? `${d.name} (${d.teamName}) — ${d.totalPts} Total PTS` : '';
+                                },
+                                label: (item) => {
+                                    const idx = item.dataIndex;
+                                    const d = displayRows[idx];
+                                    if (!d) return '';
+                                    if (item.datasetIndex === 0) {
+                                        const avgFin = d.sprintAvgFin !== null ? `P${d.sprintAvgFin.toFixed(1)}` : 'N/A';
+                                        return `⚡ Sprint Pts: ${d.sprintPts} PTS (${d.sprintSharePct.toFixed(1)}% split) • Avg Finish: ${avgFin}`;
+                                    } else {
+                                        const avgFin = d.gpAvgFin !== null ? `P${d.gpAvgFin.toFixed(1)}` : 'N/A';
+                                        return `🏁 Sunday GP Pts: ${d.gpPts} PTS (${d.gpSharePct.toFixed(1)}% split) • Avg Finish: ${avgFin}`;
+                                    }
+                                },
+                                afterBody: (items) => {
+                                    const idx = items[0]?.dataIndex;
+                                    const d = displayRows[idx];
+                                    if (!d) return [];
+                                    const roleTag = d.sdiCategory === 'specialist'
+                                        ? '⚡ Saturday Specialist (SDI > 1.0)'
+                                        : (d.sdiCategory === 'grinder' ? '☀️ Sunday Grinder (SDI < 1.0)' : '⚖️ Balanced Scorer');
+                                    return [`📊 Sprint Dominance Index (SDI): ${d.sdiDisplay} — ${roleTag}`];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.06)'
+                            },
+                            ticks: {
+                                color: '#94A3B8',
+                                font: { family: 'monospace', size: 11 }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Accumulated Championship Points (Saturday Sprint + Sunday GP)',
+                                color: '#94A3B8',
+                                font: { size: 11.5, weight: '700' }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#F8FAFC',
+                                font: { family: 'monospace', size: 11.5, weight: '700' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderSprintDisparityTable(rows) {
+            const tbody = document.getElementById('sprintDisparityTableBody');
+            if (!tbody) return;
+
+            const filteredRows = rows.filter(r => r.totalPts > 0 || r.sprintFinishes.length > 0 || r.gpFinishes.length > 0);
+
+            tbody.innerHTML = filteredRows.map((r, idx) => {
+                const rank = idx + 1;
+                const spPctStr = r.totalPts > 0 ? `${r.sprintSharePct.toFixed(1)}%` : '0.0%';
+                const gpPctStr = r.totalPts > 0 ? `${r.gpSharePct.toFixed(1)}%` : '0.0%';
+
+                const spAvgStr = r.sprintAvgFin !== null ? `P${r.sprintAvgFin.toFixed(1)}` : '—';
+                const gpAvgStr = r.gpAvgFin !== null ? `P${r.gpAvgFin.toFixed(1)}` : '—';
+
+                let badgeHtml = '';
+                if (r.sdiCategory === 'specialist') {
+                    badgeHtml = `<span class="sdi-badge specialist" title="Saturday Specialist: Outperforms in Sprint format relative to Sunday GP">⚡ ${r.sdiDisplay} SAT SPEC</span>`;
+                } else if (r.sdiCategory === 'grinder') {
+                    badgeHtml = `<span class="sdi-badge grinder" title="Sunday Grinder: Accumulates higher share of points on Sunday Feature Race">☀️ ${r.sdiDisplay} SUN GRIND</span>`;
+                } else {
+                    badgeHtml = `<span class="sdi-badge neutral">⚖️ ${r.sdiDisplay}</span>`;
+                }
+
+                return `
+                    <tr>
+                        <td style="text-align: center; font-family: var(--font-mono); font-weight: 800; color: ${rank <= 3 ? 'var(--sprint-gold)' : '#94A3B8'};">
+                            ${rank}
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="width: 4px; height: 18px; border-radius: 2px; background: ${r.teamColor}; display: inline-block;"></span>
+                                <strong>${r.name}</strong>
+                                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #94A3B8;">${r.code}</span>
+                            </div>
+                        </td>
+                        <td style="color: #CBD5E1; font-size: 0.82rem;">
+                            ${r.teamName}
+                        </td>
+                        <td style="text-align: right; font-family: var(--font-mono); font-weight: 800; color: #F8FAFC;">
+                            ${r.totalPts}
+                        </td>
+                        <td style="text-align: right; font-family: var(--font-mono);">
+                            <span style="color: #B574F5; font-weight: 800;">${r.sprintPts}</span>
+                            <span style="color: #94A3B8; font-size: 0.75rem;">(${spPctStr})</span>
+                            <div class="sprint-split-bar">
+                                <div class="sprint-split-fill" style="width: ${Math.min(100, r.sprintSharePct)}%; background: var(--sprint-purple);"></div>
+                            </div>
+                        </td>
+                        <td style="text-align: right; font-family: var(--font-mono);">
+                            <span style="color: #F8FAFC; font-weight: 700;">${r.gpPts}</span>
+                            <span style="color: #94A3B8; font-size: 0.75rem;">(${gpPctStr})</span>
+                            <div class="sprint-split-bar">
+                                <div class="sprint-split-fill" style="width: ${Math.min(100, r.gpSharePct)}%; background: ${r.teamColor};"></div>
+                            </div>
+                        </td>
+                        <td style="text-align: center; font-family: var(--font-mono); color: ${r.sprintAvgFin !== null && r.sprintAvgFin <= 3 ? 'var(--sprint-cyan)' : '#CBD5E1'}; font-weight: 700;">
+                            ${spAvgStr}
+                        </td>
+                        <td style="text-align: center; font-family: var(--font-mono); color: ${r.gpAvgFin !== null && r.gpAvgFin <= 3 ? 'var(--sprint-gold)' : '#CBD5E1'}; font-weight: 700;">
+                            ${gpAvgStr}
+                        </td>
+                        <td style="text-align: center;">
+                            ${badgeHtml}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         // Safe Pit Stop handlers so all existing controls remain error-free
         function onPitStopSeasonChange(season) {
             if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(season);
@@ -5573,6 +6831,7 @@
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
                 'all': 'tabBtnAll',
+                'sprint': 'tabBtnSprint',
                 'clinch': 'tabBtnClinch',
                 'pitstops': 'tabBtnPitStops',
                 'telemetry': 'tabBtnTelemetry',
@@ -5582,6 +6841,7 @@
             const activeBtn = document.getElementById(btnMap[tabId] || `tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
             if (activeBtn) activeBtn.classList.add('active');
 
+            const sprintSec = document.getElementById('sprint-disparity-section');
             const clinchSec = document.getElementById('clinch-engine-section');
             const pitstopSec = document.getElementById('pitstop-matrix-section');
             const telemetrySec = document.getElementById('teammate-telemetry-section');
@@ -5589,7 +6849,16 @@
             const latestRaceSec = document.getElementById('latest-race-section');
             const standingsTableSec = document.getElementById('standings-table-section');
 
-            if (tabId === 'clinch') {
+            if (tabId === 'sprint') {
+                if (sprintSec) sprintSec.style.display = 'block';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'clinch') {
+                if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
@@ -5597,6 +6866,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'pitstops') {
+                if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'block';
                 if (telemetrySec) telemetrySec.style.display = 'none';
@@ -5604,6 +6874,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'telemetry') {
+                if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'block';
@@ -5611,6 +6882,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'progression') {
+                if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
@@ -5618,6 +6890,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'results') {
+                if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
@@ -5625,6 +6898,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
                 if (standingsTableSec) standingsTableSec.style.display = 'block';
             } else {
+                if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'block';
                 if (telemetrySec) telemetrySec.style.display = 'block';
@@ -5637,12 +6911,14 @@
                 if (chartInstance) chartInstance.resize();
                 if (telemetryRadarChartInstance) telemetryRadarChartInstance.resize();
                 if (telemetryDeltaChartInstance) telemetryDeltaChartInstance.resize();
+                if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
             }, 50);
         }
 
         window.addEventListener('resize', () => {
             if (telemetryRadarChartInstance) telemetryRadarChartInstance.resize();
             if (telemetryDeltaChartInstance) telemetryDeltaChartInstance.resize();
+            if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
             if (chartInstance) chartInstance.resize();
         });
 
@@ -5672,6 +6948,11 @@
             const clinchSeasonSelect = document.getElementById('clinchSeasonSelect');
             if (clinchSeasonSelect) {
                 loadClinchEngineData(clinchSeasonSelect.value, 'latest', false);
+            }
+
+            const sprintSeasonSelect = document.getElementById('sprintSeasonSelect');
+            if (sprintSeasonSelect) {
+                loadSprintDisparityData(sprintSeasonSelect.value, false);
             }
         });
     </script>
