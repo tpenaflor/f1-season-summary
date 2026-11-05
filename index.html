@@ -478,6 +478,7 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             border-radius: 8px;
             border: 1px solid var(--border-color);
         }
@@ -3611,6 +3612,24 @@
             height: 100%;
             border-radius: 999px;
             transition: width 0.3s ease;
+        }
+
+        @media (max-width: 640px) {
+            .teammate-comparison-card,
+            .telemetry-radar-wrapper,
+            .sprint-disparity-layout {
+                flex-direction: column !important;
+            }
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+            }
+            .telemetry-delta-value,
+            .tabular-num-timing {
+                font-family: var(--font-mono), monospace;
+                font-variant-numeric: tabular-nums;
+            }
         }
 
     </style>

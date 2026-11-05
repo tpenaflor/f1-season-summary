@@ -2,10 +2,31 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
-const f1App = require('../index.html');
+function loadScriptExports() {
+    const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf-8');
+    const scriptMatch = html.match(/<script[\s\S]*?>([\s\S]*?)<\/script>/i);
+    if (!scriptMatch) throw new Error('No script in index.html');
+    const sandbox = {
+        document: {
+            getElementById: () => ({ style: {}, addEventListener: () => {} }),
+            addEventListener: () => {}
+        },
+        window: { addEventListener: () => {} },
+        fetch: async () => ({ ok: true, json: async () => ({}) }),
+        Chart: function() { this.destroy = () => {}; this.resize = () => {}; },
+        module: { exports: {} },
+        exports: {},
+        console
+    };
+    vm.createContext(sandbox);
+    vm.runInContext(scriptMatch[1], sandbox);
+    return sandbox.module.exports;
+}
 
 test('Issue #9: extracts fastest lap from race results when rank === 1', () => {
+    const f1App = loadScriptExports();
     const mockResults = [
         {
             position: '1',
@@ -30,6 +51,7 @@ test('Issue #9: extracts fastest lap from race results when rank === 1', () => {
 });
 
 test('Issue #9: returns null when no results or no FastestLap object exists (pre-2004)', () => {
+    const f1App = loadScriptExports();
     const mockPre2004Results = [
         {
             position: '1',
