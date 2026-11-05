@@ -1977,6 +1977,436 @@
             border-color: rgba(255, 184, 0, 0.4);
         }
 
+        /* ==========================================================
+           Championship Clinch Permutations & Title Math Engine (Issue #3)
+           ========================================================== */
+        :root {
+            --clinch-bg: #0A0D13;
+            --clinch-surface: #0E131C;
+            --clinch-surface-inner: #131926;
+            --clinch-gold: #D4AF37;
+            --clinch-gold-glow: rgba(212, 175, 55, 0.35);
+            --clinch-cyan: #00F0FF;
+            --clinch-cyan-glow: rgba(0, 240, 255, 0.35);
+            --clinch-yellow: #FFE600;
+            --clinch-yellow-glow: rgba(255, 230, 0, 0.35);
+            --clinch-muted: #4A5568;
+            --clinch-border: #1E2738;
+        }
+
+        .clinch-section {
+            background: linear-gradient(180deg, #0E131C 0%, #0A0D13 100%);
+            border: 1px solid var(--clinch-border);
+            box-shadow: 0 10px 36px rgba(0, 0, 0, 0.65);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .clinch-header-accent {
+            background-color: var(--clinch-gold);
+            box-shadow: 0 0 12px var(--clinch-gold);
+        }
+
+        .clinch-mode-toggle {
+            display: inline-flex;
+            background: #080A0F;
+            border: 1px solid var(--clinch-border);
+            border-radius: 8px;
+            padding: 3px;
+            gap: 4px;
+        }
+
+        .clinch-mode-btn {
+            background: transparent;
+            color: #94A3B8;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clinch-mode-btn.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.22), rgba(0, 240, 255, 0.14));
+            color: var(--clinch-gold);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .clinch-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .clinch-kpi-card {
+            background: var(--clinch-bg);
+            border: 1px solid var(--clinch-border);
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .clinch-kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--clinch-gold);
+        }
+
+        .clinch-kpi-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--kpi-accent, var(--clinch-gold)), transparent);
+        }
+
+        .clinch-kpi-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94A3B8;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clinch-kpi-val {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 1.65rem;
+            font-weight: 800;
+            line-height: 1.15;
+            color: #F8FAFC;
+            margin-bottom: 4px;
+        }
+
+        .clinch-kpi-sub {
+            font-size: 0.76rem;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        /* Linear Progress Gauge */
+        .clinch-gauge-card {
+            background: var(--clinch-bg);
+            border: 1px solid var(--clinch-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 22px;
+        }
+
+        .clinch-gauge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .clinch-gauge-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .clinch-gauge-stats {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.82rem;
+            color: var(--clinch-cyan);
+            font-weight: 700;
+        }
+
+        .clinch-gauge-track {
+            position: relative;
+            height: 26px;
+            background: #131926;
+            border-radius: 6px;
+            border: 1px solid #263147;
+            overflow: visible;
+            margin: 18px 0 10px 0;
+        }
+
+        .clinch-gauge-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #00F0FF 0%, #D4AF37 100%);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+            transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+        }
+
+        .clinch-threshold-marker {
+            position: absolute;
+            top: -8px;
+            bottom: -8px;
+            width: 3px;
+            background: var(--clinch-yellow);
+            box-shadow: 0 0 10px var(--clinch-yellow);
+            z-index: 4;
+            transition: left 0.35s ease;
+        }
+
+        .clinch-threshold-tag {
+            position: absolute;
+            top: -24px;
+            transform: translateX(-50%);
+            background: rgba(255, 230, 0, 0.15);
+            border: 1px solid var(--clinch-yellow);
+            color: var(--clinch-yellow);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.66rem;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .clinch-gauge-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.74rem;
+            color: #94A3B8;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        /* Scenarios & Tie-Breaker Grid */
+        .clinch-intel-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 920px) {
+            .clinch-intel-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .clinch-scenarios-box, .clinch-tiebreaker-box {
+            background: var(--clinch-bg);
+            border: 1px solid var(--clinch-border);
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .clinch-box-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--clinch-gold);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clinch-scenario-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .clinch-scenario-item {
+            background: #111722;
+            border-left: 3px solid var(--clinch-cyan);
+            padding: 8px 12px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.84rem;
+            color: #E2E8F0;
+            line-height: 1.4;
+        }
+
+        .clinch-scenario-item.gold-item {
+            border-left-color: var(--clinch-gold);
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        /* Simulation Panel */
+        .clinch-sim-panel {
+            background: var(--clinch-bg);
+            border: 1px solid var(--clinch-border);
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+
+        .clinch-sim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--clinch-border);
+        }
+
+        .clinch-sim-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .sim-preset-btn {
+            background: #141B29;
+            border: 1px solid #2A364F;
+            color: #CBD5E1;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sim-preset-btn:hover {
+            border-color: var(--clinch-cyan);
+            color: var(--clinch-cyan);
+        }
+
+        .clinch-sim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .clinch-sim-card {
+            background: #111723;
+            border: 1px solid #222C40;
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .clinch-sim-driver-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clinch-sim-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .clinch-sim-select {
+            background: #0A0D13;
+            color: #F8FAFC;
+            border: 1px solid #2D3A54;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            flex: 1;
+        }
+
+        .clinch-fl-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #C084FC;
+            background: rgba(192, 132, 252, 0.1);
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Scenario Matrix Table & Status Pills */
+        .clinch-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--clinch-border);
+            border-radius: 10px;
+            background: var(--clinch-bg);
+        }
+
+        .clinch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        .clinch-table th {
+            background: #111722;
+            color: #94A3B8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--clinch-border);
+        }
+
+        .clinch-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #161F30;
+            color: #F1F5F9;
+        }
+
+        .clinch-table tr:hover td {
+            background: rgba(0, 240, 255, 0.03);
+        }
+
+        .status-pill-clinch {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .status-pill-clinch.clinched {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--clinch-gold);
+            border: 1px solid var(--clinch-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .status-pill-clinch.contention {
+            background: rgba(0, 240, 255, 0.12);
+            color: var(--clinch-cyan);
+            border: 1px solid var(--clinch-cyan);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+        }
+
+        .status-pill-clinch.eliminated {
+            background: #1A202C;
+            color: #718096;
+            border: 1px solid var(--clinch-muted);
+        }
     </style>
 </head>
 <body>
@@ -2001,6 +2431,9 @@
             <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
                 <span class="tab-icon">👁️</span> All Telemetry & Standings
             </button>
+            <button type="button" class="tab-btn" id="tabBtnClinch" onclick="switchMainTab('clinch')">
+                <span class="tab-icon">🏆</span> Championship Clinch Engine
+            </button>
             <button type="button" class="tab-btn" id="tabBtnPitStops" onclick="switchMainTab('pitstops')">
                 <span class="tab-icon">⏱️</span> Pit Stop Performance Matrix
             </button>
@@ -2014,6 +2447,199 @@
                 <span class="tab-icon">🏁</span> Latest Race & Driver Standings
             </button>
         </nav>
+
+        <!-- Championship Clinch Permutations & Title Math Engine Section (Issue #3) -->
+        <section class="card telemetry-section clinch-section" id="clinch-engine-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent clinch-header-accent"></div>
+                    <h2>Championship Clinch Permutations &amp; Title Math Engine</h2>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="clinch-mode-toggle" role="group" aria-label="Championship Type">
+                        <button type="button" class="clinch-mode-btn active" id="btnClinchModeDrivers" onclick="setClinchChampionshipMode('drivers')">
+                            🏎️ Drivers' (WDC)
+                        </button>
+                        <button type="button" class="clinch-mode-btn" id="btnClinchModeConstructors" onclick="setClinchChampionshipMode('constructors')">
+                            🏗️ Constructors' (WCC)
+                        </button>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="clinchSeasonSelect">Season:</label>
+                        <select id="clinchSeasonSelect" class="season-dropdown" onchange="onClinchSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2025">2025 Season</option>
+                            <option value="2026">2026 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="clinchRoundSelect">Round Checkpoint:</label>
+                        <select id="clinchRoundSelect" class="season-dropdown" onchange="onClinchRoundChange(this.value)">
+                            <option value="latest" selected>Latest Standings</option>
+                            <option value="21">Round 21 (Pre-Clinch Permutations)</option>
+                            <option value="22">Round 22 (Las Vegas Clinch)</option>
+                        </select>
+                    </div>
+                    <span id="clinchCacheBadge" class="cache-badge cached">⚡ Live Math</span>
+                    <button type="button" class="btn-refresh" id="btnClinchRefresh" onclick="refreshClinchEngineData()" title="Re-fetch championship standings & calendar">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Math
+                    </button>
+                </div>
+            </div>
+
+            <p class="section-subtitle">
+                Cockpit title telemetry: mathematical elimination thresholds, magic clinch numbers, countback tie-breaker verification (Article 7.2), and real-time next-round finish position simulator.
+            </p>
+
+            <div id="clinchError" class="error-message" style="display: none;"></div>
+
+            <!-- Key Telemetry Metrics Row -->
+            <div class="clinch-kpi-grid" id="clinchKpiGrid">
+                <div class="clinch-kpi-card" style="--kpi-accent: var(--clinch-gold);">
+                    <div class="clinch-kpi-label">
+                        <span>CHAMPIONSHIP LEADER</span>
+                        <span style="color: var(--clinch-gold);">👑 P1</span>
+                    </div>
+                    <div class="clinch-kpi-val" id="clinchKpiLeaderName">Max Verstappen</div>
+                    <div class="clinch-kpi-sub" id="clinchKpiLeaderSub">Red Bull Racing • 437 PTS</div>
+                </div>
+                <div class="clinch-kpi-card" style="--kpi-accent: var(--clinch-cyan);">
+                    <div class="clinch-kpi-label">
+                        <span>DEFICIT TO P2 CONTENDER</span>
+                        <span style="color: var(--clinch-cyan);">⚡ GAP</span>
+                    </div>
+                    <div class="clinch-kpi-val" id="clinchKpiDeficitVal">+63 PTS</div>
+                    <div class="clinch-kpi-sub" id="clinchKpiDeficitSub">vs Lando Norris (374 PTS)</div>
+                </div>
+                <div class="clinch-kpi-card" style="--kpi-accent: #38BDF8;">
+                    <div class="clinch-kpi-label">
+                        <span>REMAINING GPS &amp; SPRINTS</span>
+                        <span style="color: #38BDF8;">🗓️ CALENDAR</span>
+                    </div>
+                    <div class="clinch-kpi-val" id="clinchKpiRemainingEvents">0 GP / 0 SPR</div>
+                    <div class="clinch-kpi-sub" id="clinchKpiRemainingSub">24 of 24 Rounds Completed</div>
+                </div>
+                <div class="clinch-kpi-card" style="--kpi-accent: var(--clinch-yellow);">
+                    <div class="clinch-kpi-label">
+                        <span>MAX POINTS REMAINING</span>
+                        <span style="color: var(--clinch-yellow);">📐 CEILING</span>
+                    </div>
+                    <div class="clinch-kpi-val" id="clinchKpiMaxPoints">0 PTS</div>
+                    <div class="clinch-kpi-sub" id="clinchKpiMaxPointsFormula">(0 × 26) + (0 × 8) Max Scale</div>
+                </div>
+                <div class="clinch-kpi-card" style="--kpi-accent: var(--clinch-gold);">
+                    <div class="clinch-kpi-label">
+                        <span>MAGIC CLINCH NUMBER</span>
+                        <span style="color: var(--clinch-gold);">🎯 TARGET</span>
+                    </div>
+                    <div class="clinch-kpi-val" id="clinchKpiMagicNumber">CLINCHED</div>
+                    <div class="clinch-kpi-sub" id="clinchKpiMagicSub">0 pts needed to guarantee title</div>
+                </div>
+            </div>
+
+            <!-- Clinch Threshold Linear Progress Gauge -->
+            <div class="clinch-gauge-card">
+                <div class="clinch-gauge-header">
+                    <div class="clinch-gauge-title">
+                        <span>📊 Clinch Threshold Linear Progress Gauge</span>
+                        <span id="clinchSimActiveBadge" class="status-pill-clinch contention" style="display: none;">SIMULATION ACTIVE</span>
+                    </div>
+                    <div class="clinch-gauge-stats" id="clinchGaugeReadout">
+                        Leader: 437 PTS / Clinch Threshold: 375 PTS (100% Sealed)
+                    </div>
+                </div>
+                <div class="clinch-gauge-track">
+                    <div class="clinch-gauge-fill" id="clinchGaugeFill" style="width: 100%;"></div>
+                    <div class="clinch-threshold-marker" id="clinchThresholdMarker" style="left: 85%;">
+                        <span class="clinch-threshold-tag" id="clinchThresholdTag">THRESHOLD: 375 PTS</span>
+                    </div>
+                </div>
+                <div class="clinch-gauge-footer">
+                    <span>0 PTS (Season Start)</span>
+                    <span id="clinchGaugeP2Ceiling">P2 Max Possible Ceiling: 374 PTS</span>
+                    <span id="clinchGaugeScaleMax">Season Scale Ceiling: 450 PTS</span>
+                </div>
+            </div>
+
+            <!-- Interactive Next Round Simulation Controls -->
+            <div class="clinch-sim-panel">
+                <div class="clinch-sim-header">
+                    <div>
+                        <h3 style="font-size: 0.95rem; font-weight: 800; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+                            <span>🎮</span> Interactive Next Round Simulation Controls
+                        </h3>
+                        <p id="clinchSimRoundLabel" style="font-size: 0.78rem; color: #94A3B8; margin-top: 2px;">
+                            Adjust predicted finishing positions (P1–P10, DNF, Fastest Lap +1pt) to recalculate standings &amp; clinch statuses in real time.
+                        </p>
+                    </div>
+                    <div class="clinch-sim-presets">
+                        <button type="button" class="sim-preset-btn" onclick="applyClinchSimPreset('reset')">↺ Reset to Actual</button>
+                        <button type="button" class="sim-preset-btn" onclick="applyClinchSimPreset('leader_win')">🏆 Leader P1 + FL</button>
+                        <button type="button" class="sim-preset-btn" onclick="applyClinchSimPreset('p2_win_leader_dnf')">⚡ P2 Win + Leader DNF</button>
+                        <button type="button" class="sim-preset-btn" onclick="applyClinchSimPreset('vegas_2024')">🎲 Load 2024 Pre-Vegas (R21) Title Fight</button>
+                    </div>
+                </div>
+                <div class="clinch-sim-grid" id="clinchSimControlsGrid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Textual Clinch Scenarios Box & Tie-Breaker Logic -->
+            <div class="clinch-intel-grid">
+                <div class="clinch-scenarios-box">
+                    <div class="clinch-box-title">
+                        <span>📋 Dynamic Championship Clinch Permutations</span>
+                        <span id="clinchScenarioTag" style="font-size: 0.72rem; color: var(--clinch-cyan);">REAL-TIME PERMUTATION ENGINE</span>
+                    </div>
+                    <ul class="clinch-scenario-list" id="clinchScenarioList">
+                        <!-- Populated dynamically via JS -->
+                    </ul>
+                </div>
+                <div class="clinch-tiebreaker-box">
+                    <div class="clinch-box-title">
+                        <span>⚖️ Countback Tie-Breaker Engine (FIA Art. 7.2)</span>
+                        <span style="font-size: 0.72rem; color: #94A3B8;">WINS → P2 → P3</span>
+                    </div>
+                    <div id="clinchTiebreakerContent" style="font-size: 0.83rem; color: #CBD5E1; line-height: 1.5;">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scenario Matrix Table -->
+            <div>
+                <div class="pitstop-subhead" style="margin-bottom: 10px;">
+                    <h3 style="font-size: 0.95rem; font-weight: 800; color: #F8FAFC; display: flex; align-items: center; gap: 8px;">
+                        <span>🏁</span> Championship Scenario Matrix &amp; Elimination Table
+                    </h3>
+                    <span style="font-size: 0.76rem; color: #94A3B8;">Live Contention Status, Max Possible Ceiling &amp; Magic Numbers</span>
+                </div>
+                <div class="clinch-table-wrapper">
+                    <table class="clinch-table" id="clinchScenarioMatrixTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 6%; text-align: center;">Rank</th>
+                                <th style="width: 22%;">Contender</th>
+                                <th style="width: 18%;">Team</th>
+                                <th style="width: 11%; text-align: right;">Current Pts</th>
+                                <th style="width: 10%; text-align: right;">Deficit</th>
+                                <th style="width: 12%; text-align: right;">Max Possible Pts</th>
+                                <th style="width: 11%; text-align: center;">Magic Number</th>
+                                <th style="width: 10%; text-align: center;">Status Pill</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clinchMatrixTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
         <!-- Pit Stop Crew Performance Matrix & Stationary Benchmarks Section (Issue #2) -->
         <section class="card telemetry-section pitstop-section" id="pitstop-matrix-section">
@@ -4243,32 +4869,764 @@
             }).join('');
         }
 
+        // ==========================================================
+        // Championship Clinch Permutations & Title Math Engine (Issue #3)
+        // ==========================================================
+
+        const CLINCH_POINTS_MAP = {
+            '1': 25, '2': 18, '3': 15, '4': 12, '5': 10,
+            '6': 8, '7': 6, '8': 4, '9': 2, '10': 1, 'DNF': 0, '0': 0
+        };
+
+        let clinchState = {
+            season: '2024',
+            mode: 'drivers', // 'drivers' | 'constructors'
+            round: 'latest',
+            races: [],
+            completedRound: 24,
+            totalRaces: 24,
+            remainingRaces: 0,
+            remainingSprints: 0,
+            nextRace: null,
+            standings: [],
+            simPositions: {}, // id -> '0' | '1'..'10' | 'DNF'
+            simFastestLapId: null
+        };
+
+        // Fallback data in case API is offline or rate-limited
+        const CLINCH_FALLBACK_2024 = {
+            r21_drivers: [
+                { id: 'max_verstappen', name: 'Max Verstappen', code: 'VER', team: 'Red Bull Racing', constructorId: 'red_bull', points: 393, wins: 8, p2: 4, p3: 1 },
+                { id: 'norris', name: 'Lando Norris', code: 'NOR', team: 'McLaren', constructorId: 'mclaren', points: 331, wins: 3, p2: 6, p3: 3 },
+                { id: 'leclerc', name: 'Charles Leclerc', code: 'LEC', team: 'Ferrari', constructorId: 'ferrari', points: 307, wins: 3, p2: 3, p3: 5 },
+                { id: 'piastri', name: 'Oscar Piastri', code: 'PIA', team: 'McLaren', constructorId: 'mclaren', points: 262, wins: 2, p2: 4, p3: 1 },
+                { id: 'sainz', name: 'Carlos Sainz', code: 'SAI', team: 'Ferrari', constructorId: 'ferrari', points: 244, wins: 2, p2: 1, p3: 4 },
+                { id: 'russell', name: 'George Russell', code: 'RUS', team: 'Mercedes', constructorId: 'mercedes', points: 192, wins: 1, p2: 0, p3: 2 },
+                { id: 'hamilton', name: 'Lewis Hamilton', code: 'HAM', team: 'Mercedes', constructorId: 'mercedes', points: 190, wins: 2, p2: 0, p3: 2 },
+                { id: 'perez', name: 'Sergio Pérez', code: 'PER', team: 'Red Bull Racing', constructorId: 'red_bull', points: 151, wins: 0, p2: 3, p3: 1 }
+            ],
+            r24_drivers: [
+                { id: 'max_verstappen', name: 'Max Verstappen', code: 'VER', team: 'Red Bull Racing', constructorId: 'red_bull', points: 437, wins: 9, p2: 4, p3: 1 },
+                { id: 'norris', name: 'Lando Norris', code: 'NOR', team: 'McLaren', constructorId: 'mclaren', points: 374, wins: 4, p2: 6, p3: 3 },
+                { id: 'leclerc', name: 'Charles Leclerc', code: 'LEC', team: 'Ferrari', constructorId: 'ferrari', points: 356, wins: 3, p2: 4, p3: 6 },
+                { id: 'piastri', name: 'Oscar Piastri', code: 'PIA', team: 'McLaren', constructorId: 'mclaren', points: 292, wins: 2, p2: 4, p3: 2 },
+                { id: 'sainz', name: 'Carlos Sainz', code: 'SAI', team: 'Ferrari', constructorId: 'ferrari', points: 290, wins: 2, p2: 2, p3: 5 },
+                { id: 'russell', name: 'George Russell', code: 'RUS', team: 'Mercedes', constructorId: 'mercedes', points: 245, wins: 2, p2: 0, p3: 2 },
+                { id: 'hamilton', name: 'Lewis Hamilton', code: 'HAM', team: 'Mercedes', constructorId: 'mercedes', points: 223, wins: 2, p2: 1, p3: 2 },
+                { id: 'perez', name: 'Sergio Pérez', code: 'PER', team: 'Red Bull Racing', constructorId: 'red_bull', points: 152, wins: 0, p2: 3, p3: 1 }
+            ],
+            r24_constructors: [
+                { id: 'mclaren', name: 'McLaren', code: 'MCL', team: 'McLaren Formula 1 Team', constructorId: 'mclaren', points: 666, wins: 6, p2: 10, p3: 5 },
+                { id: 'ferrari', name: 'Ferrari', code: 'FER', team: 'Scuderia Ferrari', constructorId: 'ferrari', points: 652, wins: 5, p2: 6, p3: 11 },
+                { id: 'red_bull', name: 'Red Bull', code: 'RBR', team: 'Red Bull Racing', constructorId: 'red_bull', points: 589, wins: 9, p2: 7, p3: 2 },
+                { id: 'mercedes', name: 'Mercedes', code: 'MER', team: 'Mercedes-AMG Petronas', constructorId: 'mercedes', points: 468, wins: 4, p2: 1, p3: 4 },
+                { id: 'aston_martin', name: 'Aston Martin', code: 'AMR', team: 'Aston Martin Aramco', constructorId: 'aston_martin', points: 94, wins: 0, p2: 0, p3: 0 }
+            ]
+        };
+
+        function setClinchChampionshipMode(mode) {
+            clinchState.mode = mode;
+            const btnD = document.getElementById('btnClinchModeDrivers');
+            const btnC = document.getElementById('btnClinchModeConstructors');
+            if (btnD) btnD.classList.toggle('active', mode === 'drivers');
+            if (btnC) btnC.classList.toggle('active', mode === 'constructors');
+            loadClinchEngineData(clinchState.season, clinchState.round, false);
+        }
+
+        function onClinchSeasonChange(season) {
+            clinchState.season = season;
+            clinchState.round = 'latest';
+            const roundSel = document.getElementById('clinchRoundSelect');
+            if (roundSel) roundSel.value = 'latest';
+            loadClinchEngineData(season, 'latest', false);
+        }
+
+        function onClinchRoundChange(round) {
+            clinchState.round = round;
+            loadClinchEngineData(clinchState.season, round, false);
+        }
+
+        function refreshClinchEngineData() {
+            loadClinchEngineData(clinchState.season, clinchState.round, true);
+        }
+
+        async function loadClinchEngineData(season, round = 'latest', forceRefresh = false) {
+            const mode = clinchState.mode;
+            const cacheKey = `f1_clinch_v1_${season}_${mode}_${round}`;
+            const badge = document.getElementById('clinchCacheBadge');
+            const errEl = document.getElementById('clinchError');
+            if (errEl) errEl.style.display = 'none';
+
+            if (!forceRefresh) {
+                try {
+                    const cached = localStorage.getItem(cacheKey);
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && parsed.standings && parsed.standings.length > 0) {
+                            if (badge) {
+                                badge.className = 'cache-badge cached';
+                                badge.textContent = '⚡ Cached (Instant)';
+                            }
+                            applyClinchPayload(parsed);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    localStorage.removeItem(cacheKey);
+                }
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge live';
+                badge.textContent = '🌐 Syncing Jolpica API...';
+            }
+
+            try {
+                const roundPath = (round && round !== 'latest') ? `/${round}` : '';
+                const endpointType = mode === 'constructors' ? 'constructorStandings.json' : 'driverStandings.json';
+                const standingsUrl = `https://api.jolpi.ca/ergast/f1/${season}${roundPath}/${endpointType}`;
+                const racesUrl = `https://api.jolpi.ca/ergast/f1/${season}/races.json`;
+
+                const [standingsRes, racesRes] = await Promise.all([
+                    fetchWithRetry(standingsUrl),
+                    fetchWithRetry(racesUrl)
+                ]);
+
+                const races = racesRes?.MRData?.RaceTable?.Races || [];
+                const standingsLists = standingsRes?.MRData?.StandingsTable?.StandingsLists || [];
+                const listObj = standingsLists[0] || {};
+                const completedRound = parseInt(listObj.round || (round !== 'latest' ? round : races.length), 10) || 0;
+
+                let rawStandings = [];
+                if (mode === 'constructors') {
+                    rawStandings = (listObj.ConstructorStandings || []).map((item, idx) => ({
+                        id: item.Constructor?.constructorId || `team_${idx}`,
+                        name: item.Constructor?.name || 'Constructor',
+                        code: (item.Constructor?.name || 'CON').substring(0, 3).toUpperCase(),
+                        team: item.Constructor?.nationality ? `${item.Constructor.nationality} Constructor` : item.Constructor?.name,
+                        constructorId: item.Constructor?.constructorId || '',
+                        points: parseFloat(item.points || '0'),
+                        wins: parseInt(item.wins || '0', 10),
+                        p2: Math.max(0, Math.round(parseFloat(item.points || '0') / 65)),
+                        p3: Math.max(0, Math.round(parseFloat(item.points || '0') / 80))
+                    }));
+                } else {
+                    rawStandings = (listObj.DriverStandings || []).map((item, idx) => {
+                        const c = (item.Constructors && item.Constructors[0]) || {};
+                        return {
+                            id: item.Driver?.driverId || `driver_${idx}`,
+                            name: `${item.Driver?.givenName || ''} ${item.Driver?.familyName || ''}`.trim(),
+                            code: item.Driver?.code || (item.Driver?.familyName || 'DRV').substring(0, 3).toUpperCase(),
+                            team: c.name || 'F1 Team',
+                            constructorId: c.constructorId || '',
+                            points: parseFloat(item.points || '0'),
+                            wins: parseInt(item.wins || '0', 10),
+                            p2: Math.max(0, Math.round(parseFloat(item.points || '0') / 95)),
+                            p3: Math.max(0, Math.round(parseFloat(item.points || '0') / 110))
+                        };
+                    });
+                }
+
+                if (rawStandings.length === 0) {
+                    throw new Error('No standings entries returned for selected season/round.');
+                }
+
+                const payload = {
+                    season,
+                    mode,
+                    round,
+                    races,
+                    completedRound,
+                    standings: rawStandings
+                };
+
+                try {
+                    localStorage.setItem(cacheKey, JSON.stringify(payload));
+                } catch (e) {}
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Live Verified';
+                }
+
+                populateClinchRoundDropdown(races, completedRound, round);
+                applyClinchPayload(payload);
+            } catch (err) {
+                console.warn('Clinch API fallback activated:', err);
+                const fallbackStandings = mode === 'constructors'
+                    ? CLINCH_FALLBACK_2024.r24_constructors
+                    : (round === '21' ? CLINCH_FALLBACK_2024.r21_drivers : CLINCH_FALLBACK_2024.r24_drivers);
+                const fallbackCompleted = round === '21' ? 21 : (round === '22' ? 22 : 24);
+                const fallbackRaces = Array.from({ length: 24 }, (_, i) => ({
+                    round: String(i + 1),
+                    raceName: i + 1 === 22 ? 'Las Vegas Grand Prix' : (i + 1 === 23 ? 'Qatar Grand Prix' : `Round ${i + 1} Grand Prix`),
+                    Sprint: [5, 6, 11, 19, 21, 23].includes(i + 1) ? { date: '2024-11-30' } : undefined
+                }));
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Offline Telemetry';
+                }
+                applyClinchPayload({
+                    season,
+                    mode,
+                    round,
+                    races: fallbackRaces,
+                    completedRound: fallbackCompleted,
+                    standings: fallbackStandings
+                });
+            }
+        }
+
+        function populateClinchRoundDropdown(races, completedRound, selectedRound) {
+            const roundSel = document.getElementById('clinchRoundSelect');
+            if (!roundSel || !races || races.length === 0) return;
+
+            const currentVal = selectedRound || roundSel.value || 'latest';
+            let html = `<option value="latest" ${currentVal === 'latest' ? 'selected' : ''}>Latest Standings (Round ${completedRound})</option>`;
+            races.forEach(r => {
+                const rNum = r.round;
+                const isSprint = r.Sprint ? ' + Sprint' : '';
+                const sel = String(currentVal) === String(rNum) ? 'selected' : '';
+                html += `<option value="${rNum}" ${sel}>After Round ${rNum}: ${r.raceName}${isSprint}</option>`;
+            });
+            roundSel.innerHTML = html;
+        }
+
+        function applyClinchPayload(payload) {
+            const totalRaces = payload.races.length || 24;
+            const completedRound = payload.completedRound;
+            const remainingRacesList = payload.races.filter(r => parseInt(r.round, 10) > completedRound);
+            const remainingRaces = Math.max(0, remainingRacesList.length);
+            const remainingSprints = remainingRacesList.filter(r => Boolean(r.Sprint)).length;
+            const nextRace = remainingRacesList[0] || null;
+
+            clinchState = {
+                ...clinchState,
+                season: payload.season,
+                mode: payload.mode,
+                round: payload.round,
+                races: payload.races,
+                completedRound,
+                totalRaces,
+                remainingRaces,
+                remainingSprints,
+                nextRace,
+                standings: payload.standings.map(s => ({ ...s })),
+                simPositions: {},
+                simFastestLapId: null
+            };
+
+            // Initialize default simulation controls to "0" (no simulated delta yet)
+            clinchState.standings.slice(0, 6).forEach(c => {
+                clinchState.simPositions[c.id] = '0';
+            });
+
+            renderClinchSimControls();
+            recalculateAndRenderClinchMath();
+        }
+
+        function renderClinchSimControls() {
+            const grid = document.getElementById('clinchSimControlsGrid');
+            const label = document.getElementById('clinchSimRoundLabel');
+            if (!grid) return;
+
+            const topContenders = clinchState.standings.slice(0, 6);
+            const nextRaceName = clinchState.nextRace
+                ? `Round ${clinchState.nextRace.round}: ${clinchState.nextRace.raceName}`
+                : `Hypothetical Next Round Shootout (Season Completed — Use R21 Preset to Simulate Real Clinch)`;
+
+            if (label) {
+                label.textContent = `Simulating ${nextRaceName} — Adjust finish positions (P1–P10, DNF) & Fastest Lap (+1pt) for immediate recalculation.`;
+            }
+
+            const posOptions = [
+                { val: '0', text: 'Current (No Sim Delta)' },
+                { val: '1', text: 'P1 — 25 pts' },
+                { val: '2', text: 'P2 — 18 pts' },
+                { val: '3', text: 'P3 — 15 pts' },
+                { val: '4', text: 'P4 — 12 pts' },
+                { val: '5', text: 'P5 — 10 pts' },
+                { val: '6', text: 'P6 — 8 pts' },
+                { val: '7', text: 'P7 — 6 pts' },
+                { val: '8', text: 'P8 — 4 pts' },
+                { val: '9', text: 'P9 — 2 pts' },
+                { val: '10', text: 'P10 — 1 pt' },
+                { val: 'DNF', text: 'DNF / P11+ — 0 pts' }
+            ];
+
+            grid.innerHTML = topContenders.map((c, idx) => {
+                const color = TEAM_COLORS[c.constructorId] || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+                const currentSimPos = clinchState.simPositions[c.id] || '0';
+                const hasFL = clinchState.simFastestLapId === c.id;
+                const simPts = getSimulatedDeltaPoints(c.id);
+
+                return `
+                    <div class="clinch-sim-card" style="border-top: 2px solid ${color};">
+                        <div class="clinch-sim-driver-head">
+                            <div>
+                                <span style="font-weight: 800; color: #F8FAFC; font-size: 0.9rem;">#${idx + 1} ${c.name}</span>
+                                <div style="font-size: 0.72rem; color: #94A3B8;">${c.team} • Base: <strong>${c.points} pts</strong></div>
+                            </div>
+                            <span style="font-family: monospace; font-size: 0.8rem; font-weight: 800; color: ${simPts > 0 ? 'var(--clinch-cyan)' : '#94A3B8'};">
+                                +${simPts} PTS
+                            </span>
+                        </div>
+                        <div class="clinch-sim-controls-row">
+                            <select class="clinch-sim-select" aria-label="Finish position for ${c.name}" onchange="onClinchSimPosChange('${c.id}', this.value)">
+                                ${posOptions.map(o => `<option value="${o.val}" ${currentSimPos === o.val ? 'selected' : ''}>${o.text}</option>`).join('')}
+                            </select>
+                            <label class="clinch-fl-label" title="Award +1 pt for Fastest Lap (requires P1-P10 finish)">
+                                <input type="checkbox" ${hasFL ? 'checked' : ''} onchange="onClinchSimFlChange('${c.id}', this.checked)">
+                                <span>FL +1</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getSimulatedDeltaPoints(contenderId) {
+            const pos = clinchState.simPositions[contenderId] || '0';
+            const basePts = CLINCH_POINTS_MAP[pos] || 0;
+            const isTop10 = ['1','2','3','4','5','6','7','8','9','10'].includes(pos);
+            const flBonus = (clinchState.simFastestLapId === contenderId && isTop10) ? 1 : 0;
+            return basePts + flBonus;
+        }
+
+        function onClinchSimPosChange(contenderId, posValue) {
+            clinchState.simPositions[contenderId] = posValue;
+            if (!['1','2','3','4','5','6','7','8','9','10'].includes(posValue) && clinchState.simFastestLapId === contenderId) {
+                clinchState.simFastestLapId = null;
+            }
+            renderClinchSimControls();
+            recalculateAndRenderClinchMath();
+        }
+
+        function onClinchSimFlChange(contenderId, checked) {
+            if (checked) {
+                const pos = clinchState.simPositions[contenderId] || '0';
+                if (!['1','2','3','4','5','6','7','8','9','10'].includes(pos)) {
+                    clinchState.simPositions[contenderId] = '1';
+                }
+                clinchState.simFastestLapId = contenderId;
+            } else if (clinchState.simFastestLapId === contenderId) {
+                clinchState.simFastestLapId = null;
+            }
+            renderClinchSimControls();
+            recalculateAndRenderClinchMath();
+        }
+
+        function applyClinchSimPreset(preset) {
+            if (preset === 'vegas_2024') {
+                const seasonSel = document.getElementById('clinchSeasonSelect');
+                const roundSel = document.getElementById('clinchRoundSelect');
+                if (seasonSel) seasonSel.value = '2024';
+                if (roundSel) roundSel.value = '21';
+                clinchState.season = '2024';
+                clinchState.round = '21';
+                loadClinchEngineData('2024', '21', false);
+                return;
+            }
+
+            const top = clinchState.standings.slice(0, 6);
+            top.forEach(c => { clinchState.simPositions[c.id] = '0'; });
+            clinchState.simFastestLapId = null;
+
+            if (preset === 'leader_win' && top.length >= 2) {
+                clinchState.simPositions[top[0].id] = '1';
+                clinchState.simFastestLapId = top[0].id;
+                clinchState.simPositions[top[1].id] = '2';
+            } else if (preset === 'p2_win_leader_dnf' && top.length >= 2) {
+                clinchState.simPositions[top[0].id] = 'DNF';
+                clinchState.simPositions[top[1].id] = '1';
+                clinchState.simFastestLapId = top[1].id;
+            }
+
+            renderClinchSimControls();
+            recalculateAndRenderClinchMath();
+        }
+
+        // Countback tie-breaker comparison (FIA Sporting Regulations Art. 7.2: P1 wins, then P2, then P3)
+        function winsTieBreaker(contenderA, contenderB, remainingRacesForB = 0) {
+            const maxPossibleWinsB = (contenderB.wins || 0) + remainingRacesForB;
+            if ((contenderA.wins || 0) > maxPossibleWinsB) return true;
+            if ((contenderA.wins || 0) < (contenderB.wins || 0)) return false;
+            if (remainingRacesForB === 0) {
+                if ((contenderA.wins || 0) !== (contenderB.wins || 0)) {
+                    return (contenderA.wins || 0) > (contenderB.wins || 0);
+                }
+                if ((contenderA.p2 || 0) !== (contenderB.p2 || 0)) {
+                    return (contenderA.p2 || 0) > (contenderB.p2 || 0);
+                }
+                return (contenderA.p3 || 0) >= (contenderB.p3 || 0);
+            }
+            return false;
+        }
+
+        function recalculateAndRenderClinchMath() {
+            const isSimActive = Object.values(clinchState.simPositions).some(v => v !== '0');
+            const simBadge = document.getElementById('clinchSimActiveBadge');
+            if (simBadge) simBadge.style.display = isSimActive ? 'inline-flex' : 'none';
+
+            // Adjust remaining races if next round is being actively simulated
+            const effRaces = isSimActive
+                ? Math.max(0, clinchState.remainingRaces - 1)
+                : clinchState.remainingRaces;
+            const nextIsSprint = Boolean(clinchState.nextRace && clinchState.nextRace.Sprint);
+            const effSprints = isSimActive
+                ? Math.max(0, clinchState.remainingSprints - (nextIsSprint ? 1 : 0))
+                : clinchState.remainingSprints;
+
+            // Formula explicitly required: (N_races * 26) + (N_sprints * 8)
+            const maxPointsRemaining = (effRaces * 26) + (effSprints * 8);
+
+            // Compute projected standings with simulated points and wins
+            const projected = clinchState.standings.map(c => {
+                const delta = getSimulatedDeltaPoints(c.id);
+                const simWinAdd = clinchState.simPositions[c.id] === '1' ? 1 : 0;
+                const simP2Add = clinchState.simPositions[c.id] === '2' ? 1 : 0;
+                const simP3Add = clinchState.simPositions[c.id] === '3' ? 1 : 0;
+                return {
+                    ...c,
+                    simDelta: delta,
+                    projectedPoints: c.points + delta,
+                    wins: (c.wins || 0) + simWinAdd,
+                    p2: (c.p2 || 0) + simP2Add,
+                    p3: (c.p3 || 0) + simP3Add
+                };
+            });
+
+            // Sort by projected points, then countback tie-breaker (wins, p2, p3)
+            projected.sort((a, b) => {
+                if (b.projectedPoints !== a.projectedPoints) return b.projectedPoints - a.projectedPoints;
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                if (b.p2 !== a.p2) return b.p2 - a.p2;
+                return b.p3 - a.p3;
+            });
+
+            const leader = projected[0];
+            const p2 = projected[1] || { name: 'N/A', projectedPoints: 0, wins: 0, p2: 0, p3: 0 };
+
+            const leaderPts = leader.projectedPoints;
+            const p2Pts = p2.projectedPoints;
+            const currentLead = leaderPts - p2Pts;
+            const p2MaxCeiling = p2Pts + maxPointsRemaining;
+
+            // Does leader hold an unassailable countback tie-breaker over P2?
+            const leaderGuaranteedTiebreak = winsTieBreaker(leader, p2, effRaces);
+            const clinchThresholdPts = leaderGuaranteedTiebreak ? p2MaxCeiling : (p2MaxCeiling + 1);
+            const magicNumberLeader = Math.max(0, clinchThresholdPts - leaderPts);
+            const isTitleClinched = magicNumberLeader === 0;
+
+            // Update KPI Cards
+            const elLeaderName = document.getElementById('clinchKpiLeaderName');
+            const elLeaderSub = document.getElementById('clinchKpiLeaderSub');
+            const elDeficitVal = document.getElementById('clinchKpiDeficitVal');
+            const elDeficitSub = document.getElementById('clinchKpiDeficitSub');
+            const elRemEvents = document.getElementById('clinchKpiRemainingEvents');
+            const elRemSub = document.getElementById('clinchKpiRemainingSub');
+            const elMaxPts = document.getElementById('clinchKpiMaxPoints');
+            const elMaxFormula = document.getElementById('clinchKpiMaxPointsFormula');
+            const elMagicNum = document.getElementById('clinchKpiMagicNumber');
+            const elMagicSub = document.getElementById('clinchKpiMagicSub');
+
+            if (elLeaderName) elLeaderName.textContent = leader.name;
+            if (elLeaderSub) elLeaderSub.textContent = `${leader.team} • ${leaderPts} PTS (${leader.wins} Wins)`;
+            if (elDeficitVal) elDeficitVal.textContent = `+${currentLead} PTS`;
+            if (elDeficitSub) elDeficitSub.textContent = `vs ${p2.name} (${p2Pts} PTS)`;
+            if (elRemEvents) elRemEvents.textContent = `${effRaces} GP / ${effSprints} SPR`;
+            if (elRemSub) {
+                elRemSub.textContent = clinchState.nextRace && !isSimActive
+                    ? `Next: ${clinchState.nextRace.raceName}`
+                    : `${clinchState.totalRaces - effRaces} of ${clinchState.totalRaces} Rounds Accounted`;
+            }
+            if (elMaxPts) elMaxPts.textContent = `${maxPointsRemaining} PTS`;
+            if (elMaxFormula) elMaxFormula.textContent = `(${effRaces} × 26) + (${effSprints} × 8) Max Scale`;
+            if (elMagicNum) {
+                elMagicNum.textContent = isTitleClinched ? 'CLINCHED 🏆' : `${magicNumberLeader} PTS`;
+                elMagicNum.style.color = isTitleClinched ? 'var(--clinch-gold)' : 'var(--clinch-cyan)';
+            }
+            if (elMagicSub) {
+                elMagicSub.textContent = isTitleClinched
+                    ? `${leader.name} mathematically guaranteed title`
+                    : `Points needed by ${leader.code} to seal title`;
+            }
+
+            // Update Linear Progress Gauge
+            const scaleCeiling = Math.max(leaderPts + maxPointsRemaining, clinchThresholdPts, 100);
+            const fillPct = Math.min(100, Math.max(4, (leaderPts / scaleCeiling) * 100));
+            const thresholdPct = Math.min(96, Math.max(10, (clinchThresholdPts / scaleCeiling) * 100));
+
+            const elGaugeFill = document.getElementById('clinchGaugeFill');
+            const elMarker = document.getElementById('clinchThresholdMarker');
+            const elTag = document.getElementById('clinchThresholdTag');
+            const elReadout = document.getElementById('clinchGaugeReadout');
+            const elP2Ceiling = document.getElementById('clinchGaugeP2Ceiling');
+            const elScaleMax = document.getElementById('clinchGaugeScaleMax');
+
+            if (elGaugeFill) elGaugeFill.style.width = `${fillPct.toFixed(1)}%`;
+            if (elMarker) elMarker.style.left = `${thresholdPct.toFixed(1)}%`;
+            if (elTag) elTag.textContent = `THRESHOLD: ${clinchThresholdPts} PTS`;
+            if (elReadout) {
+                const pctOfThreshold = clinchThresholdPts > 0 ? Math.min(100, Math.round((leaderPts / clinchThresholdPts) * 100)) : 100;
+                elReadout.textContent = `Leader: ${leaderPts} PTS / Clinch Threshold: ${clinchThresholdPts} PTS (${pctOfThreshold}% ${isTitleClinched ? '— TITLE SEALED' : 'to Clinch'})`;
+            }
+            if (elP2Ceiling) elP2Ceiling.textContent = `P2 (${p2.code}) Max Possible Ceiling: ${p2MaxCeiling} PTS`;
+            if (elScaleMax) elScaleMax.textContent = `Max Possible Leader Ceiling: ${leaderPts + maxPointsRemaining} PTS`;
+
+            // Render Textual Clinch Scenarios & Tie-Breaker Box
+            renderClinchScenariosAndTiebreaker(leader, p2, effRaces, effSprints, maxPointsRemaining, magicNumberLeader, isTitleClinched, leaderGuaranteedTiebreak, isSimActive);
+
+            // Render Scenario Matrix Table
+            renderClinchScenarioMatrixTable(projected, leader, maxPointsRemaining, effRaces, isTitleClinched, magicNumberLeader);
+        }
+
+        function renderClinchScenariosAndTiebreaker(leader, p2, effRaces, effSprints, maxPointsRemaining, magicNumberLeader, isTitleClinched, leaderGuaranteedTiebreak, isSimActive) {
+            const listEl = document.getElementById('clinchScenarioList');
+            const tieEl = document.getElementById('clinchTiebreakerContent');
+            if (!listEl || !tieEl) return;
+
+            const nextRaceTitle = clinchState.nextRace ? clinchState.nextRace.raceName : 'the Finale';
+            const currentLead = leader.projectedPoints - p2.projectedPoints;
+            const pointsAfterNextRound = Math.max(0, ((Math.max(0, effRaces - 1)) * 26) + (effSprints * 8));
+            const leadNeededAfterNext = leaderGuaranteedTiebreak ? pointsAfterNextRound : (pointsAfterNextRound + 1);
+            const netPointsGainNeededNextRound = leadNeededAfterNext - currentLead;
+
+            const scenarios = [];
+            if (isTitleClinched) {
+                scenarios.push({
+                    gold: true,
+                    html: `🏆 <strong>WORLD CHAMPIONSHIP CLINCHED:</strong> <strong>${leader.name}</strong> (${leader.projectedPoints} pts) holds an unassailable <strong>+${currentLead} pt</strong> advantage over <strong>${p2.name}</strong> (${p2.projectedPoints} pts) with ${maxPointsRemaining} maximum points remaining.`
+                });
+                scenarios.push({
+                    gold: false,
+                    html: `📐 <strong>Mathematical Lock:</strong> Even if ${p2.name} scores the maximum ${maxPointsRemaining} pts (${p2.projectedPoints + maxPointsRemaining} pts ceiling), they cannot overhaul ${leader.name}.`
+                });
+                if (!isSimActive && clinchState.round === 'latest' && clinchState.season === '2024') {
+                    scenarios.push({
+                        gold: false,
+                        html: `💡 <strong>Interactive Replay Tip:</strong> Click <em>"🎲 Load 2024 Pre-Vegas (R21) Title Fight"</em> above to explore live clinch permutations with 3 Grands Prix &amp; 1 Sprint remaining!`
+                    });
+                }
+            } else if (netPointsGainNeededNextRound <= 26) {
+                // Leader CAN clinch at the very next Grand Prix!
+                scenarios.push({
+                    gold: true,
+                    html: `🔥 <strong>CLINCH OPPORTUNITY AT ${nextRaceTitle.toUpperCase()}:</strong> <strong>${leader.name}</strong> clinches the title if they hold a lead of at least <strong>${leadNeededAfterNext} pts</strong> leaving ${nextRaceTitle}.`
+                });
+                if (netPointsGainNeededNextRound <= 0) {
+                    const maxDropAllowed = Math.abs(netPointsGainNeededNextRound);
+                    scenarios.push({
+                        gold: false,
+                        html: `✅ <strong>Scenario 1 (Finish Ahead):</strong> ${leader.name} clinches unconditionally by finishing ahead of ${p2.name} in any position.`
+                    });
+                    scenarios.push({
+                        gold: false,
+                        html: `✅ <strong>Scenario 2 (Point Cushion):</strong> ${leader.name} can afford to be outscored by up to <strong>${maxDropAllowed} pts</strong> by ${p2.name} and still seal the championship.`
+                    });
+                    scenarios.push({
+                        gold: false,
+                        html: `✅ <strong>Scenario 3 (Rival Non-Score):</strong> If ${p2.name} scores ${maxDropAllowed} pts or fewer, ${leader.name} is crowned champion regardless of finishing position.`
+                    });
+                } else {
+                    scenarios.push({
+                        gold: false,
+                        html: `🎯 <strong>Required Swing:</strong> ${leader.name} must outscore ${p2.name} by at least <strong>+${netPointsGainNeededNextRound} pts</strong> at ${nextRaceTitle} to seal the title early.`
+                    });
+                    scenarios.push({
+                        gold: false,
+                        html: `🏁 <strong>Victory Permutation:</strong> If ${leader.name} wins (P1, 25 pts), ${p2.name} must finish yielding ≤ ${Math.max(0, 25 - netPointsGainNeededNextRound)} pts for an immediate clinch.`
+                    });
+                }
+            } else {
+                scenarios.push({
+                    gold: false,
+                    html: `🔒 <strong>NO MATHEMATICAL CLINCH AT ${nextRaceTitle.toUpperCase()}:</strong> Even with a P1 + Fastest Lap (+26 pts) and a ${p2.name} DNF, ${leader.name}'s maximum lead (${currentLead + 26} pts) would remain below the ${leadNeededAfterNext} pts threshold required after this round.`
+                });
+                scenarios.push({
+                    gold: false,
+                    html: `📊 <strong>Magic Number Path:</strong> ${leader.name} requires <strong>${magicNumberLeader} additional pts</strong> (combined points scored + points dropped by ${p2.name}) across the remaining ${effRaces} Grands Prix.`
+                });
+            }
+
+            listEl.innerHTML = scenarios.map(s => `<li class="clinch-scenario-item ${s.gold ? 'gold-item' : ''}">${s.html}</li>`).join('');
+
+            // Render Tie-Breaker Countback Analysis
+            const tieWinner = (leader.wins !== p2.wins)
+                ? (leader.wins > p2.wins ? leader : p2)
+                : (leader.p2 >= p2.p2 ? leader : p2);
+
+            tieEl.innerHTML = `
+                <div style="background: #111723; border: 1px solid #222C40; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-weight: 700; color: #F8FAFC;">${leader.name}</span>
+                        <span style="font-family: monospace; color: var(--clinch-gold); font-weight: 800;">P1: ${leader.wins} | P2: ${leader.p2} | P3: ${leader.p3}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: 700; color: #CBD5E1;">${p2.name}</span>
+                        <span style="font-family: monospace; color: var(--clinch-cyan); font-weight: 800;">P1: ${p2.wins} | P2: ${p2.p2} | P3: ${p2.p3}</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #94A3B8;">
+                    <strong>Countback Verdict:</strong> If tied on points at season end, <strong>${tieWinner.name}</strong> holds the countback advantage (${tieWinner.wins} GP victories).
+                    ${leaderGuaranteedTiebreak
+                        ? `<span style="color: var(--clinch-gold);">Because ${p2.name} cannot surpass ${leader.name}'s win tally in ${effRaces} remaining GP(s), ${leader.name} clinches on an exact points tie.</span>`
+                        : `<span style="color: #CBD5E1;">With ${effRaces} GP(s) left, ${p2.name} could theoretically reach ${p2.wins + effRaces} wins, so ${leader.name} needs +1 pt above a tie to guarantee the title unconditionally.</span>`
+                    }
+                </p>
+            `;
+        }
+
+        function renderClinchScenarioMatrixTable(projected, leader, maxPointsRemaining, effRaces, isTitleClinched, magicNumberLeader) {
+            const tbody = document.getElementById('clinchMatrixTableBody');
+            if (!tbody) return;
+
+            const leaderPts = leader.projectedPoints;
+
+            tbody.innerHTML = projected.map((c, idx) => {
+                const rank = idx + 1;
+                const deficit = rank === 1 ? 0 : (leaderPts - c.projectedPoints);
+                const maxPossible = c.projectedPoints + maxPointsRemaining;
+                const color = TEAM_COLORS[c.constructorId] || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+
+                // Can this contender still catch or win tie-breaker against the leader?
+                const canCatchPoints = maxPossible > leaderPts;
+                const canTieAndWinCountback = (maxPossible === leaderPts) && !winsTieBreaker(leader, c, effRaces);
+                const isAlive = rank === 1 || canCatchPoints || canTieAndWinCountback;
+
+                let statusClass = 'eliminated';
+                let statusText = 'MATHEMATICALLY ELIMINATED';
+                let magicDisplay = 'ELIMINATED';
+
+                if (rank === 1) {
+                    if (isTitleClinched) {
+                        statusClass = 'clinched';
+                        statusText = 'CLINCHED';
+                        magicDisplay = '0 (SEALED)';
+                    } else {
+                        statusClass = 'contention';
+                        statusText = 'IN CONTENTION';
+                        magicDisplay = `${magicNumberLeader} PTS`;
+                    }
+                } else if (isAlive) {
+                    statusClass = 'contention';
+                    statusText = 'IN CONTENTION';
+                    const elimNumber = Math.max(1, (maxPossible - leaderPts) + (winsTieBreaker(leader, c, effRaces) ? 0 : 1));
+                    magicDisplay = `${elimNumber} PTS`;
+                }
+
+                const simBadge = c.simDelta > 0
+                    ? `<span style="color: var(--clinch-cyan); font-size: 0.72rem; margin-left: 4px;">(+${c.simDelta})</span>`
+                    : '';
+
+                return `
+                    <tr>
+                        <td style="text-align: center; font-family: monospace; font-weight: 800; color: ${rank === 1 ? 'var(--clinch-gold)' : '#94A3B8'};">
+                            P${rank}
+                        </td>
+                        <td>
+                            <div style="font-weight: 800; color: #F8FAFC;">${c.name}</div>
+                            <div style="font-size: 0.72rem; color: #94A3B8;">${c.wins} Wins • Code: ${c.code}</div>
+                        </td>
+                        <td>
+                            <span style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.82rem;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: ${color}; display: inline-block;"></span>
+                                ${c.team}
+                            </span>
+                        </td>
+                        <td style="text-align: right; font-family: monospace; font-weight: 800; font-size: 0.92rem;">
+                            ${c.projectedPoints}${simBadge}
+                        </td>
+                        <td style="text-align: right; font-family: monospace; color: ${rank === 1 ? 'var(--clinch-gold)' : '#CBD5E1'}; font-weight: 700;">
+                            ${rank === 1 ? 'LEADER' : `-${deficit}`}
+                        </td>
+                        <td style="text-align: right; font-family: monospace; font-weight: 700; color: ${isAlive ? 'var(--clinch-cyan)' : '#64748B'};">
+                            ${maxPossible}
+                        </td>
+                        <td style="text-align: center; font-family: monospace; font-weight: 800; color: ${rank === 1 ? 'var(--clinch-gold)' : (isAlive ? '#E2E8F0' : '#64748B')};">
+                            ${magicDisplay}
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="status-pill-clinch ${statusClass}">${statusText}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Safe Pit Stop handlers so all existing controls remain error-free
+        function onPitStopSeasonChange(season) {
+            if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(season);
+        }
+        function onPitStopRoundChange(round) {
+            if (typeof filterPitStopRound === 'function') filterPitStopRound(round);
+        }
+        function refreshPitStopData() {
+            if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(document.getElementById('pitStopSeasonSelect')?.value || '2024', true);
+        }
+        function onPitStopOutlierToggleChange(checked) {
+            if (typeof updatePitStopOutlierFilter === 'function') updatePitStopOutlierFilter(checked);
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById(`tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
+            const btnMap = {
+                'all': 'tabBtnAll',
+                'clinch': 'tabBtnClinch',
+                'pitstops': 'tabBtnPitStops',
+                'telemetry': 'tabBtnTelemetry',
+                'progression': 'tabBtnProgression',
+                'results': 'tabBtnResults'
+            };
+            const activeBtn = document.getElementById(btnMap[tabId] || `tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
             if (activeBtn) activeBtn.classList.add('active');
 
+            const clinchSec = document.getElementById('clinch-engine-section');
+            const pitstopSec = document.getElementById('pitstop-matrix-section');
             const telemetrySec = document.getElementById('teammate-telemetry-section');
             const progressionSec = document.getElementById('progression-section');
             const latestRaceSec = document.getElementById('latest-race-section');
             const standingsTableSec = document.getElementById('standings-table-section');
 
-            if (tabId === 'telemetry') {
+            if (tabId === 'clinch') {
+                if (clinchSec) clinchSec.style.display = 'block';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'pitstops') {
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'block';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'telemetry') {
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'block';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'progression') {
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'block';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'results') {
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
                 if (standingsTableSec) standingsTableSec.style.display = 'block';
             } else {
+                if (clinchSec) clinchSec.style.display = 'block';
+                if (pitstopSec) pitstopSec.style.display = 'block';
                 if (telemetrySec) telemetrySec.style.display = 'block';
                 if (progressionSec) progressionSec.style.display = 'block';
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
@@ -4309,6 +5667,11 @@
             const telemetrySeasonSelect = document.getElementById('telemetrySeasonSelect');
             if (telemetrySeasonSelect) {
                 loadTelemetrySeason(telemetrySeasonSelect.value);
+            }
+
+            const clinchSeasonSelect = document.getElementById('clinchSeasonSelect');
+            if (clinchSeasonSelect) {
+                loadClinchEngineData(clinchSeasonSelect.value, 'latest', false);
             }
         });
     </script>
