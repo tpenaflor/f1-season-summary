@@ -2741,6 +2741,575 @@
             height: 100%;
             transition: width 0.25s ease;
         }
+
+        /* =========================================================
+           Feature #5: Constructor Championship Progression & ATR Tracker
+           ========================================================= */
+        :root {
+            --atr-bg: #080A0F;
+            --atr-surface: #0D1117;
+            --atr-card: #121722;
+            --atr-border: #1E2738;
+            --atr-cyan: #00F0FF;
+            --atr-cyan-glow: rgba(0, 240, 255, 0.35);
+            --atr-gold: #FFB800;
+            --atr-gold-glow: rgba(255, 184, 0, 0.35);
+            --atr-purple: #8B5CF6;
+            --atr-purple-glow: rgba(139, 92, 246, 0.35);
+            --atr-emerald: #10B981;
+            --atr-red: #E8002D;
+        }
+
+        .constructor-section {
+            background: linear-gradient(180deg, var(--atr-surface) 0%, var(--atr-bg) 100%);
+            border: 1px solid var(--atr-border);
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .constructor-header-accent {
+            background: linear-gradient(180deg, #FF8000 0%, #E8002D 50%, #00F0FF 100%);
+            box-shadow: 0 0 14px rgba(255, 128, 0, 0.5);
+        }
+
+        .atr-filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #080A0F;
+            border: 1px solid var(--atr-border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            min-height: 58px;
+        }
+
+        .atr-filter-label {
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .atr-battle-pills {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .atr-battle-pill {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94A3B8;
+            background: #101520;
+            border: 1px solid #1E2738;
+            border-radius: 999px;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+            height: 34px;
+        }
+
+        .atr-battle-pill:hover {
+            color: #FFFFFF;
+            border-color: var(--atr-cyan);
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .atr-battle-pill.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(59, 130, 246, 0.18) 100%);
+            color: #FFFFFF;
+            border-color: var(--atr-cyan);
+            box-shadow: 0 0 14px var(--atr-cyan-glow);
+        }
+
+        .atr-battle-pill .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px currentColor;
+        }
+
+        .atr-battle-pill .pill-badge {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #CBD5E1;
+        }
+
+        .atr-filter-badge {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #00F0FF;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        /* KPI Cards Grid */
+        .atr-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .atr-kpi-card {
+            background: var(--atr-card);
+            border: 1px solid var(--atr-border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 118px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+
+        .atr-kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: #2E3E58;
+        }
+
+        .atr-kpi-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #94A3B8;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .atr-kpi-val-container {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .atr-kpi-val {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.4px;
+            line-height: 1.15;
+        }
+
+        .atr-kpi-val.mono {
+            font-family: var(--font-mono);
+        }
+
+        .atr-kpi-tag {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #F8FAFC;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            white-space: nowrap;
+        }
+
+        .atr-kpi-tag.tag-gold {
+            background: rgba(255, 184, 0, 0.14);
+            color: #FFB800;
+            border-color: rgba(255, 184, 0, 0.35);
+        }
+
+        .atr-kpi-tag.tag-cyan {
+            background: rgba(0, 240, 255, 0.12);
+            color: #00F0FF;
+            border-color: rgba(0, 240, 255, 0.35);
+        }
+
+        .atr-kpi-tag.tag-purple {
+            background: rgba(139, 92, 246, 0.16);
+            color: #C4B5FD;
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .atr-kpi-sub {
+            font-size: 0.78rem;
+            color: #94A3B8;
+            line-height: 1.35;
+        }
+
+        .atr-kpi-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF8000, #00F0FF);
+        }
+
+        /* Chart Panel */
+        .atr-chart-panel {
+            background: #080A0F;
+            border: 1px solid var(--atr-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 22px;
+        }
+
+        .atr-chart-header {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #161F2E;
+            padding-bottom: 14px;
+        }
+
+        .atr-chart-title-Row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .atr-subheading {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #F8FAFC;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .atr-chart-hint {
+            font-size: 0.76rem;
+            color: #64748B;
+            font-weight: 600;
+        }
+
+        .atr-team-legend-pills {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 34px;
+        }
+
+        .atr-team-pill {
+            font-family: var(--font-family);
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #E2E8F0;
+            background: #111622;
+            border: 1px solid #232D3F;
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.16s ease;
+            user-select: none;
+        }
+
+        .atr-team-pill:hover {
+            border-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        .atr-team-pill.muted {
+            opacity: 0.35;
+            background: #0A0D14;
+            border-color: #161C28;
+            text-decoration: line-through;
+        }
+
+        .atr-team-pill-swatch {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .atr-team-pill-pts {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: #94A3B8;
+        }
+
+        .atr-chart-container {
+            position: relative;
+            width: 100%;
+            height: 430px;
+            min-height: 430px;
+        }
+
+        /* FIA ATR Table Panel */
+        .atr-table-panel {
+            background: #080A0F;
+            border: 1px solid var(--atr-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .atr-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #161F2E;
+        }
+
+        .atr-legend-chips {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .atr-chip {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .atr-chip.chip-restricted {
+            background: rgba(239, 68, 68, 0.12);
+            color: #FCA5A5;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .atr-chip.chip-neutral {
+            background: rgba(16, 185, 129, 0.12);
+            color: #6EE7B7;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .atr-chip.chip-boosted {
+            background: rgba(139, 92, 246, 0.14);
+            color: #C4B5FD;
+            border-color: rgba(139, 92, 246, 0.35);
+        }
+
+        .atr-table-wrapper {
+            overflow-x: auto;
+            min-height: 520px;
+        }
+
+        .atr-telemetry-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .atr-telemetry-table th {
+            background: #0D121B;
+            color: #94A3B8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 12px 14px;
+            border-bottom: 2px solid #1E2738;
+            white-space: nowrap;
+        }
+
+        .atr-telemetry-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #161F2E;
+            color: #F1F5F9;
+            font-size: 0.88rem;
+            vertical-align: middle;
+        }
+
+        .atr-telemetry-table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .atr-telemetry-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .atr-rank-badge {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 800;
+            width: 34px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: #161E2E;
+            color: #94A3B8;
+            border: 1px solid #263248;
+        }
+
+        .atr-rank-badge.rank-1 {
+            background: rgba(245, 158, 11, 0.18);
+            color: #FBBF24;
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+        }
+
+        .atr-rank-badge.rank-2 {
+            background: rgba(148, 163, 184, 0.18);
+            color: #E2E8F0;
+            border-color: rgba(148, 163, 184, 0.45);
+        }
+
+        .atr-rank-badge.rank-3 {
+            background: rgba(217, 119, 6, 0.18);
+            color: #F59E0B;
+            border-color: rgba(217, 119, 6, 0.45);
+        }
+
+        .atr-team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .atr-team-bar {
+            width: 4px;
+            height: 24px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .atr-pts-cell {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #FFFFFF;
+        }
+
+        .atr-wins-cell {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: #CBD5E1;
+        }
+
+        .atr-delta-pill {
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 6px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .atr-delta-pill.leader {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .atr-delta-pill.deficit {
+            background: #121824;
+            color: #94A3B8;
+            border: 1px solid #1E2738;
+        }
+
+        .atr-ahead-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .atr-sparkline-svg {
+            overflow: visible;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .atr-tier-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 270px;
+        }
+
+        .atr-tier-badges {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .atr-pct-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        .atr-metric-pill {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #CBD5E1;
+            background: #131B28;
+            border: 1px solid #222E42;
+            padding: 2px 7px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        .atr-scale-track {
+            width: 100%;
+            height: 5px;
+            background: #131A26;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .atr-scale-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+
     </style>
 </head>
 <body>
@@ -2765,6 +3334,9 @@
             <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
                 <span class="tab-icon">👁️</span> All Telemetry & Standings
             </button>
+            <button type="button" class="tab-btn" id="tabBtnConstructors" onclick="switchMainTab('constructors')">
+                <span class="tab-icon">🏎️</span> Constructor ATR & Standings
+            </button>
             <button type="button" class="tab-btn" id="tabBtnSprint" onclick="switchMainTab('sprint')">
                 <span class="tab-icon">⚡</span> Sprint vs GP Disparity
             </button>
@@ -2784,6 +3356,161 @@
                 <span class="tab-icon">🏁</span> Latest Race & Driver Standings
             </button>
         </nav>
+
+        <!-- Constructor Championship Progression & Aerodynamic Handicap (ATR) Tracker (Issue #5) -->
+        <section class="card telemetry-section constructor-section" id="constructor-atr-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent constructor-header-accent"></div>
+                    <div>
+                        <h2>Constructor Championship Progression &amp; Aerodynamic Testing Restriction (ATR) Tracker</h2>
+                        <p class="section-subtitle">FIA Technical Regulation Appendix 7 aerodynamic handicap sliding scale &amp; cumulative constructor points trajectory</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="constructorSeasonSelect">Season:</label>
+                        <select id="constructorSeasonSelect" class="season-dropdown" onchange="onConstructorSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                        </select>
+                    </div>
+                    <span id="constructorCacheBadge" class="cache-badge cached">⚡ Live Telemetry</span>
+                    <button type="button" class="btn-refresh" id="btnConstructorRefresh" onclick="refreshConstructorAtrData()" title="Force Refresh Constructor ATR Telemetry">
+                        ↻ Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Battle Group Filter Pills -->
+            <div class="atr-filter-bar">
+                <div class="atr-filter-label">
+                    <span>🎯</span> Battle Group Filter:
+                </div>
+                <div class="atr-battle-pills" role="group" aria-label="Constructor Battle Group Filter">
+                    <button type="button" class="atr-battle-pill active" data-group="all" onclick="setConstructorBattleGroup('all')">
+                        <span class="pill-dot" style="background: #00F0FF;"></span>
+                        All Constructors <span class="pill-badge">All 10</span>
+                    </button>
+                    <button type="button" class="atr-battle-pill" data-group="title" onclick="setConstructorBattleGroup('title')">
+                        <span class="pill-dot" style="background: #FFB800;"></span>
+                        Title Fight <span class="pill-badge">P1–P2</span>
+                    </button>
+                    <button type="button" class="atr-battle-pill" data-group="podium" onclick="setConstructorBattleGroup('podium')">
+                        <span class="pill-dot" style="background: #E8002D;"></span>
+                        Podium Contenders <span class="pill-badge">P3–P5</span>
+                    </button>
+                    <button type="button" class="atr-battle-pill" data-group="midfield" onclick="setConstructorBattleGroup('midfield')">
+                        <span class="pill-dot" style="background: #27F4D2;"></span>
+                        Midfield Battle <span class="pill-badge">P6–P8</span>
+                    </button>
+                    <button type="button" class="atr-battle-pill" data-group="rebuild" onclick="setConstructorBattleGroup('rebuild')">
+                        <span class="pill-dot" style="background: #8B5CF6;"></span>
+                        Lower Grid Rebuild <span class="pill-badge">P9–P10</span>
+                    </button>
+                </div>
+                <span id="atrFilterCountBadge" class="atr-filter-badge">Showing 10 / 10 Teams</span>
+            </div>
+
+            <!-- High-level KPI Cards -->
+            <div class="atr-kpi-grid">
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🏆 WCC Leader</span>
+                        <span class="atr-kpi-tag tag-gold" id="atrKpiLeaderWins">6 Wins</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="atrKpiLeaderTeam">McLaren</div>
+                        <div class="atr-kpi-tag" id="atrKpiLeaderPts">666 PTS</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="atrKpiLeaderSub">P1 World Constructors' Championship Standings</div>
+                    <div class="atr-kpi-bar" id="atrKpiLeaderBar" style="background: #FF8000;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>⚔️ P1–P2 Constructor Points Gap</span>
+                        <span class="atr-kpi-tag tag-cyan" id="atrKpiGapBadge">Title Margin</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val mono" id="atrKpiGapPoints">+14 PTS</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="atrKpiGapContext">McLaren (666) vs Ferrari (652)</div>
+                    <div class="atr-kpi-bar" style="background: linear-gradient(90deg, #FF8000, #E8002D);"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>📋 Regulatory ATR Testing Period Status</span>
+                        <span class="atr-kpi-tag tag-cyan">FIA App 7</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="atrKpiPeriodStatus" style="font-size: 1.2rem;">Jan 1 &amp; Jun 30 Resets</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="atrKpiPeriodSub">Sliding scale resets on Jan 1 &amp; Jun 30 per WCC rank</div>
+                    <div class="atr-kpi-bar" style="background: linear-gradient(90deg, #00F0FF, #3B82F6);"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🚀 Maximum Aerodynamic Handicap Team</span>
+                        <span class="atr-kpi-tag tag-purple">+115% Baseline</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="atrKpiMaxTeam">Kick Sauber</div>
+                        <div class="atr-kpi-tag" id="atrKpiMaxRank">P10</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="atrKpiMaxAllowance">46 wind tunnel runs/wk &bull; 2,300 CFD items (+45% vs P1)</div>
+                    <div class="atr-kpi-bar" style="background: linear-gradient(90deg, #8B5CF6, #52E252);"></div>
+                </div>
+            </div>
+
+            <!-- Chart.js Cumulative Points Trajectory Graph -->
+            <div class="atr-chart-panel">
+                <div class="atr-chart-header">
+                    <div class="atr-chart-title-Row">
+                        <h3 class="atr-subheading">📈 Cumulative Constructor Points Trajectory (Round-by-Round)</h3>
+                        <span class="atr-chart-hint">Interactive: Click constructor pills below to isolate or toggle team trajectories</span>
+                    </div>
+                    <div class="atr-team-legend-pills" id="atrTeamLegendPills"></div>
+                </div>
+                <div class="atr-chart-container">
+                    <canvas id="constructorTrajectoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- FIA ATR Development Tier Table & Gap Sparklines -->
+            <div class="atr-table-panel">
+                <div class="atr-table-header">
+                    <div>
+                        <h3 class="atr-subheading">📐 FIA ATR Development Tier Table &amp; Championship Gap Sparklines</h3>
+                        <span class="atr-chart-hint">Official FIA Aerodynamic Testing Restrictions (ATR) sliding scale: P1 (70% baseline) to P10 (115% baseline)</span>
+                    </div>
+                    <div class="atr-legend-chips">
+                        <span class="atr-chip chip-restricted">🔴 P1–P4 Restricted (70%–85%)</span>
+                        <span class="atr-chip chip-neutral">🟢 P5–P7 Parity (90%–100%)</span>
+                        <span class="atr-chip chip-boosted">🟣 P8–P10 Boosted (105%–115%)</span>
+                    </div>
+                </div>
+                <div class="atr-table-wrapper">
+                    <table class="atr-telemetry-table" id="constructorAtrTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Constructor</th>
+                                <th>Points</th>
+                                <th>Delta to Leader</th>
+                                <th>Delta to Ahead &amp; Sparkline</th>
+                                <th>ATR Tier Badge (% Baseline, Wind Tunnel Runs, CFD Items)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="constructorAtrTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
         <!-- Sprint Weekend vs Grand Prix Scoring Disparity Analysis Section (Issue #4) -->
         <section class="card telemetry-section sprint-section" id="sprint-disparity-section">
@@ -6953,6 +7680,11 @@
             const sprintSeasonSelect = document.getElementById('sprintSeasonSelect');
             if (sprintSeasonSelect) {
                 loadSprintDisparityData(sprintSeasonSelect.value, false);
+            }
+
+            const constructorSeasonSelect = document.getElementById('constructorSeasonSelect');
+            if (constructorSeasonSelect) {
+                loadConstructorAtrData(constructorSeasonSelect.value, false);
             }
         });
     </script>
