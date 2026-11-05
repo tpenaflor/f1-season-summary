@@ -2742,6 +2742,146 @@
             transition: width 0.25s ease;
         }
 
+        /* Sprint Pre-2021 / Empty Sprint Placeholder UI */
+        .cache-badge.no-sprint {
+            background-color: rgba(155, 81, 224, 0.16);
+            color: var(--sprint-purple-bright);
+            border: 1px solid rgba(155, 81, 224, 0.4);
+        }
+
+        .sprint-placeholder-card {
+            background: var(--sprint-bg);
+            border: 1px solid var(--sprint-border);
+            border-radius: 10px;
+            padding: 32px 24px;
+            text-align: center;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sprint-placeholder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--sprint-purple), var(--sprint-cyan));
+            box-shadow: 0 0 10px var(--sprint-purple-glow);
+        }
+
+        .sprint-placeholder-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(155, 81, 224, 0.15);
+            border: 1px solid var(--sprint-purple);
+            color: var(--sprint-purple-bright);
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 999px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .sprint-placeholder-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #F8FAFC;
+            margin-bottom: 12px;
+            line-height: 1.35;
+        }
+
+        .sprint-placeholder-desc {
+            font-size: 0.92rem;
+            color: #94A3B8;
+            max-width: 680px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        .sprint-placeholder-history-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 840px;
+            margin: 0 auto 28px;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .sprint-placeholder-history-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sprint-history-item {
+            background: #0E131F;
+            border: 1px solid #1E2738;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .sprint-history-item .hist-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sprint-history-item .hist-val {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #E2E8F0;
+        }
+
+        .sprint-history-item .hist-detail {
+            font-size: 0.76rem;
+            color: #94A3B8;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .sprint-switch-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sprint-switch-btn {
+            font-family: var(--font-family);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #F8FAFC;
+            background: linear-gradient(135deg, rgba(155, 81, 224, 0.22) 0%, rgba(0, 229, 255, 0.14) 100%);
+            border: 1px solid var(--sprint-purple);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sprint-switch-btn:hover {
+            background: linear-gradient(135deg, rgba(155, 81, 224, 0.45) 0%, rgba(0, 229, 255, 0.25) 100%);
+            box-shadow: 0 0 14px var(--sprint-purple-glow);
+            transform: translateY(-1px);
+        }
+
         /* =========================================================
            Feature #5: Constructor Championship Progression & ATR Tracker
            ========================================================= */
@@ -3535,6 +3675,9 @@
                             <option value="2023">2023 Season (6 Sprints)</option>
                             <option value="2022">2022 Season (3 Sprints)</option>
                             <option value="2021">2021 Season (3 Sprints)</option>
+                            <option value="2020">2020 Season (No Sprints)</option>
+                            <option value="2019">2019 Season (No Sprints)</option>
+                            <option value="2018">2018 Season (No Sprints)</option>
                         </select>
                     </div>
                     <span id="sprintCacheBadge" class="cache-badge cached">⚡ Live Telemetry</span>
@@ -3551,8 +3694,13 @@
 
             <div id="sprintError" class="error-message" style="display: none;"></div>
 
-            <!-- Sprint Host Venue Filter Pills -->
-            <div class="sprint-venue-bar">
+            <!-- Pre-2021 Placeholder UI / Informative Banner -->
+            <div id="sprintPlaceholder" class="sprint-placeholder-card" style="display: none;"></div>
+
+            <!-- Main Sprint Telemetry Content -->
+            <div id="sprintMainContent">
+                <!-- Sprint Host Venue Filter Pills -->
+                <div class="sprint-venue-bar">
                 <div class="sprint-venue-label">
                     <span>⚡ SPRINT HOST VENUES:</span>
                 </div>
@@ -3647,6 +3795,7 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
             </div>
         </section>
 
@@ -6912,13 +7061,13 @@
             const btnWeekends = document.getElementById('btnSprintScopeWeekends');
             if (btnSeason) btnSeason.classList.toggle('active', scope === 'season');
             if (btnWeekends) btnWeekends.classList.toggle('active', scope === 'weekends');
-            renderSprintDisparityAnalysis();
+            renderSprintData();
         }
 
         function onSprintSeasonChange(season) {
             sprintState.season = season;
             sprintState.venueRound = 'all';
-            loadSprintDisparityData(season, false);
+            loadSprintData(season, false);
         }
 
         function selectSprintVenue(round) {
@@ -6926,11 +7075,11 @@
             document.querySelectorAll('#sprintVenuePills .sprint-venue-pill').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-round') === String(round));
             });
-            renderSprintDisparityAnalysis();
+            renderSprintData();
         }
 
         function refreshSprintDisparityData() {
-            loadSprintDisparityData(sprintState.season, true);
+            loadSprintData(sprintState.season, true);
         }
 
         async function fetchAllJolpicaPages(season, endpoint, resultKey) {
@@ -6972,11 +7121,79 @@
             return Object.values(roundMap).sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
         }
 
-        async function loadSprintDisparityData(season, forceRefresh = false) {
+        function renderSprintPlaceholder(season) {
+            const placeholderEl = document.getElementById('sprintPlaceholder');
+            if (!placeholderEl) return;
+            const s = season || sprintState.season || 'this season';
+            placeholderEl.innerHTML = `
+                <div class="sprint-placeholder-badge">
+                    <span>ℹ️ FORMAT NOT APPLICABLE</span>
+                </div>
+                <h3 class="sprint-placeholder-title">${s} Formula 1 Season: No Sprint Races</h3>
+                <p class="sprint-placeholder-desc">
+                    Sprint format introduced in 2021 — no sprint events for this season. The F1 Sprint format was officially introduced in the 2021 season at Silverstone. Prior to 2021, all Formula 1 World Championship weekends followed the traditional practice, qualifying, and Sunday Grand Prix format with no Saturday sprint points contested.
+                </p>
+                <div class="sprint-placeholder-history-grid">
+                    <div class="sprint-history-item">
+                        <div class="hist-label"><span>🏁 Format Inauguration</span></div>
+                        <div class="hist-val">2021 Season</div>
+                        <div class="hist-detail">Silverstone, Monza, & Interlagos hosted the inaugural 3 sprint qualifying events.</div>
+                    </div>
+                    <div class="sprint-history-item">
+                        <div class="hist-label"><span>📊 Historical Scope</span></div>
+                        <div class="hist-val">${s} Format</div>
+                        <div class="hist-detail">100% of championship points were awarded via Sunday Grand Prix classifications.</div>
+                    </div>
+                    <div class="sprint-history-item">
+                        <div class="hist-label"><span>⚡ Sprints Active</span></div>
+                        <div class="hist-val">2021 – Present</div>
+                        <div class="hist-detail">Select a season from 2021 onwards to analyze Saturday Sprint vs Sunday GP disparity metrics.</div>
+                    </div>
+                </div>
+                <div class="sprint-switch-actions">
+                    <button type="button" class="sprint-switch-btn" onclick="const sel = document.getElementById('sprintSeasonSelect'); if (sel) { sel.value = '2024'; } onSprintSeasonChange('2024');">
+                        <span>⚡ Switch to 2024 Season (6 Sprints)</span>
+                    </button>
+                    <button type="button" class="sprint-switch-btn" onclick="const sel = document.getElementById('sprintSeasonSelect'); if (sel) { sel.value = '2021'; } onSprintSeasonChange('2021');">
+                        <span>⚡ Switch to Inaugural 2021 Season</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        async function loadSprintData(season, forceRefresh = false) {
+            season = String(season || sprintState.season || '2024');
+            sprintState.season = season;
+            const seasonNum = parseInt(season, 10);
             const cacheKey = `f1_sprint_disparity_v1_${season}`;
             const badge = document.getElementById('sprintCacheBadge');
             const errEl = document.getElementById('sprintError');
+            const placeholderEl = document.getElementById('sprintPlaceholder');
+            const mainContentEl = document.getElementById('sprintMainContent');
+
             if (errEl) errEl.style.display = 'none';
+
+            if (seasonNum < 2021) {
+                sprintState.sprints = [];
+                sprintState.results = [];
+                sprintState.standings = [];
+                if (sprintDisparityChartInstance) {
+                    sprintDisparityChartInstance.destroy();
+                    sprintDisparityChartInstance = null;
+                }
+                if (placeholderEl) {
+                    placeholderEl.style.display = 'block';
+                    renderSprintPlaceholder(season);
+                }
+                if (mainContentEl) {
+                    mainContentEl.style.display = 'none';
+                }
+                if (badge) {
+                    badge.className = 'cache-badge no-sprint';
+                    badge.textContent = 'Sprint format introduced in 2021 — no sprint events for this season';
+                }
+                return;
+            }
 
             if (!forceRefresh) {
                 const cached = localStorage.getItem(cacheKey);
@@ -6991,8 +7208,10 @@
                                 badge.className = 'cache-badge cached';
                                 badge.textContent = '⚡ Cached (Instant)';
                             }
+                            if (placeholderEl) placeholderEl.style.display = 'none';
+                            if (mainContentEl) mainContentEl.style.display = 'block';
                             renderSprintVenuePills();
-                            renderSprintDisparityAnalysis();
+                            renderSprintData();
                             return;
                         }
                     } catch (e) {
@@ -7016,7 +7235,27 @@
                 const standings = standingsResp?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings || [];
 
                 if (!sprints || sprints.length === 0) {
-                    throw new Error(`No Sprint data returned for ${season}`);
+                    sprintState.sprints = [];
+                    sprintState.results = results || [];
+                    sprintState.standings = standings || [];
+                    if (sprintDisparityChartInstance) {
+                        sprintDisparityChartInstance.destroy();
+                        sprintDisparityChartInstance = null;
+                    }
+                    if (placeholderEl) {
+                        placeholderEl.style.display = 'block';
+                        renderSprintPlaceholder(season);
+                    }
+                    if (mainContentEl) {
+                        mainContentEl.style.display = 'none';
+                    }
+                    if (badge) {
+                        badge.className = 'cache-badge no-sprint';
+                        badge.textContent = seasonNum < 2021
+                            ? 'Sprint format introduced in 2021 — no sprint events for this season'
+                            : 'ℹ️ No Sprint Events';
+                    }
+                    return;
                 }
 
                 sprintState.sprints = sprints;
@@ -7027,28 +7266,75 @@
                     localStorage.setItem(cacheKey, JSON.stringify({ sprints, results, standings }));
                 } catch (e) { /* storage quota ignore */ }
 
+                if (placeholderEl) placeholderEl.style.display = 'none';
+                if (mainContentEl) mainContentEl.style.display = 'block';
+
                 if (badge) {
                     badge.className = 'cache-badge cached';
                     badge.textContent = '⚡ Live Verified';
                 }
 
                 renderSprintVenuePills();
-                renderSprintDisparityAnalysis();
+                renderSprintData();
             } catch (err) {
                 console.warn('Sprint API fallback activated:', err);
-                sprintState.sprints = SPRINT_FALLBACK_2024.sprints;
-                sprintState.results = [];
-                sprintState.standings = SPRINT_FALLBACK_2024.standings;
-
-                if (badge) {
-                    badge.className = 'cache-badge cached';
-                    badge.textContent = '⚡ Offline Telemetry';
+                if (sprintDisparityChartInstance) {
+                    sprintDisparityChartInstance.destroy();
+                    sprintDisparityChartInstance = null;
+                }
+                if (seasonNum < 2021) {
+                    sprintState.sprints = [];
+                    sprintState.results = [];
+                    sprintState.standings = [];
+                    if (placeholderEl) {
+                        placeholderEl.style.display = 'block';
+                        renderSprintPlaceholder(season);
+                    }
+                    if (mainContentEl) {
+                        mainContentEl.style.display = 'none';
+                    }
+                    if (badge) {
+                        badge.className = 'cache-badge no-sprint';
+                        badge.textContent = 'Sprint format introduced in 2021 — no sprint events for this season';
+                    }
+                    return;
                 }
 
-                renderSprintVenuePills();
-                renderSprintDisparityAnalysis();
+                if (season === '2024') {
+                    sprintState.sprints = SPRINT_FALLBACK_2024.sprints;
+                    sprintState.results = [];
+                    sprintState.standings = SPRINT_FALLBACK_2024.standings;
+
+                    if (placeholderEl) placeholderEl.style.display = 'none';
+                    if (mainContentEl) mainContentEl.style.display = 'block';
+
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚡ Offline Telemetry';
+                    }
+
+                    renderSprintVenuePills();
+                    renderSprintData();
+                } else {
+                    sprintState.sprints = [];
+                    sprintState.results = [];
+                    sprintState.standings = [];
+                    if (placeholderEl) {
+                        placeholderEl.style.display = 'block';
+                        renderSprintPlaceholder(season);
+                    }
+                    if (mainContentEl) {
+                        mainContentEl.style.display = 'none';
+                    }
+                    if (badge) {
+                        badge.className = 'cache-badge no-sprint';
+                        badge.textContent = 'ℹ️ No Sprint Telemetry';
+                    }
+                }
             }
         }
+
+        const loadSprintDisparityData = loadSprintData;
 
         function renderSprintVenuePills() {
             const container = document.getElementById('sprintVenuePills');
@@ -7100,10 +7386,10 @@
             const maxSprintPtsPerDriver = season === '2021' ? 3 : 8;
             const maxGpPtsPerDriver = 26;
 
-            const numSprintSessions = Math.max(1, filteredSprints.length);
+            const numSprintSessions = filteredSprints.length;
             const numGpSessions = filteredGpRaces.length > 0
                 ? filteredGpRaces.length
-                : (isSingleVenue ? 1 : (useWeekendOnlyScope ? numSprintSessions : 24));
+                : (isSingleVenue ? 1 : (useWeekendOnlyScope ? (numSprintSessions || 1) : 24));
 
             const sprintPtsAvailablePerDriver = numSprintSessions * maxSprintPtsPerDriver;
             const gpPtsAvailablePerDriver = numGpSessions * maxGpPtsPerDriver;
@@ -7259,7 +7545,7 @@
 
             return {
                 rows,
-                totalSprintPoolContested: totalSprintPoolContested || (numSprintSessions * (season === '2021' ? 6 : 36)),
+                totalSprintPoolContested: totalSprintPoolContested || (numSprintSessions === 0 ? 0 : numSprintSessions * (season === '2021' ? 6 : 36)),
                 numSprintSessions,
                 numGpSessions,
                 sprintPtsAvailablePerDriver,
@@ -7267,7 +7553,37 @@
             };
         }
 
-        function renderSprintDisparityAnalysis() {
+        function renderSprintData() {
+            const seasonNum = parseInt(sprintState.season, 10);
+            const placeholderEl = document.getElementById('sprintPlaceholder');
+            const mainContentEl = document.getElementById('sprintMainContent');
+            const badge = document.getElementById('sprintCacheBadge');
+            const hasNoSprints = !sprintState.sprints || sprintState.sprints.length === 0;
+
+            if (seasonNum < 2021 || hasNoSprints) {
+                if (sprintDisparityChartInstance) {
+                    sprintDisparityChartInstance.destroy();
+                    sprintDisparityChartInstance = null;
+                }
+                if (placeholderEl) {
+                    placeholderEl.style.display = 'block';
+                    renderSprintPlaceholder(sprintState.season);
+                }
+                if (mainContentEl) {
+                    mainContentEl.style.display = 'none';
+                }
+                if (badge) {
+                    badge.className = 'cache-badge no-sprint';
+                    badge.textContent = seasonNum < 2021
+                        ? 'Sprint format introduced in 2021 — no sprint events for this season'
+                        : 'ℹ️ No Sprint Events';
+                }
+                return;
+            }
+
+            if (placeholderEl) placeholderEl.style.display = 'none';
+            if (mainContentEl) mainContentEl.style.display = 'block';
+
             const metrics = computeSprintDisparityMetrics();
             const rows = metrics.rows;
 
@@ -7540,6 +7856,8 @@
             }).join('');
         }
 
+        const renderSprintDisparityAnalysis = renderSprintData;
+
         // Safe Pit Stop handlers so all existing controls remain error-free
         function onPitStopSeasonChange(season) {
             if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(season);
@@ -7687,6 +8005,39 @@
                 loadConstructorAtrData(constructorSeasonSelect.value, false);
             }
         });
+
+        if (typeof window !== 'undefined') {
+            window.loadSprintData = loadSprintData;
+            window.renderSprintData = renderSprintData;
+            window.loadSprintDisparityData = loadSprintData;
+            window.renderSprintDisparityAnalysis = renderSprintData;
+            window.renderSprintPlaceholder = renderSprintPlaceholder;
+            window.sprintState = sprintState;
+            window.onSprintSeasonChange = onSprintSeasonChange;
+            window.refreshSprintDisparityData = refreshSprintDisparityData;
+            window.selectSprintVenue = selectSprintVenue;
+            window.setSprintComparisonScope = setSprintComparisonScope;
+            window.computeSprintDisparityMetrics = computeSprintDisparityMetrics;
+            window.fetchAllJolpicaPages = fetchAllJolpicaPages;
+            window.BASE_URL = BASE_URL;
+        }
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = {
+                loadSprintData,
+                renderSprintData,
+                loadSprintDisparityData,
+                renderSprintDisparityAnalysis,
+                renderSprintPlaceholder,
+                sprintState,
+                onSprintSeasonChange,
+                refreshSprintDisparityData,
+                selectSprintVenue,
+                setSprintComparisonScope,
+                computeSprintDisparityMetrics,
+                fetchAllJolpicaPages,
+                BASE_URL
+            };
+        }
     </script>
 </body>
 </html>

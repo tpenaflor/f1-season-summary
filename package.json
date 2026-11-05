@@ -1,0 +1,15 @@
+{
+  "name": "f1-season-summary",
+  "version": "1.0.0",
+  "description": "F1 Season Summary & Telemetry Dashboard",
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "formula1",
+    "telemetry",
+    "sprint"
+  ],
+  "author": "",
+  "license": "ISC"
+}
