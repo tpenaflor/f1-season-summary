@@ -8154,10 +8154,552 @@
             if (typeof updatePitStopOutlierFilter === 'function') updatePitStopOutlierFilter(checked);
         }
 
+        // =========================================================
+        // Feature #5 / Issue #17: Constructor ATR Tracker & Standings Progression
+        // =========================================================
+
+        let constructorTrajectoryChartInstance = null;
+
+        const constructorAtrState = {
+            season: '2024',
+            battleGroup: 'all',
+            standings: [],
+            trajectories: {},
+            rounds: [],
+            hiddenTeams: new Set(),
+            isLoading: false
+        };
+
+        function getAtrTierInfo(rank) {
+            const r = parseInt(rank, 10) || 1;
+            const pct = 70 + (r - 1) * 5;
+            const runs = Math.round(40 * (pct / 100));
+            const cfd = Math.round(2000 * (pct / 100));
+
+            let tier = 'restricted';
+            let tierLabel = 'Restricted';
+            let tierClass = 'chip-restricted';
+            let tierColor = '#EF4444';
+
+            if (r >= 5 && r <= 7) {
+                tier = 'neutral';
+                tierLabel = 'Parity';
+                tierClass = 'chip-neutral';
+                tierColor = '#10B981';
+            } else if (r >= 8) {
+                tier = 'boosted';
+                tierLabel = 'Boosted';
+                tierClass = 'chip-boosted';
+                tierColor = '#8B5CF6';
+            }
+
+            const fillPct = Math.min(100, Math.max(15, Math.round(((pct - 50) / 70) * 100)));
+
+            return {
+                pct,
+                runs,
+                cfd,
+                tier,
+                tierLabel,
+                tierClass,
+                tierColor,
+                fillPct
+            };
+        }
+
+        function generateSparklineSvg(pointsArray, strokeColor = '#00F0FF', width = 60, height = 20) {
+            if (!pointsArray || pointsArray.length < 2) {
+                return `<svg class="atr-sparkline-svg" width="${width}" height="${height}"><line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" stroke="${strokeColor}" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.4"/></svg>`;
+            }
+            const min = Math.min(...pointsArray);
+            const max = Math.max(...pointsArray);
+            const range = (max - min) || 1;
+            const padding = 2;
+            const h = height - padding * 2;
+            const pts = pointsArray.map((val, idx) => {
+                const x = padding + (idx / (pointsArray.length - 1)) * (width - padding * 2);
+                const y = height - padding - ((val - min) / range) * h;
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+            }).join(' ');
+
+            return `<svg class="atr-sparkline-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><polyline fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="${pts}" /></svg>`;
+        }
+
+        function isConstructorInBattleGroup(rank, group) {
+            const r = parseInt(rank, 10);
+            switch (group) {
+                case 'title':
+                    return r >= 1 && r <= 2;
+                case 'podium':
+                    return r >= 3 && r <= 5;
+                case 'midfield':
+                    return r >= 6 && r <= 8;
+                case 'rebuild':
+                    return r >= 9;
+                case 'all':
+                default:
+                    return true;
+            }
+        }
+
+        function renderConstructorKpis(standings) {
+            if (!standings || !Array.isArray(standings) || standings.length === 0) return;
+            const leader = standings[0];
+            const second = standings[1] || null;
+            const last = standings[standings.length - 1];
+
+            const leaderName = leader.Constructor?.name || leader.name || 'Unknown';
+            const leaderWins = leader.wins || 0;
+            const leaderPts = parseFloat(leader.points || 0);
+            const leaderId = leader.Constructor?.constructorId || leader.id || '';
+            const leaderColor = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[leaderId]) || '#FF8000';
+
+            const leaderWinsEl = document.getElementById('atrKpiLeaderWins');
+            if (leaderWinsEl) leaderWinsEl.textContent = `${leaderWins} Win${leaderWins === 1 || leaderWins === '1' ? '' : 's'}`;
+
+            const leaderTeamEl = document.getElementById('atrKpiLeaderTeam');
+            if (leaderTeamEl) leaderTeamEl.textContent = leaderName;
+
+            const leaderPtsEl = document.getElementById('atrKpiLeaderPts');
+            if (leaderPtsEl) leaderPtsEl.textContent = `${leaderPts} PTS`;
+
+            const leaderSubEl = document.getElementById('atrKpiLeaderSub');
+            if (leaderSubEl) leaderSubEl.textContent = `P1 World Constructors' Championship Standings`;
+
+            const leaderBarEl = document.getElementById('atrKpiLeaderBar');
+            if (leaderBarEl) leaderBarEl.style.background = leaderColor;
+
+            // Gap KPI
+            const gapPointsEl = document.getElementById('atrKpiGapPoints');
+            const gapContextEl = document.getElementById('atrKpiGapContext');
+            const gapBadgeEl = document.getElementById('atrKpiGapBadge');
+            if (second) {
+                const secondName = second.Constructor?.name || second.name || 'P2';
+                const secondPts = parseFloat(second.points || 0);
+                const gap = leaderPts - secondPts;
+                if (gapPointsEl) gapPointsEl.textContent = `+${gap} PTS`;
+                if (gapContextEl) gapContextEl.textContent = `${leaderName} (${leaderPts}) vs ${secondName} (${secondPts})`;
+                if (gapBadgeEl) gapBadgeEl.textContent = 'Title Margin';
+            } else {
+                if (gapPointsEl) gapPointsEl.textContent = '0 PTS';
+                if (gapContextEl) gapContextEl.textContent = `${leaderName} (${leaderPts})`;
+            }
+
+            // Period Status KPI
+            const periodStatusEl = document.getElementById('atrKpiPeriodStatus');
+            const periodSubEl = document.getElementById('atrKpiPeriodSub');
+            if (periodStatusEl) periodStatusEl.textContent = 'Jan 1 & Jun 30 Resets';
+            if (periodSubEl) periodSubEl.textContent = 'Sliding scale resets on Jan 1 & Jun 30 per WCC rank';
+
+            // Max handicap team (P10)
+            if (last) {
+                const lastName = last.Constructor?.name || last.name || 'Sauber';
+                const lastRank = last.position || standings.length;
+                const lastTier = getAtrTierInfo(lastRank);
+                const p1Tier = getAtrTierInfo(1);
+                const diffPct = lastTier.pct - p1Tier.pct;
+
+                const maxTeamEl = document.getElementById('atrKpiMaxTeam');
+                if (maxTeamEl) maxTeamEl.textContent = lastName;
+
+                const maxRankEl = document.getElementById('atrKpiMaxRank');
+                if (maxRankEl) maxRankEl.textContent = `P${lastRank}`;
+
+                const maxAllowanceEl = document.getElementById('atrKpiMaxAllowance');
+                if (maxAllowanceEl) {
+                    maxAllowanceEl.textContent = `${lastTier.runs} wind tunnel runs/wk • ${lastTier.cfd.toLocaleString()} CFD items (+${diffPct}% vs P1)`;
+                }
+            }
+        }
+
+        function renderConstructorAtrTable(standings, trajectories, battleGroup) {
+            const tbody = document.getElementById('constructorAtrTableBody');
+            if (!tbody) return;
+
+            if (!standings || !Array.isArray(standings) || standings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94A3B8; padding: 24px;">No constructor data available for selected season.</td></tr>`;
+                return;
+            }
+
+            const leaderPts = parseFloat(standings[0]?.points || 0);
+            const filteredStandings = standings.filter(item => isConstructorInBattleGroup(item.position, battleGroup));
+
+            const countBadge = document.getElementById('atrFilterCountBadge');
+            if (countBadge) {
+                countBadge.textContent = `Showing ${filteredStandings.length} / ${standings.length} Teams`;
+            }
+
+            let prevPts = leaderPts;
+            let html = '';
+
+            standings.forEach((item, index) => {
+                const rank = parseInt(item.position || (index + 1), 10);
+                const isVisible = isConstructorInBattleGroup(rank, battleGroup);
+                if (!isVisible) return;
+
+                const constructor = item.Constructor || item;
+                const cid = constructor.constructorId || item.id || `team_${rank}`;
+                const name = constructor.name || 'Unknown';
+                const pts = parseFloat(item.points || 0);
+                const color = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) ||
+                    (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length] : '#00F0FF');
+
+                const deltaLeader = (leaderPts - pts);
+                const deltaAhead = (index === 0) ? 0 : (prevPts - pts);
+                prevPts = pts;
+
+                const atrInfo = getAtrTierInfo(rank);
+                const sparklineData = (trajectories && trajectories[cid]) ? trajectories[cid] : [pts];
+                const sparklineSvg = generateSparklineSvg(sparklineData, color);
+
+                const rankBadgeClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+
+                const deltaLeaderHtml = rank === 1
+                    ? `<span class="atr-delta-pill leader">LEADER</span>`
+                    : `<span class="atr-delta-pill deficit">-${deltaLeader} PTS</span>`;
+
+                const deltaAheadHtml = rank === 1
+                    ? `<div class="atr-ahead-wrap"><span class="atr-delta-pill leader">—</span>${sparklineSvg}</div>`
+                    : `<div class="atr-ahead-wrap"><span class="atr-delta-pill deficit">-${deltaAhead} PTS</span>${sparklineSvg}</div>`;
+
+                html += `
+                    <tr data-cid="${cid}">
+                        <td><span class="atr-rank-badge ${rankBadgeClass}">${rank}</span></td>
+                        <td>
+                            <div class="atr-team-cell">
+                                <span class="atr-team-bar" style="background: ${color};"></span>
+                                <span>${name}</span>
+                            </div>
+                        </td>
+                        <td><span class="atr-pts-cell">${pts} PTS</span></td>
+                        <td>${deltaLeaderHtml}</td>
+                        <td>${deltaAheadHtml}</td>
+                        <td>
+                            <div class="atr-tier-wrap">
+                                <div class="atr-tier-badges">
+                                    <span class="atr-pct-badge ${atrInfo.tierClass}">${atrInfo.pct}% Baseline</span>
+                                    <span class="atr-metric-pill">${atrInfo.runs} runs/wk</span>
+                                    <span class="atr-metric-pill">${atrInfo.cfd.toLocaleString()} CFD items</span>
+                                </div>
+                                <div class="atr-scale-track">
+                                    <div class="atr-scale-fill" style="width: ${atrInfo.fillPct}%; background: ${atrInfo.tierColor};"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function renderConstructorTrajectoryChart() {
+            const canvas = document.getElementById('constructorTrajectoryChart');
+            const { standings, trajectories, rounds, battleGroup, hiddenTeams } = constructorAtrState;
+
+            // Render legend pills
+            const pillsContainer = document.getElementById('atrTeamLegendPills');
+            if (pillsContainer && standings && Array.isArray(standings)) {
+                pillsContainer.innerHTML = standings.map((item, index) => {
+                    const cid = item.Constructor?.constructorId || item.id || `team_${index}`;
+                    const name = item.Constructor?.name || item.name || cid;
+                    const pts = parseFloat(item.points || 0);
+                    const color = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) ||
+                        (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length] : '#00F0FF');
+                    const isMuted = hiddenTeams.has(cid);
+                    const rank = parseInt(item.position || (index + 1), 10);
+                    const inGroup = isConstructorInBattleGroup(rank, battleGroup);
+                    if (!inGroup && battleGroup !== 'all') return '';
+                    return `
+                        <button type="button" class="atr-team-pill ${isMuted ? 'muted' : ''}" onclick="toggleConstructorTrajectory('${cid}')">
+                            <span class="atr-team-pill-swatch" style="background: ${color};"></span>
+                            <span>${name}</span>
+                            <span class="atr-team-pill-pts">${pts}p</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            if (!canvas || typeof Chart === 'undefined') return;
+            if (!standings || !Array.isArray(standings) || standings.length === 0) return;
+
+            const labels = (rounds && rounds.length > 0)
+                ? rounds.map((r, i) => r.raceName ? `R${i + 1} ${r.raceName.replace(' Grand Prix', '')}` : `R${i + 1}`)
+                : Array.from({ length: 24 }, (_, i) => `R${i + 1}`);
+
+            const datasets = standings.map((item, index) => {
+                const rank = parseInt(item.position || (index + 1), 10);
+                const cid = item.Constructor?.constructorId || item.id || `team_${index}`;
+                const name = item.Constructor?.name || item.name || cid;
+                const color = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) ||
+                    (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length] : '#00F0FF');
+                const inGroup = isConstructorInBattleGroup(rank, battleGroup);
+                const isHidden = hiddenTeams.has(cid) || (!inGroup && battleGroup !== 'all');
+                const ptsTrajectory = (trajectories && trajectories[cid]) ? trajectories[cid] : [];
+
+                return {
+                    label: name,
+                    data: ptsTrajectory,
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: rank <= 3 ? 3 : 2,
+                    tension: 0.25,
+                    fill: false,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 6,
+                    hidden: isHidden
+                };
+            });
+
+            if (constructorTrajectoryChartInstance) {
+                if (typeof constructorTrajectoryChartInstance.destroy === 'function') {
+                    constructorTrajectoryChartInstance.destroy();
+                }
+                constructorTrajectoryChartInstance = null;
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+            if (!ctx) return;
+
+            constructorTrajectoryChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                            titleColor: '#00F0FF',
+                            bodyColor: '#F1F5F9',
+                            borderColor: '#1E2738',
+                            borderWidth: 1,
+                            padding: 10
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94A3B8', maxRotation: 45, minRotation: 45, font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94A3B8' },
+                            title: { display: true, text: 'Cumulative Points', color: '#94A3B8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleConstructorTrajectory(cid) {
+            if (constructorAtrState.hiddenTeams.has(cid)) {
+                constructorAtrState.hiddenTeams.delete(cid);
+            } else {
+                constructorAtrState.hiddenTeams.add(cid);
+            }
+            renderConstructorTrajectoryChart();
+        }
+
+        function setConstructorBattleGroup(group) {
+            constructorAtrState.battleGroup = group;
+            if (typeof document !== 'undefined') {
+                document.querySelectorAll('.atr-battle-pill').forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-group') === group);
+                });
+            }
+            renderConstructorAtrView();
+        }
+
+        function renderConstructorAtrView() {
+            const { standings, trajectories, battleGroup } = constructorAtrState;
+            renderConstructorKpis(standings);
+            renderConstructorAtrTable(standings, trajectories, battleGroup);
+            renderConstructorTrajectoryChart();
+        }
+
+        async function loadConstructorAtrData(season, forceRefresh = false) {
+            season = String(season || constructorAtrState.season || '2024');
+            constructorAtrState.season = season;
+            const cacheKey = `f1_constructor_atr_v1_${season}`;
+            const badge = typeof document !== 'undefined' ? document.getElementById('constructorCacheBadge') : null;
+            const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+
+            if (!forceRefresh && storage) {
+                const cached = storage.getItem(cacheKey);
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && Array.isArray(parsed.standings) && parsed.standings.length > 0) {
+                            constructorAtrState.standings = parsed.standings;
+                            constructorAtrState.trajectories = parsed.trajectories || {};
+                            constructorAtrState.rounds = parsed.rounds || [];
+                            if (badge) {
+                                badge.className = 'cache-badge cached';
+                                badge.textContent = '⚡ Cached (Instant)';
+                            }
+                            renderConstructorAtrView();
+                            return constructorAtrState;
+                        }
+                    } catch (e) {
+                        storage.removeItem(cacheKey);
+                    }
+                }
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge fetching';
+                badge.textContent = '🌐 Syncing Constructor ATR...';
+            }
+
+            constructorAtrState.isLoading = true;
+
+            try {
+                const seasonNum = parseInt(season, 10);
+                const standingsPromise = fetch(`${BASE_URL}/${season}/constructorStandings.json`)
+                    .then(r => r.ok ? r.json() : null)
+                    .catch(() => null);
+
+                const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(season, 'results', 'Results').catch(() => [])
+                    : Promise.resolve([]);
+
+                const sprintPromise = (seasonNum >= 2021 && typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(season, 'sprint', 'SprintResults').catch(() => [])
+                    : Promise.resolve([]);
+
+                const [standingsResp, raceRounds, sprintRounds] = await Promise.all([
+                    standingsPromise,
+                    resultsPromise,
+                    sprintPromise
+                ]);
+
+                let standings = standingsResp?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings || [];
+
+                const rounds = Array.isArray(raceRounds) ? raceRounds : [];
+                const sprints = Array.isArray(sprintRounds) ? sprintRounds : [];
+                const sprintMap = {};
+                sprints.forEach(s => {
+                    sprintMap[String(s.round)] = s.SprintResults || [];
+                });
+
+                const cumPoints = {};
+                const trajectories = {};
+                const constructorMeta = {};
+
+                rounds.forEach(race => {
+                    const rnd = String(race.round);
+                    const raceResults = race.Results || [];
+                    const sprintResults = sprintMap[rnd] || [];
+
+                    raceResults.forEach(res => {
+                        const c = res.Constructor;
+                        if (!c) return;
+                        const cid = c.constructorId || 'unknown';
+                        if (!constructorMeta[cid]) {
+                            constructorMeta[cid] = { Constructor: c, wins: 0 };
+                        }
+                        if (res.position === '1') {
+                            constructorMeta[cid].wins = (constructorMeta[cid].wins || 0) + 1;
+                        }
+                        const pts = parseFloat(res.points || 0);
+                        cumPoints[cid] = (cumPoints[cid] || 0) + pts;
+                    });
+
+                    sprintResults.forEach(res => {
+                        const c = res.Constructor;
+                        if (!c) return;
+                        const cid = c.constructorId || 'unknown';
+                        if (!constructorMeta[cid]) {
+                            constructorMeta[cid] = { Constructor: c, wins: 0 };
+                        }
+                        const pts = parseFloat(res.points || 0);
+                        cumPoints[cid] = (cumPoints[cid] || 0) + pts;
+                    });
+
+                    Object.keys(cumPoints).forEach(cid => {
+                        if (!trajectories[cid]) trajectories[cid] = [];
+                        trajectories[cid].push(cumPoints[cid]);
+                    });
+                });
+
+                const totalRoundsCount = rounds.length;
+                Object.keys(trajectories).forEach(cid => {
+                    while (trajectories[cid].length < totalRoundsCount) {
+                        trajectories[cid].unshift(0);
+                    }
+                });
+
+                if (standings.length === 0 && Object.keys(constructorMeta).length > 0) {
+                    standings = Object.entries(constructorMeta).map(([cid, meta]) => ({
+                        position: '0',
+                        points: String(cumPoints[cid] || 0),
+                        wins: String(meta.wins || 0),
+                        Constructor: meta.Constructor
+                    })).sort((a, b) => parseFloat(b.points) - parseFloat(a.points));
+                    standings.forEach((s, idx) => {
+                        s.position = String(idx + 1);
+                    });
+                }
+
+                constructorAtrState.standings = standings;
+                constructorAtrState.trajectories = trajectories;
+                constructorAtrState.rounds = rounds;
+                constructorAtrState.isLoading = false;
+
+                if (storage && standings.length > 0) {
+                    try {
+                        storage.setItem(cacheKey, JSON.stringify({
+                            standings,
+                            trajectories,
+                            rounds: rounds.map(r => ({ round: r.round, raceName: r.raceName }))
+                        }));
+                    } catch (e) {}
+                }
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Live Telemetry';
+                }
+
+                renderConstructorAtrView();
+                return constructorAtrState;
+            } catch (err) {
+                console.warn('Error loading Constructor ATR data:', err);
+                constructorAtrState.isLoading = false;
+                if (badge) {
+                    badge.className = 'cache-badge no-data';
+                    badge.textContent = '⚠️ Data Unavailable';
+                }
+                renderConstructorAtrView();
+                return constructorAtrState;
+            }
+        }
+
+        function onConstructorSeasonChange(season) {
+            constructorAtrState.season = String(season);
+            loadConstructorAtrData(season, false);
+        }
+
+        function refreshConstructorAtrData() {
+            const sel = typeof document !== 'undefined' ? document.getElementById('constructorSeasonSelect') : null;
+            const season = sel ? sel.value : constructorAtrState.season;
+            loadConstructorAtrData(season, true);
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
                 'all': 'tabBtnAll',
+                'constructors': 'tabBtnConstructors',
                 'sprint': 'tabBtnSprint',
                 'clinch': 'tabBtnClinch',
                 'pitstops': 'tabBtnPitStops',
@@ -8168,6 +8710,7 @@
             const activeBtn = document.getElementById(btnMap[tabId] || `tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
             if (activeBtn) activeBtn.classList.add('active');
 
+            const constructorSec = document.getElementById('constructor-atr-section');
             const sprintSec = document.getElementById('sprint-disparity-section');
             const clinchSec = document.getElementById('clinch-engine-section');
             const pitstopSec = document.getElementById('pitstop-matrix-section');
@@ -8176,7 +8719,17 @@
             const latestRaceSec = document.getElementById('latest-race-section');
             const standingsTableSec = document.getElementById('standings-table-section');
 
-            if (tabId === 'sprint') {
+            if (tabId === 'constructors') {
+                if (constructorSec) constructorSec.style.display = 'block';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'sprint') {
+                if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -8185,6 +8738,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'clinch') {
+                if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -8193,6 +8747,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'pitstops') {
+                if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'block';
@@ -8201,6 +8756,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'telemetry') {
+                if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -8209,6 +8765,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'progression') {
+                if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -8217,6 +8774,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'results') {
+                if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -8225,6 +8783,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
                 if (standingsTableSec) standingsTableSec.style.display = 'block';
             } else {
+                if (constructorSec) constructorSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'block';
@@ -8239,6 +8798,9 @@
                 if (telemetryRadarChartInstance) telemetryRadarChartInstance.resize();
                 if (telemetryDeltaChartInstance) telemetryDeltaChartInstance.resize();
                 if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
+                if (constructorTrajectoryChartInstance && typeof constructorTrajectoryChartInstance.resize === 'function') {
+                    constructorTrajectoryChartInstance.resize();
+                }
             }, 50);
         }
 
@@ -8246,6 +8808,9 @@
             if (telemetryRadarChartInstance) telemetryRadarChartInstance.resize();
             if (telemetryDeltaChartInstance) telemetryDeltaChartInstance.resize();
             if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
+            if (constructorTrajectoryChartInstance && typeof constructorTrajectoryChartInstance.resize === 'function') {
+                constructorTrajectoryChartInstance.resize();
+            }
             if (chartInstance) chartInstance.resize();
         });
 
@@ -8312,6 +8877,17 @@
             window.pitStopState = pitStopState;
             window.onPitStopSeasonChange = onPitStopSeasonChange;
             window.refreshPitStopData = refreshPitStopData;
+            window.loadConstructorAtrData = loadConstructorAtrData;
+            window.onConstructorSeasonChange = onConstructorSeasonChange;
+            window.refreshConstructorAtrData = refreshConstructorAtrData;
+            window.setConstructorBattleGroup = setConstructorBattleGroup;
+            window.toggleConstructorTrajectory = toggleConstructorTrajectory;
+            window.renderConstructorAtrView = renderConstructorAtrView;
+            window.renderConstructorAtrTable = renderConstructorAtrTable;
+            window.renderConstructorTrajectoryChart = renderConstructorTrajectoryChart;
+            window.renderConstructorKpis = renderConstructorKpis;
+            window.getAtrTierInfo = getAtrTierInfo;
+            window.constructorAtrState = constructorAtrState;
         }
 
         function extractFastestLapFromResult(results) {
@@ -8367,7 +8943,18 @@
                 refreshPitStopData,
                 extractFastestLapFromResult,
                 renderFastestLapInfo,
-                renderStatsSummary
+                renderStatsSummary,
+                loadConstructorAtrData,
+                onConstructorSeasonChange,
+                refreshConstructorAtrData,
+                setConstructorBattleGroup,
+                toggleConstructorTrajectory,
+                renderConstructorAtrView,
+                renderConstructorAtrTable,
+                renderConstructorTrajectoryChart,
+                renderConstructorKpis,
+                getAtrTierInfo,
+                constructorAtrState
             };
         }
     </script>
