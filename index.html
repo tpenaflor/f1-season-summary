@@ -3614,6 +3614,208 @@
             transition: width 0.3s ease;
         }
 
+        /* =========================================================
+           Circuit Type & Aerodynamic Efficiency Profiler (Issue #16)
+           ========================================================= */
+        .profiler-section {
+            background: linear-gradient(180deg, #101520 0%, #0B0E14 100%);
+            border: 1px solid #1E2738;
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .profiler-header-accent {
+            background: linear-gradient(180deg, #00F0FF 0%, #10B981 50%, #FF8000 100%);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+        }
+
+        .profiler-filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #080A0F;
+            border: 1px solid #1E2738;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            min-height: 58px;
+        }
+
+        .profiler-archetype-pills {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .profiler-pill {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94A3B8;
+            background: #101520;
+            border: 1px solid #1E2738;
+            border-radius: 999px;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+            height: 34px;
+        }
+
+        .profiler-pill:hover {
+            color: #FFFFFF;
+            border-color: #00F0FF;
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .profiler-pill.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(16, 185, 129, 0.18) 100%);
+            color: #FFFFFF;
+            border-color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+        }
+
+        .profiler-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .profiler-panel {
+            background: #0C1017;
+            border: 1px solid #1A2232;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .profiler-matrix-table th {
+            text-align: center;
+        }
+
+        .profiler-matrix-table th:first-child {
+            text-align: left;
+        }
+
+        .matrix-cell {
+            text-align: center;
+            padding: 12px 10px;
+            border-radius: 6px;
+            transition: background 0.15s ease;
+        }
+
+        .matrix-cell-advantage {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .matrix-cell-parity {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .matrix-cell-deficit {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .matrix-delta-primary {
+            font-family: var(--font-mono), monospace;
+            font-variant-numeric: tabular-nums;
+            font-size: 0.95rem;
+            font-weight: 800;
+        }
+
+        .matrix-delta-sub {
+            font-family: var(--font-mono), monospace;
+            font-size: 0.72rem;
+            color: #94A3B8;
+            margin-top: 3px;
+        }
+
+        .profiler-circuits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .profiler-circuit-card {
+            background: #0E131C;
+            border: 1px solid #1A2230;
+            border-radius: 8px;
+            padding: 14px 16px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .profiler-circuit-card:hover {
+            border-color: #00F0FF;
+            transform: translateY(-2px);
+        }
+
+        .profiler-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .profiler-card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .profiler-card-loc {
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+
+        .profiler-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .profiler-tag {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .tag-downforce-max { background: rgba(255, 128, 0, 0.2); color: #FF8000; border: 1px solid rgba(255, 128, 0, 0.4); }
+        .tag-downforce-med { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .tag-downforce-low { background: rgba(0, 240, 255, 0.2); color: #00F0FF; border: 1px solid rgba(0, 240, 255, 0.4); }
+        .tag-deg-high { background: rgba(232, 0, 45, 0.2); color: #EF4444; border: 1px solid rgba(232, 0, 45, 0.4); }
+
+        .rank-delta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-family: var(--font-mono), monospace;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+        .rank-delta-gain { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid #10B981; }
+        .rank-delta-loss { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid #EF4444; }
+        .rank-delta-neutral { background: rgba(255, 255, 255, 0.05); color: #94A3B8; border: 1px solid #334155; }
+
         @media (max-width: 640px) {
             .teammate-comparison-card,
             .telemetry-radar-wrapper,
@@ -3656,6 +3858,9 @@
             <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
                 <span class="tab-icon">👁️</span> All Telemetry & Standings
             </button>
+            <button type="button" class="tab-btn" id="tabBtnProfiler" onclick="switchMainTab('profiler')">
+                <span class="tab-icon">🏎️</span> Circuit &amp; Aero Profiler
+            </button>
             <button type="button" class="tab-btn" id="tabBtnConstructors" onclick="switchMainTab('constructors')">
                 <span class="tab-icon">🏎️</span> Constructor ATR & Standings
             </button>
@@ -3678,6 +3883,197 @@
                 <span class="tab-icon">🏁</span> Latest Race & Driver Standings
             </button>
         </nav>
+
+        <!-- Circuit Type & Aerodynamic Efficiency Profiler (Issue #16) -->
+        <section class="card telemetry-section profiler-section" id="circuit-profiler-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent profiler-header-accent"></div>
+                    <div>
+                        <h2>Circuit Type &amp; Aerodynamic Efficiency Profiler</h2>
+                        <p class="section-subtitle">Aerodynamic package profiling across contrasting regimes: High-Downforce Street, Low-Drag Power, Balanced Aero &amp; High-Degradation Venues</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="profilerSeasonSelect">Season:</label>
+                        <select id="profilerSeasonSelect" class="season-dropdown" onchange="onProfilerSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                        </select>
+                    </div>
+                    <span id="profilerCacheBadge" class="cache-badge cached">⚡ Live Telemetry</span>
+                    <button type="button" class="btn-refresh" id="btnProfilerRefresh" onclick="refreshProfilerData()" title="Force Refresh Circuit Profiler Telemetry">
+                        ↻ Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Archetype Filter Bar -->
+            <div class="profiler-filter-bar">
+                <div class="atr-filter-label">
+                    <span>🎯</span> Circuit Archetype Filter:
+                </div>
+                <div class="profiler-archetype-pills" role="group" aria-label="Circuit Archetype Filter">
+                    <button type="button" class="profiler-pill active" data-archetype="all" onclick="setProfilerArchetypeFilter('all')">
+                        <span class="pill-dot" style="background: #00F0FF;"></span>
+                        All Archetypes <span class="pill-badge" id="pillBadgeAll">All Venues</span>
+                    </button>
+                    <button type="button" class="profiler-pill" data-archetype="high_downforce" onclick="setProfilerArchetypeFilter('high_downforce')">
+                        <span class="pill-dot" style="background: #FF8000;"></span>
+                        High Downforce / Street <span class="pill-badge" id="pillBadgeStreet">Street</span>
+                    </button>
+                    <button type="button" class="profiler-pill" data-archetype="low_drag" onclick="setProfilerArchetypeFilter('low_drag')">
+                        <span class="pill-dot" style="background: #00F0FF;"></span>
+                        Low Drag / Power <span class="pill-badge" id="pillBadgePower">Power</span>
+                    </button>
+                    <button type="button" class="profiler-pill" data-archetype="balanced" onclick="setProfilerArchetypeFilter('balanced')">
+                        <span class="pill-dot" style="background: #10B981;"></span>
+                        Balanced Downforce <span class="pill-badge" id="pillBadgeBalanced">Medium</span>
+                    </button>
+                    <button type="button" class="profiler-pill" data-archetype="high_deg" onclick="setProfilerArchetypeFilter('high_deg')">
+                        <span class="pill-dot" style="background: #E8002D;"></span>
+                        High Degradation <span class="pill-badge" id="pillBadgeDeg">Flowing</span>
+                    </button>
+                </div>
+                <span id="profilerFilterCountBadge" class="atr-filter-badge">Showing All Circuits</span>
+            </div>
+
+            <!-- High-Level KPI Cards -->
+            <div class="profiler-kpi-grid">
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>⚡ Low-Drag Speed Master</span>
+                        <span class="atr-kpi-tag tag-cyan" id="profilerKpiPowerTag">Low-Drag Power</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="profilerKpiPowerTeam">Ferrari</div>
+                        <div class="atr-kpi-tag" id="profilerKpiPowerDelta">+0.08% Pace</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="profilerKpiPowerDesc">Lowest qualifying pace delta across Monza, Spa &amp; Baku</div>
+                    <div class="atr-kpi-bar" id="profilerKpiPowerBar" style="background: #00F0FF;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🏙️ Street &amp; High-DF Specialist</span>
+                        <span class="atr-kpi-tag tag-gold" id="profilerKpiStreetTag">High Downforce</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="profilerKpiStreetTeam">McLaren</div>
+                        <div class="atr-kpi-tag" id="profilerKpiStreetDelta">+0.05% Pace</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="profilerKpiStreetDesc">Peak mechanical grip across Monaco, Singapore &amp; Hungaroring</div>
+                    <div class="atr-kpi-bar" id="profilerKpiStreetBar" style="background: #FF8000;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🏆 Peak Aero Efficiency Leader</span>
+                        <span class="atr-kpi-tag tag-cyan" id="profilerKpiEfficiencyTag">All-Rounder</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="profilerKpiEfficiencyTeam">McLaren</div>
+                        <div class="atr-kpi-tag" id="profilerKpiEfficiencyScore">94.8 / 100</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="profilerKpiEfficiencyDesc">Highest harmonic efficiency across all 4 circuit archetypes</div>
+                    <div class="atr-kpi-bar" id="profilerKpiEfficiencyBar" style="background: linear-gradient(90deg, #FF8000, #00F0FF);"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🔥 High-Degradation Tyre Master</span>
+                        <span class="atr-kpi-tag tag-purple" id="profilerKpiDegTag">Tyre Resilience</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="profilerKpiDegTeam">Red Bull</div>
+                        <div class="atr-kpi-tag" id="profilerKpiDegDelta">P1.8 Avg Finish</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="profilerKpiDegDesc">Maximum points retention on abrasive, high lateral-load tracks</div>
+                    <div class="atr-kpi-bar" id="profilerKpiDegBar" style="background: #E8002D;"></div>
+                </div>
+            </div>
+
+            <!-- Radar / Spider Chart Panel -->
+            <div class="atr-chart-panel profiler-panel">
+                <div class="atr-chart-header">
+                    <div class="atr-chart-title-Row">
+                        <h3 class="atr-subheading">🕸️ Constructor Aerodynamic Efficiency Profile (Radar / Spider Chart)</h3>
+                        <span class="atr-chart-hint">Normalized efficiency scores (0–100) across 4 aerodynamic archetypes: Low-Drag Top Speed, Low-Speed Traction, Medium-to-High Speed Cornering, and Degradation Resilience.</span>
+                    </div>
+                    <div class="atr-team-legend-pills" id="profilerTeamPills"></div>
+                </div>
+                <div class="atr-chart-container" style="min-height: 380px;">
+                    <canvas id="profilerRadarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Archetype Delta Matrix (Heatmap / Scatter Plot) -->
+            <div class="atr-table-panel profiler-panel">
+                <div class="atr-table-header">
+                    <div>
+                        <h3 class="atr-subheading">📊 Archetype Pace Delta Matrix (% Delta to Pole &amp; Median)</h3>
+                        <span class="atr-chart-hint">Constructor single-lap qualifying pace delta (% to pole) and points conversion segmented by circuit archetype. Colored cells indicate delta relative to season median pace.</span>
+                    </div>
+                    <div class="atr-legend-chips">
+                        <span class="atr-chip chip-neutral" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border-color: #10B981;">🟢 Faster than Median (Advantage)</span>
+                        <span class="atr-chip chip-neutral">⚪ Median Parity</span>
+                        <span class="atr-chip chip-restricted" style="background: rgba(239, 68, 68, 0.2); color: #F87171; border-color: #EF4444;">🔴 Slower than Median (Deficit)</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="atr-telemetry-table profiler-matrix-table" id="profilerDeltaMatrixTable">
+                        <thead>
+                            <tr>
+                                <th>Constructor</th>
+                                <th>🏙️ High Downforce / Street</th>
+                                <th>⚡ Low Drag / Power</th>
+                                <th>⚖️ Balanced Aero</th>
+                                <th>🔥 High Degradation</th>
+                                <th>🌐 Season Avg Delta &amp; Efficiency</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profilerDeltaMatrixBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Dynamic Circuit Archetype Filter & Standings Impact -->
+            <div class="atr-table-panel profiler-panel">
+                <div class="atr-table-header">
+                    <div>
+                        <h3 class="atr-subheading">🏁 Isolated Championship Impact &amp; Archetype Circuit Directory</h3>
+                        <span class="atr-chart-hint">Points scored and championship rank isolated specifically to races in <strong id="profilerActiveFilterName" style="color: #00F0FF;">All Archetypes</strong></span>
+                    </div>
+                </div>
+                <div class="table-responsive" style="margin-bottom: 24px;">
+                    <table class="atr-telemetry-table" id="profilerFilteredStandingsTable">
+                        <thead>
+                            <tr>
+                                <th>Archetype Rank</th>
+                                <th>Constructor</th>
+                                <th>Points in Archetype</th>
+                                <th>Points Share</th>
+                                <th>Wins / Podiums</th>
+                                <th>Avg Qual Delta</th>
+                                <th>Rank Delta vs Overall WCC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profilerFilteredStandingsBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Circuit Directory in Archetype -->
+                <div class="profiler-circuits-section">
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #E2E8F0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span>📍</span> Circuits in Selected Archetype
+                    </h4>
+                    <div class="profiler-circuits-grid" id="profilerCircuitsList"></div>
+                </div>
+            </div>
+        </section>
 
         <!-- Constructor Championship Progression & Aerodynamic Handicap (ATR) Tracker (Issue #5) -->
         <section class="card telemetry-section constructor-section" id="constructor-atr-section">
@@ -8695,10 +9091,979 @@
             loadConstructorAtrData(season, true);
         }
 
+        // =========================================================
+        // Feature #16: Circuit Type & Aerodynamic Efficiency Profiler
+        // =========================================================
+
+        let profilerRadarChartInstance = null;
+
+        const CIRCUIT_ARCHETYPES = {
+            high_downforce: {
+                id: 'high_downforce',
+                name: 'High Downforce / Street',
+                shortName: 'Street & High DF',
+                color: '#FF8000',
+                badge: 'Street',
+                tagClass: 'tag-downforce-max',
+                tagLabel: 'High Downforce',
+                description: 'Peak mechanical grip, low-speed traction & tight barrier proximity',
+                circuits: ['monaco', 'marina_bay', 'hungaroring', 'zandvoort']
+            },
+            low_drag: {
+                id: 'low_drag',
+                name: 'Low Drag / Power',
+                shortName: 'Low Drag & Power',
+                color: '#00F0FF',
+                badge: 'Power',
+                tagClass: 'tag-downforce-low',
+                tagLabel: 'Low Drag',
+                description: 'Low aero drag configurations, long straights & maximum top speed sensitivity',
+                circuits: ['monza', 'spa', 'baku', 'vegas']
+            },
+            balanced: {
+                id: 'balanced',
+                name: 'Balanced Downforce',
+                shortName: 'Balanced Aero',
+                color: '#10B981',
+                badge: 'Medium',
+                tagClass: 'tag-downforce-med',
+                tagLabel: 'Balanced Aero',
+                description: 'Medium aero package compromise across full speed envelope',
+                circuits: ['albert_park', 'red_bull_ring', 'imola', 'villeneuve', 'jeddah', 'miami', 'rodriguez', 'interlagos', 'yas_marina']
+            },
+            high_deg: {
+                id: 'high_deg',
+                name: 'High Degradation',
+                shortName: 'High Degradation',
+                color: '#E8002D',
+                badge: 'Flowing',
+                tagClass: 'tag-deg-high',
+                tagLabel: 'High Degradation',
+                description: 'Abrasive asphalt, severe tyre thermal wear & sustained high lateral loads',
+                circuits: ['bahrain', 'suzuka', 'catalunya', 'silverstone', 'losail', 'shanghai', 'americas']
+            }
+        };
+
+        const CIRCUIT_CHARACTERISTICS = {
+            monaco: { tags: ['Street Circuit', 'Mechanical Grip', 'Tight Chicanes'], desc: 'Tightest turns on calendar with zero margin for error' },
+            marina_bay: { tags: ['Night Street', 'High Humidity', '19 Corners'], desc: 'Grueling physical street challenge with stop-go traction demand' },
+            hungaroring: { tags: ['Monaco without Walls', 'Traction Heavy', 'Low Speed'], desc: 'Twisty karting-style sequence of medium & low-speed turns' },
+            zandvoort: { tags: ['Banked Corners', 'Coastal Winds', 'High Downforce'], desc: 'Historic seaside rollercoaster featuring 18-degree banking' },
+            monza: { tags: ['Temple of Speed', 'Skinny Wings', 'Slipstream Heavy'], desc: 'Lowest downforce wings and highest terminal velocity of the season' },
+            spa: { tags: ['Power Sensitive', 'Elevation Changes', 'Eau Rouge'], desc: 'Iconic high-speed sector 1 & 3 power straights with middle sector aero load' },
+            baku: { tags: ['2.2km Straight', 'Castle Section', 'Slipstream Haven'], desc: 'Contrasting tight castle section and endless main straight' },
+            vegas: { tags: ['The Strip', 'Cold Asphalt', 'High Top Speed'], desc: 'High-speed blast down Las Vegas Boulevard in sub-15°C ambient temps' },
+            bahrain: { tags: ['Abrasive Asphalt', 'Thermal Degradation', 'Traction Demands'], desc: 'Rear tyre thermal degradation benchmark with abrasive granite aggregate' },
+            suzuka: { tags: ['Figure 8', 'S-Curves Lateral G', 'Degradation Test'], desc: 'Supreme aerodynamic balance test through iconic sector 1 Esses' },
+            catalunya: { tags: ['Aero Benchmark', 'Turn 3 Long Sweeper', 'Front-Left Stress'], desc: 'Ultimate aerodynamic and front-left tyre stress test' },
+            silverstone: { tags: ['Maggotts & Becketts', 'High Lateral Load', 'Fast Sweepers'], desc: 'Fastest cornering combinations anywhere in modern motorsport' },
+            losail: { tags: ['Non-Stop Curves', 'Severe Tyre Stress', 'High Speed'], desc: 'Relentless medium & high-speed curves inducing extreme tyre carcass stress' },
+            shanghai: { tags: ['Front-Limited', 'Turn 1 Snail Curve', '1.2km Straight'], desc: 'Front-left tyre punishment and 1.2km back straight slipstream battle' },
+            americas: { tags: ['Bumpy S-Curves', 'Steep Elevation', 'High Thermal Wear'], desc: 'High lateral loadings through rapid changes of direction in sector 1' },
+            albert_park: { tags: ['Semi-Street', 'High Speed Chicanes', 'Medium Downforce'], desc: 'Flowing parkland circuit with rapid transitions' },
+            red_bull_ring: { tags: ['Short Lap', 'Heavy Braking', 'Power Straights'], desc: 'Power climbing straights followed by downhill sweeping curves' },
+            imola: { tags: ['Historic Chicanes', 'Kerb Riding', 'Technical Flow'], desc: 'Undulating classic requiring compliant suspension and aero balance' },
+            villeneuve: { tags: ['Stop & Go', 'Wall of Champions', 'Kerb Stability'], desc: 'Chicane kerb-riding efficiency and high-speed braking stability' },
+            jeddah: { tags: ['Fastest Street Track', 'Blind Sweepers', 'High Speed'], desc: 'High-speed precision between barriers with 250+ km/h avg speed' },
+            miami: { tags: ['Technical Infield', 'Long Straights', 'Hybrid Street'], desc: 'Hybrid street venue with technical sector 2 and high-speed straights' },
+            rodriguez: { tags: ['Thin Air', '2200m Altitude', 'Stadium Section'], desc: 'Maximum downforce packages yielding low-drag levels due to thin air' },
+            interlagos: { tags: ['Anti-Clockwise', 'Weather Roulette', 'Senna S'], desc: 'Famous Senna S and uphill acceleration to start-finish' },
+            yas_marina: { tags: ['Day-to-Night', 'Off-Camber Turns', 'Season Finale'], desc: 'Season finale venue balancing top speed and chicane agility' }
+        };
+
+        const CIRCUIT_PROFILER_FALLBACK_2024 = {
+            teams: [
+                {
+                    constructorId: 'mclaren', name: 'McLaren', color: '#FF8000', overallRank: 1, totalPoints: 666, totalWins: 6, totalPodiums: 21,
+                    seasonAvgQualDelta: 0.14, overallScore: 94.8,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.05, score: 96, points: 128, wins: 2, podiums: 5, avgFinish: 2.1 },
+                        low_drag: { avgQualDelta: 0.16, score: 93, points: 104, wins: 1, podiums: 3, avgFinish: 2.8 },
+                        balanced: { avgQualDelta: 0.12, score: 95, points: 242, wins: 2, podiums: 7, avgFinish: 2.3 },
+                        high_deg: { avgQualDelta: 0.18, score: 95, points: 192, wins: 1, podiums: 6, avgFinish: 2.5 }
+                    }
+                },
+                {
+                    constructorId: 'ferrari', name: 'Ferrari', color: '#E80020', overallRank: 2, totalPoints: 652, totalWins: 5, totalPodiums: 20,
+                    seasonAvgQualDelta: 0.16, overallScore: 93.6,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.08, score: 94, points: 122, wins: 2, podiums: 4, avgFinish: 2.3 },
+                        low_drag: { avgQualDelta: 0.08, score: 97, points: 118, wins: 1, podiums: 4, avgFinish: 2.2 },
+                        balanced: { avgQualDelta: 0.17, score: 92, points: 236, wins: 1, podiums: 6, avgFinish: 2.6 },
+                        high_deg: { avgQualDelta: 0.22, score: 91, points: 176, wins: 1, podiums: 6, avgFinish: 2.9 }
+                    }
+                },
+                {
+                    constructorId: 'red_bull', name: 'Red Bull', color: '#1E41FF', overallRank: 3, totalPoints: 589, totalWins: 9, totalPodiums: 19,
+                    seasonAvgQualDelta: 0.18, overallScore: 92.4,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.22, score: 88, points: 96, wins: 1, podiums: 3, avgFinish: 3.4 },
+                        low_drag: { avgQualDelta: 0.14, score: 94, points: 112, wins: 1, podiums: 4, avgFinish: 2.5 },
+                        balanced: { avgQualDelta: 0.15, score: 93, points: 228, wins: 3, podiums: 6, avgFinish: 2.4 },
+                        high_deg: { avgQualDelta: 0.15, score: 96, points: 153, wins: 4, podiums: 6, avgFinish: 1.8 }
+                    }
+                },
+                {
+                    constructorId: 'mercedes', name: 'Mercedes', color: '#00D2BE', overallRank: 4, totalPoints: 468, totalWins: 4, totalPodiums: 9,
+                    seasonAvgQualDelta: 0.26, overallScore: 88.5,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.32, score: 85, points: 74, wins: 0, podiums: 1, avgFinish: 4.8 },
+                        low_drag: { avgQualDelta: 0.18, score: 92, points: 94, wins: 2, podiums: 3, avgFinish: 3.2 },
+                        balanced: { avgQualDelta: 0.24, score: 89, points: 182, wins: 1, podiums: 3, avgFinish: 3.9 },
+                        high_deg: { avgQualDelta: 0.29, score: 88, points: 118, wins: 1, podiums: 2, avgFinish: 4.1 }
+                    }
+                },
+                {
+                    constructorId: 'aston_martin', name: 'Aston Martin', color: '#229971', overallRank: 5, totalPoints: 94, totalWins: 0, totalPodiums: 0,
+                    seasonAvgQualDelta: 0.72, overallScore: 68.2,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.65, score: 71, points: 22, wins: 0, podiums: 0, avgFinish: 8.5 },
+                        low_drag: { avgQualDelta: 0.85, score: 64, points: 14, wins: 0, podiums: 0, avgFinish: 10.2 },
+                        balanced: { avgQualDelta: 0.70, score: 69, points: 36, wins: 0, podiums: 0, avgFinish: 8.9 },
+                        high_deg: { avgQualDelta: 0.68, score: 70, points: 22, wins: 0, podiums: 0, avgFinish: 9.1 }
+                    }
+                },
+                {
+                    constructorId: 'alpine', name: 'Alpine', color: '#0090FF', overallRank: 6, totalPoints: 65, totalWins: 0, totalPodiums: 2,
+                    seasonAvgQualDelta: 0.89, overallScore: 61.5,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.82, score: 63, points: 12, wins: 0, podiums: 0, avgFinish: 11.2 },
+                        low_drag: { avgQualDelta: 0.95, score: 58, points: 8, wins: 0, podiums: 0, avgFinish: 12.4 },
+                        balanced: { avgQualDelta: 0.88, score: 62, points: 35, wins: 0, podiums: 2, avgFinish: 10.1 },
+                        high_deg: { avgQualDelta: 0.92, score: 61, points: 10, wins: 0, podiums: 0, avgFinish: 11.8 }
+                    }
+                },
+                {
+                    constructorId: 'haas', name: 'Haas', color: '#B6BABD', overallRank: 7, totalPoints: 58, totalWins: 0, totalPodiums: 0,
+                    seasonAvgQualDelta: 0.84, overallScore: 63.8,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.92, score: 59, points: 8, wins: 0, podiums: 0, avgFinish: 12.1 },
+                        low_drag: { avgQualDelta: 0.72, score: 69, points: 16, wins: 0, podiums: 0, avgFinish: 9.8 },
+                        balanced: { avgQualDelta: 0.82, score: 65, points: 22, wins: 0, podiums: 0, avgFinish: 10.5 },
+                        high_deg: { avgQualDelta: 0.90, score: 62, points: 12, wins: 0, podiums: 0, avgFinish: 11.4 }
+                    }
+                },
+                {
+                    constructorId: 'rb', name: 'RB', color: '#6692FF', overallRank: 8, totalPoints: 46, totalWins: 0, totalPodiums: 0,
+                    seasonAvgQualDelta: 0.86, overallScore: 62.7,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 0.74, score: 67, points: 14, wins: 0, podiums: 0, avgFinish: 10.2 },
+                        low_drag: { avgQualDelta: 0.92, score: 60, points: 6, wins: 0, podiums: 0, avgFinish: 12.8 },
+                        balanced: { avgQualDelta: 0.84, score: 64, points: 18, wins: 0, podiums: 0, avgFinish: 10.8 },
+                        high_deg: { avgQualDelta: 0.94, score: 60, points: 8, wins: 0, podiums: 0, avgFinish: 12.3 }
+                    }
+                },
+                {
+                    constructorId: 'williams', name: 'Williams', color: '#005AFF', overallRank: 9, totalPoints: 17, totalWins: 0, totalPodiums: 0,
+                    seasonAvgQualDelta: 0.96, overallScore: 57.4,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 1.15, score: 51, points: 2, wins: 0, podiums: 0, avgFinish: 14.2 },
+                        low_drag: { avgQualDelta: 0.75, score: 68, points: 9, wins: 0, podiums: 0, avgFinish: 10.5 },
+                        balanced: { avgQualDelta: 0.95, score: 58, points: 4, wins: 0, podiums: 0, avgFinish: 13.1 },
+                        high_deg: { avgQualDelta: 1.05, score: 54, points: 2, wins: 0, podiums: 0, avgFinish: 13.8 }
+                    }
+                },
+                {
+                    constructorId: 'sauber', name: 'Kick Sauber', color: '#52E252', overallRank: 10, totalPoints: 4, totalWins: 0, totalPodiums: 0,
+                    seasonAvgQualDelta: 1.25, overallScore: 46.8,
+                    archetypes: {
+                        high_downforce: { avgQualDelta: 1.28, score: 45, points: 0, wins: 0, podiums: 0, avgFinish: 15.8 },
+                        low_drag: { avgQualDelta: 1.18, score: 49, points: 0, wins: 0, podiums: 0, avgFinish: 15.2 },
+                        balanced: { avgQualDelta: 1.22, score: 47, points: 4, wins: 0, podiums: 0, avgFinish: 14.9 },
+                        high_deg: { avgQualDelta: 1.32, score: 44, points: 0, wins: 0, podiums: 0, avgFinish: 16.2 }
+                    }
+                }
+            ],
+            medians: {
+                high_downforce: 0.78,
+                low_drag: 0.74,
+                balanced: 0.76,
+                high_deg: 0.80
+            },
+            circuits: [
+                { round: '1', raceName: 'Bahrain Grand Prix', circuitId: 'bahrain', circuitName: 'Bahrain International Circuit', locality: 'Sakhir', country: 'Bahrain', archetype: 'high_deg', winner: 'Max Verstappen', poleTime: '1:29.179' },
+                { round: '2', raceName: 'Saudi Arabian Grand Prix', circuitId: 'jeddah', circuitName: 'Jeddah Corniche Circuit', locality: 'Jeddah', country: 'Saudi Arabia', archetype: 'balanced', winner: 'Max Verstappen', poleTime: '1:27.472' },
+                { round: '3', raceName: 'Australian Grand Prix', circuitId: 'albert_park', circuitName: 'Albert Park Grand Prix Circuit', locality: 'Melbourne', country: 'Australia', archetype: 'balanced', winner: 'Carlos Sainz', poleTime: '1:15.915' },
+                { round: '4', raceName: 'Japanese Grand Prix', circuitId: 'suzuka', circuitName: 'Suzuka International Racing Course', locality: 'Suzuka', country: 'Japan', archetype: 'high_deg', winner: 'Max Verstappen', poleTime: '1:28.197' },
+                { round: '5', raceName: 'Chinese Grand Prix', circuitId: 'shanghai', circuitName: 'Shanghai International Circuit', locality: 'Shanghai', country: 'China', archetype: 'high_deg', winner: 'Max Verstappen', poleTime: '1:33.660' },
+                { round: '6', raceName: 'Miami Grand Prix', circuitId: 'miami', circuitName: 'Miami International Autodrome', locality: 'Miami', country: 'USA', archetype: 'balanced', winner: 'Lando Norris', poleTime: '1:27.241' },
+                { round: '7', raceName: 'Emilia Romagna Grand Prix', circuitId: 'imola', circuitName: 'Autodromo Enzo e Dino Ferrari', locality: 'Imola', country: 'Italy', archetype: 'balanced', winner: 'Max Verstappen', poleTime: '1:14.746' },
+                { round: '8', raceName: 'Monaco Grand Prix', circuitId: 'monaco', circuitName: 'Circuit de Monaco', locality: 'Monte Carlo', country: 'Monaco', archetype: 'high_downforce', winner: 'Charles Leclerc', poleTime: '1:10.270' },
+                { round: '9', raceName: 'Canadian Grand Prix', circuitId: 'villeneuve', circuitName: 'Circuit Gilles Villeneuve', locality: 'Montreal', country: 'Canada', archetype: 'balanced', winner: 'Max Verstappen', poleTime: '1:12.000' },
+                { round: '10', raceName: 'Spanish Grand Prix', circuitId: 'catalunya', circuitName: 'Circuit de Barcelona-Catalunya', locality: 'Montmeló', country: 'Spain', archetype: 'high_deg', winner: 'Max Verstappen', poleTime: '1:11.383' },
+                { round: '11', raceName: 'Austrian Grand Prix', circuitId: 'red_bull_ring', circuitName: 'Red Bull Ring', locality: 'Spielberg', country: 'Austria', archetype: 'balanced', winner: 'George Russell', poleTime: '1:04.314' },
+                { round: '12', raceName: 'British Grand Prix', circuitId: 'silverstone', circuitName: 'Silverstone Circuit', locality: 'Silverstone', country: 'UK', archetype: 'high_deg', winner: 'Lewis Hamilton', poleTime: '1:25.819' },
+                { round: '13', raceName: 'Hungarian Grand Prix', circuitId: 'hungaroring', circuitName: 'Hungaroring', locality: 'Budapest', country: 'Hungary', archetype: 'high_downforce', winner: 'Oscar Piastri', poleTime: '1:15.227' },
+                { round: '14', raceName: 'Belgian Grand Prix', circuitId: 'spa', circuitName: 'Circuit de Spa-Francorchamps', locality: 'Spa', country: 'Belgium', archetype: 'low_drag', winner: 'Lewis Hamilton', poleTime: '1:53.159' },
+                { round: '15', raceName: 'Dutch Grand Prix', circuitId: 'zandvoort', circuitName: 'Circuit Zandvoort', locality: 'Zandvoort', country: 'Netherlands', archetype: 'high_downforce', winner: 'Lando Norris', poleTime: '1:09.673' },
+                { round: '16', raceName: 'Italian Grand Prix', circuitId: 'monza', circuitName: 'Autodromo Nazionale Monza', locality: 'Monza', country: 'Italy', archetype: 'low_drag', winner: 'Charles Leclerc', poleTime: '1:19.327' },
+                { round: '17', raceName: 'Azerbaijan Grand Prix', circuitId: 'baku', circuitName: 'Baku City Circuit', locality: 'Baku', country: 'Azerbaijan', archetype: 'low_drag', winner: 'Oscar Piastri', poleTime: '1:41.365' },
+                { round: '18', raceName: 'Singapore Grand Prix', circuitId: 'marina_bay', circuitName: 'Marina Bay Street Circuit', locality: 'Marina Bay', country: 'Singapore', archetype: 'high_downforce', winner: 'Lando Norris', poleTime: '1:29.525' },
+                { round: '19', raceName: 'United States Grand Prix', circuitId: 'americas', circuitName: 'Circuit of the Americas', locality: 'Austin', country: 'USA', archetype: 'high_deg', winner: 'Charles Leclerc', poleTime: '1:32.330' },
+                { round: '20', raceName: 'Mexico City Grand Prix', circuitId: 'rodriguez', circuitName: 'Autódromo Hermanos Rodríguez', locality: 'Mexico City', country: 'Mexico', archetype: 'balanced', winner: 'Carlos Sainz', poleTime: '1:15.946' },
+                { round: '21', raceName: 'São Paulo Grand Prix', circuitId: 'interlagos', circuitName: 'Autódromo José Carlos Pace', locality: 'São Paulo', country: 'Brazil', archetype: 'balanced', winner: 'Max Verstappen', poleTime: '1:23.415' },
+                { round: '22', raceName: 'Las Vegas Grand Prix', circuitId: 'vegas', circuitName: 'Las Vegas Strip Circuit', locality: 'Las Vegas', country: 'USA', archetype: 'low_drag', winner: 'George Russell', poleTime: '1:32.312' },
+                { round: '23', raceName: 'Qatar Grand Prix', circuitId: 'losail', circuitName: 'Losail International Circuit', locality: 'Lusail', country: 'Qatar', archetype: 'high_deg', winner: 'Max Verstappen', poleTime: '1:20.520' },
+                { round: '24', raceName: 'Abu Dhabi Grand Prix', circuitId: 'yas_marina', circuitName: 'Yas Marina Circuit', locality: 'Abu Dhabi', country: 'UAE', archetype: 'balanced', winner: 'Lando Norris', poleTime: '1:22.595' }
+            ]
+        };
+
+        const circuitProfilerState = {
+            season: '2024',
+            activeArchetype: 'all',
+            circuits: [],
+            metrics: null,
+            hiddenTeams: new Set(),
+            isLoading: false
+        };
+
+        function getCircuitArchetype(circuitId, raceName = '') {
+            const cid = (circuitId || '').toLowerCase().trim();
+            const rName = (raceName || '').toLowerCase().trim();
+
+            for (const [archKey, config] of Object.entries(CIRCUIT_ARCHETYPES)) {
+                if (config.circuits.includes(cid)) return archKey;
+            }
+
+            if (rName.includes('monaco') || rName.includes('singapore') || rName.includes('hungar') || rName.includes('dutch') || rName.includes('zandvoort')) {
+                return 'high_downforce';
+            }
+            if (rName.includes('monza') || rName.includes('spa') || rName.includes('baku') || rName.includes('azerbaijan') || rName.includes('vegas')) {
+                return 'low_drag';
+            }
+            if (rName.includes('bahrain') || rName.includes('sakhir') || rName.includes('japan') || rName.includes('suzuka') || rName.includes('spanish') || rName.includes('catalunya') || rName.includes('british') || rName.includes('silverstone') || rName.includes('qatar') || rName.includes('losail') || rName.includes('lusail') || rName.includes('china') || rName.includes('shanghai') || rName.includes('united states') || rName.includes('austin') || rName.includes('cota') || rName.includes('americas')) {
+                return 'high_deg';
+            }
+            return 'balanced';
+        }
+
+        function computeProfilerMetrics(raceRounds, qualRounds, standingsList) {
+            const rawTeams = {};
+            const roundDeltas = {};
+            const roundPoles = {};
+            const roundWinners = {};
+
+            // 1. Initialize teams from standings if provided
+            if (Array.isArray(standingsList)) {
+                standingsList.forEach((s, idx) => {
+                    const c = s.Constructor || s;
+                    const cid = c.constructorId || s.id || `team_${idx + 1}`;
+                    const rank = parseInt(s.position || (idx + 1), 10);
+                    rawTeams[cid] = {
+                        constructorId: cid,
+                        name: c.name || cid,
+                        overallRank: rank,
+                        totalPoints: parseFloat(s.points || 0),
+                        totalWins: parseInt(s.wins || 0, 10),
+                        totalPodiums: 0,
+                        color: (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) ||
+                            (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length] : '#00F0FF'),
+                        archetypes: {
+                            high_downforce: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] },
+                            low_drag: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] },
+                            balanced: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] },
+                            high_deg: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] }
+                        }
+                    };
+                });
+            }
+
+            // 2. Parse qualifying rounds to extract pole and constructor pace
+            if (Array.isArray(qualRounds)) {
+                qualRounds.forEach(qRound => {
+                    const rnd = String(qRound.round);
+                    const qEntries = qRound.QualifyingResults || [];
+                    if (qEntries.length === 0) return;
+
+                    let fastestMs = null;
+                    let poleDriver = '';
+                    let poleLapStr = '';
+
+                    // Find session pole
+                    qEntries.forEach(entry => {
+                        for (const sess of ['Q3', 'Q2', 'Q1']) {
+                            const ms = (typeof parseLapTimeToMs === 'function') ? parseLapTimeToMs(entry[sess]) : null;
+                            if (ms !== null && (fastestMs === null || ms < fastestMs)) {
+                                fastestMs = ms;
+                                poleDriver = `${entry.Driver?.givenName || ''} ${entry.Driver?.familyName || ''}`.trim();
+                                poleLapStr = entry[sess];
+                            }
+                        }
+                    });
+
+                    roundPoles[rnd] = { poleMs: fastestMs, poleDriver, poleLapStr };
+                    roundDeltas[rnd] = {};
+
+                    // Team fastest lap in qualifying
+                    const teamBests = {};
+                    qEntries.forEach(entry => {
+                        const c = entry.Constructor;
+                        if (!c) return;
+                        const cid = c.constructorId || 'unknown';
+                        for (const sess of ['Q3', 'Q2', 'Q1']) {
+                            const ms = (typeof parseLapTimeToMs === 'function') ? parseLapTimeToMs(entry[sess]) : null;
+                            if (ms !== null && (!teamBests[cid] || ms < teamBests[cid])) {
+                                teamBests[cid] = ms;
+                            }
+                        }
+                    });
+
+                    Object.entries(teamBests).forEach(([cid, ms]) => {
+                        if (fastestMs !== null && fastestMs > 0) {
+                            const deltaPct = Math.max(0, ((ms - fastestMs) / fastestMs) * 100);
+                            roundDeltas[rnd][cid] = deltaPct;
+                        }
+                    });
+                });
+            }
+
+            // 3. Parse race results
+            const circuits = [];
+            if (Array.isArray(raceRounds)) {
+                raceRounds.forEach(rRound => {
+                    const rnd = String(rRound.round);
+                    const arch = getCircuitArchetype(rRound.Circuit?.circuitId, rRound.raceName);
+                    const results = rRound.Results || [];
+                    const p1 = results.find(r => r.position === '1');
+                    const winnerName = p1 ? `${p1.Driver?.givenName || ''} ${p1.Driver?.familyName || ''}`.trim() : '';
+
+                    circuits.push({
+                        round: rnd,
+                        raceName: rRound.raceName || `Grand Prix ${rnd}`,
+                        circuitId: rRound.Circuit?.circuitId || '',
+                        circuitName: rRound.Circuit?.circuitName || rRound.raceName || 'Circuit',
+                        locality: rRound.Circuit?.Location?.locality || '',
+                        country: rRound.Circuit?.Location?.country || '',
+                        archetype: arch,
+                        winner: winnerName,
+                        poleTime: roundPoles[rnd]?.poleLapStr || ''
+                    });
+
+                    results.forEach(res => {
+                        const c = res.Constructor;
+                        if (!c) return;
+                        const cid = c.constructorId || 'unknown';
+                        if (!rawTeams[cid]) {
+                            rawTeams[cid] = {
+                                constructorId: cid,
+                                name: c.name || cid,
+                                overallRank: 10,
+                                totalPoints: 0,
+                                totalWins: 0,
+                                totalPodiums: 0,
+                                color: (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) || '#00F0FF',
+                                archetypes: {
+                                    high_downforce: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] },
+                                    low_drag: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] },
+                                    balanced: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] },
+                                    high_deg: { qualDeltas: [], points: 0, wins: 0, podiums: 0, finishes: [] }
+                                }
+                            };
+                        }
+
+                        const pts = parseFloat(res.points || 0);
+                        const pos = parseInt(res.position, 10);
+                        const archObj = rawTeams[cid].archetypes[arch];
+
+                        archObj.points += pts;
+                        rawTeams[cid].totalPoints += pts;
+
+                        if (res.position === '1') {
+                            archObj.wins += 1;
+                            rawTeams[cid].totalWins += 1;
+                        }
+                        if (pos >= 1 && pos <= 3) {
+                            archObj.podiums += 1;
+                            rawTeams[cid].totalPodiums += 1;
+                        }
+                        if (!isNaN(pos)) {
+                            archObj.finishes.push(pos);
+                        }
+                    });
+
+                    // Add qualifying deltas to archetypes
+                    const qDeltas = roundDeltas[rnd] || {};
+                    Object.entries(qDeltas).forEach(([cid, deltaPct]) => {
+                        if (rawTeams[cid] && rawTeams[cid].archetypes[arch]) {
+                            rawTeams[cid].archetypes[arch].qualDeltas.push(deltaPct);
+                        }
+                    });
+                });
+            }
+
+            // Fallback if no race rounds parsed
+            if (Object.keys(rawTeams).length === 0) {
+                return CIRCUIT_PROFILER_FALLBACK_2024;
+            }
+
+            // Calculate averages and archetype scores
+            const teamsList = Object.values(rawTeams);
+
+            // Calculate archetype medians
+            const medians = {};
+            ['high_downforce', 'low_drag', 'balanced', 'high_deg'].forEach(archKey => {
+                const deltas = [];
+                teamsList.forEach(t => {
+                    const archData = t.archetypes[archKey];
+                    const qList = archData.qualDeltas;
+                    if (qList.length > 0) {
+                        archData.avgQualDelta = parseFloat((qList.reduce((a, b) => a + b, 0) / qList.length).toFixed(2));
+                    } else {
+                        archData.avgQualDelta = (t.overallRank - 1) * 0.15;
+                    }
+                    deltas.push(archData.avgQualDelta);
+
+                    const finList = archData.finishes;
+                    archData.avgFinish = finList.length > 0
+                        ? parseFloat((finList.reduce((a, b) => a + b, 0) / finList.length).toFixed(1))
+                        : (t.overallRank * 1.5);
+                });
+
+                deltas.sort((a, b) => a - b);
+                const mid = Math.floor(deltas.length / 2);
+                medians[archKey] = (deltas.length % 2 !== 0)
+                    ? deltas[mid]
+                    : parseFloat(((deltas[mid - 1] + deltas[mid]) / 2).toFixed(2));
+            });
+
+            // Calculate scores
+            ['high_downforce', 'low_drag', 'balanced', 'high_deg'].forEach(archKey => {
+                const allDeltas = teamsList.map(t => t.archetypes[archKey].avgQualDelta);
+                const minDelta = Math.min(...allDeltas);
+                const maxDelta = Math.max(...allDeltas);
+                const maxPts = Math.max(1, ...teamsList.map(t => t.archetypes[archKey].points));
+
+                teamsList.forEach(t => {
+                    const d = t.archetypes[archKey].avgQualDelta;
+                    const pts = t.archetypes[archKey].points;
+
+                    const paceRatio = (d - minDelta) / Math.max(maxDelta - minDelta, 0.001);
+                    const paceScore = 100 - (paceRatio * 55);
+                    const ptsRatio = pts / maxPts;
+                    const ptsScore = 35 + (ptsRatio * 65);
+
+                    const finalScore = Math.round(0.60 * paceScore + 0.40 * ptsScore);
+                    t.archetypes[archKey].score = Math.min(99, Math.max(30, finalScore));
+                });
+            });
+
+            // Overall efficiency score (Harmonic Mean of 4 archetypes)
+            teamsList.forEach(t => {
+                const s1 = t.archetypes.high_downforce.score;
+                const s2 = t.archetypes.low_drag.score;
+                const s3 = t.archetypes.balanced.score;
+                const s4 = t.archetypes.high_deg.score;
+
+                const harmonic = 4 / ((1 / Math.max(s1, 1)) + (1 / Math.max(s2, 1)) + (1 / Math.max(s3, 1)) + (1 / Math.max(s4, 1)));
+                t.overallScore = parseFloat(harmonic.toFixed(1));
+
+                const allQ = [
+                    ...t.archetypes.high_downforce.qualDeltas,
+                    ...t.archetypes.low_drag.qualDeltas,
+                    ...t.archetypes.balanced.qualDeltas,
+                    ...t.archetypes.high_deg.qualDeltas
+                ];
+                t.seasonAvgQualDelta = allQ.length > 0
+                    ? parseFloat((allQ.reduce((a, b) => a + b, 0) / allQ.length).toFixed(2))
+                    : parseFloat(((t.overallRank - 1) * 0.15).toFixed(2));
+            });
+
+            // Sort teams by overall WCC rank
+            teamsList.sort((a, b) => a.overallRank - b.overallRank);
+
+            return {
+                teams: teamsList,
+                medians,
+                circuits: circuits.length > 0 ? circuits : CIRCUIT_PROFILER_FALLBACK_2024.circuits
+            };
+        }
+
+        function renderProfilerKpis(metrics) {
+            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) return;
+            const teams = metrics.teams;
+
+            // 1. Low Drag / Power KPI
+            const sortedByLowDrag = [...teams].sort((a, b) => a.archetypes.low_drag.avgQualDelta - b.archetypes.low_drag.avgQualDelta);
+            const bestPower = sortedByLowDrag[0];
+            const powerTeamEl = document.getElementById('profilerKpiPowerTeam');
+            const powerDeltaEl = document.getElementById('profilerKpiPowerDelta');
+            const powerBarEl = document.getElementById('profilerKpiPowerBar');
+            if (powerTeamEl) powerTeamEl.textContent = bestPower.name;
+            if (powerDeltaEl) powerDeltaEl.textContent = `+${bestPower.archetypes.low_drag.avgQualDelta.toFixed(2)}% Pace`;
+            if (powerBarEl) powerBarEl.style.background = bestPower.color;
+
+            // 2. High Downforce / Street KPI
+            const sortedByStreet = [...teams].sort((a, b) => a.archetypes.high_downforce.avgQualDelta - b.archetypes.high_downforce.avgQualDelta);
+            const bestStreet = sortedByStreet[0];
+            const streetTeamEl = document.getElementById('profilerKpiStreetTeam');
+            const streetDeltaEl = document.getElementById('profilerKpiStreetDelta');
+            const streetBarEl = document.getElementById('profilerKpiStreetBar');
+            if (streetTeamEl) streetTeamEl.textContent = bestStreet.name;
+            if (streetDeltaEl) streetDeltaEl.textContent = `+${bestStreet.archetypes.high_downforce.avgQualDelta.toFixed(2)}% Pace`;
+            if (streetBarEl) streetBarEl.style.background = bestStreet.color;
+
+            // 3. Peak Aero Efficiency Leader KPI
+            const sortedByEff = [...teams].sort((a, b) => b.overallScore - a.overallScore);
+            const bestEff = sortedByEff[0];
+            const effTeamEl = document.getElementById('profilerKpiEfficiencyTeam');
+            const effScoreEl = document.getElementById('profilerKpiEfficiencyScore');
+            const effBarEl = document.getElementById('profilerKpiEfficiencyBar');
+            if (effTeamEl) effTeamEl.textContent = bestEff.name;
+            if (effScoreEl) effScoreEl.textContent = `${bestEff.overallScore.toFixed(1)} / 100`;
+            if (effBarEl) effBarEl.style.background = bestEff.color;
+
+            // 4. High Degradation Tyre Master KPI
+            const sortedByDeg = [...teams].sort((a, b) => (b.archetypes.high_deg.points - a.archetypes.high_deg.points) || (a.archetypes.high_deg.avgFinish - b.archetypes.high_deg.avgFinish));
+            const bestDeg = sortedByDeg[0];
+            const degTeamEl = document.getElementById('profilerKpiDegTeam');
+            const degDeltaEl = document.getElementById('profilerKpiDegDelta');
+            const degBarEl = document.getElementById('profilerKpiDegBar');
+            if (degTeamEl) degTeamEl.textContent = bestDeg.name;
+            if (degDeltaEl) {
+                degDeltaEl.textContent = bestDeg.archetypes.high_deg.avgFinish
+                    ? `P${bestDeg.archetypes.high_deg.avgFinish.toFixed(1)} Avg Finish`
+                    : `${bestDeg.archetypes.high_deg.points} PTS`;
+            }
+            if (degBarEl) degBarEl.style.background = bestDeg.color;
+        }
+
+        function renderProfilerRadarChart() {
+            const canvas = document.getElementById('profilerRadarChart');
+            const metrics = circuitProfilerState.metrics;
+            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) return;
+
+            // 1. Render legend pills
+            const pillsContainer = document.getElementById('profilerTeamPills');
+            if (pillsContainer) {
+                pillsContainer.innerHTML = metrics.teams.map(t => {
+                    const isMuted = circuitProfilerState.hiddenTeams.has(t.constructorId);
+                    return `
+                        <button type="button" class="atr-team-pill ${isMuted ? 'muted' : ''}" onclick="toggleProfilerTeam('${t.constructorId}')">
+                            <span class="atr-team-pill-swatch" style="background: ${t.color};"></span>
+                            <span>${t.name}</span>
+                            <span class="atr-team-pill-pts">${t.overallScore.toFixed(1)}</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            const labels = [
+                'High Downforce / Street',
+                'Low Drag / Power',
+                'Balanced Aero',
+                'High Degradation'
+            ];
+
+            const datasets = metrics.teams.map(t => {
+                const isHidden = circuitProfilerState.hiddenTeams.has(t.constructorId);
+                const bg = (typeof hexToRgba === 'function') ? hexToRgba(t.color, 0.12) : t.color;
+                return {
+                    label: t.name,
+                    data: [
+                        t.archetypes.high_downforce.score,
+                        t.archetypes.low_drag.score,
+                        t.archetypes.balanced.score,
+                        t.archetypes.high_deg.score
+                    ],
+                    borderColor: t.color,
+                    backgroundColor: bg,
+                    pointBackgroundColor: t.color,
+                    pointBorderColor: '#0B0E14',
+                    borderWidth: t.overallRank <= 3 ? 2.5 : 1.8,
+                    fill: true,
+                    hidden: isHidden
+                };
+            });
+
+            if (profilerRadarChartInstance) {
+                if (typeof profilerRadarChartInstance.destroy === 'function') {
+                    profilerRadarChartInstance.destroy();
+                }
+                profilerRadarChartInstance = null;
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+            if (!ctx) return;
+
+            profilerRadarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: { tension: 0.15 },
+                        point: { radius: 3, hoverRadius: 6 }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                            pointLabels: {
+                                color: '#94A3B8',
+                                font: { size: 11, weight: 'bold' }
+                            },
+                            ticks: {
+                                display: false,
+                                stepSize: 20
+                            },
+                            suggestedMin: 35,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                            titleColor: '#00F0FF',
+                            bodyColor: '#F1F5F9',
+                            borderColor: '#1E2738',
+                            borderWidth: 1,
+                            padding: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleProfilerTeam(cid) {
+            if (circuitProfilerState.hiddenTeams.has(cid)) {
+                circuitProfilerState.hiddenTeams.delete(cid);
+            } else {
+                circuitProfilerState.hiddenTeams.add(cid);
+            }
+            renderProfilerRadarChart();
+        }
+
+        function renderProfilerDeltaMatrix(metrics) {
+            const tbody = document.getElementById('profilerDeltaMatrixBody');
+            if (!tbody) return;
+            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94A3B8; padding: 24px;">No matrix telemetry available.</td></tr>`;
+                return;
+            }
+
+            const medians = metrics.medians || {};
+
+            tbody.innerHTML = metrics.teams.map(t => {
+                const cells = ['high_downforce', 'low_drag', 'balanced', 'high_deg'].map(archKey => {
+                    const archData = t.archetypes[archKey];
+                    const delta = archData.avgQualDelta;
+                    const median = medians[archKey] || 0.75;
+                    const diff = delta - median;
+
+                    let cellClass = 'matrix-cell-parity';
+                    if (diff < -0.10) cellClass = 'matrix-cell-advantage';
+                    else if (diff > 0.10) cellClass = 'matrix-cell-deficit';
+
+                    return `
+                        <td class="matrix-cell ${cellClass}">
+                            <div class="matrix-delta-primary">+${delta.toFixed(2)}%</div>
+                            <div class="matrix-delta-sub">Score: ${archData.score} • ${archData.points}p</div>
+                        </td>
+                    `;
+                }).join('');
+
+                return `
+                    <tr data-cid="${t.constructorId}">
+                        <td>
+                            <div class="atr-team-cell">
+                                <span class="atr-team-bar" style="background: ${t.color};"></span>
+                                <span style="font-weight: 700;">${t.name}</span>
+                            </div>
+                        </td>
+                        ${cells}
+                        <td class="matrix-cell matrix-cell-parity">
+                            <div class="matrix-delta-primary" style="color: #00F0FF;">+${t.seasonAvgQualDelta.toFixed(2)}%</div>
+                            <div class="matrix-delta-sub" style="color: #10B981; font-weight: 700;">${t.overallScore.toFixed(1)} / 100</div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderProfilerFilteredStandings(metrics, activeArchetype) {
+            const tbody = document.getElementById('profilerFilteredStandingsBody');
+            if (!tbody) return;
+            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94A3B8; padding: 24px;">No standings data available.</td></tr>`;
+                return;
+            }
+
+            const isAll = activeArchetype === 'all';
+            let teamData = metrics.teams.map(t => {
+                const pts = isAll ? t.totalPoints : t.archetypes[activeArchetype].points;
+                const wins = isAll ? t.totalWins : t.archetypes[activeArchetype].wins;
+                const podiums = isAll ? t.totalPodiums : t.archetypes[activeArchetype].podiums;
+                const qualDelta = isAll ? t.seasonAvgQualDelta : t.archetypes[activeArchetype].avgQualDelta;
+                return {
+                    constructorId: t.constructorId,
+                    name: t.name,
+                    color: t.color,
+                    overallRank: t.overallRank,
+                    points: pts,
+                    wins,
+                    podiums,
+                    qualDelta
+                };
+            });
+
+            // Sort by points descending
+            teamData.sort((a, b) => (b.points - a.points) || (b.wins - a.wins) || (a.qualDelta - b.qualDelta));
+
+            const totalPointsAwarded = Math.max(1, teamData.reduce((sum, item) => sum + item.points, 0));
+
+            tbody.innerHTML = teamData.map((t, idx) => {
+                const archRank = idx + 1;
+                const rankBadgeClass = archRank <= 3 ? `rank-${archRank}` : 'rank-other';
+                const sharePct = ((t.points / totalPointsAwarded) * 100).toFixed(1);
+
+                // Rank Delta vs Overall WCC
+                const rankDiff = t.overallRank - archRank;
+                let rankPillHtml = `<span class="rank-delta-pill rank-delta-neutral">● =</span>`;
+                if (!isAll) {
+                    if (rankDiff > 0) {
+                        rankPillHtml = `<span class="rank-delta-pill rank-delta-gain">▲ +${rankDiff}</span>`;
+                    } else if (rankDiff < 0) {
+                        rankPillHtml = `<span class="rank-delta-pill rank-delta-loss">▼ ${rankDiff}</span>`;
+                    }
+                }
+
+                return `
+                    <tr data-cid="${t.constructorId}">
+                        <td><span class="atr-rank-badge ${rankBadgeClass}">${archRank}</span></td>
+                        <td>
+                            <div class="atr-team-cell">
+                                <span class="atr-team-bar" style="background: ${t.color};"></span>
+                                <span style="font-weight: 700;">${t.name}</span>
+                            </div>
+                        </td>
+                        <td><span class="atr-pts-cell">${t.points} PTS</span></td>
+                        <td><span style="font-weight: 700; color: #E2E8F0;">${sharePct}%</span></td>
+                        <td><span style="color: #94A3B8;">${t.wins}W / ${t.podiums}P</span></td>
+                        <td><span class="matrix-delta-primary" style="font-size: 0.88rem;">+${t.qualDelta.toFixed(2)}%</span></td>
+                        <td>${rankPillHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderProfilerCircuitsList(circuits, activeArchetype) {
+            const container = document.getElementById('profilerCircuitsList');
+            if (!container) return;
+
+            const filteredCircuits = (activeArchetype === 'all')
+                ? circuits
+                : circuits.filter(c => c.archetype === activeArchetype);
+
+            if (!filteredCircuits || filteredCircuits.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #94A3B8; padding: 20px;">No circuits match this archetype.</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredCircuits.map(c => {
+                const archMeta = CIRCUIT_ARCHETYPES[c.archetype] || CIRCUIT_ARCHETYPES.balanced;
+                const charMeta = CIRCUIT_CHARACTERISTICS[c.circuitId] || { tags: [archMeta.shortName], desc: archMeta.description };
+
+                const tagsHtml = (charMeta.tags || []).map(tag => {
+                    return `<span class="profiler-tag ${archMeta.tagClass}">${tag}</span>`;
+                }).join('');
+
+                return `
+                    <div class="profiler-circuit-card">
+                        <div class="profiler-card-header">
+                            <div>
+                                <div class="profiler-card-title">${c.raceName}</div>
+                                <div class="profiler-card-loc">${c.circuitName} • ${c.locality}, ${c.country}</div>
+                            </div>
+                            <span class="atr-filter-badge">R${c.round}</span>
+                        </div>
+                        <div class="profiler-tag-list">
+                            ${tagsHtml}
+                        </div>
+                        <div style="font-size: 0.74rem; color: #94A3B8; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;">
+                            <span>🏁 Winner: <strong style="color: #F8FAFC;">${c.winner || '—'}</strong></span>
+                            <span>⏱️ Pole: <strong style="color: #00F0FF;">${c.poleTime || '—'}</strong></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setProfilerArchetypeFilter(archetype) {
+            circuitProfilerState.activeArchetype = archetype;
+
+            if (typeof document !== 'undefined') {
+                document.querySelectorAll('.profiler-pill').forEach(btn => {
+                    const pillArch = btn.getAttribute('data-archetype');
+                    btn.classList.toggle('active', pillArch === archetype);
+                });
+
+                const filterNameEl = document.getElementById('profilerActiveFilterName');
+                if (filterNameEl) {
+                    filterNameEl.textContent = (archetype === 'all')
+                        ? 'All Archetypes'
+                        : (CIRCUIT_ARCHETYPES[archetype]?.name || archetype);
+                }
+
+                const circuits = circuitProfilerState.circuits || [];
+                const matchingCircuits = (archetype === 'all')
+                    ? circuits
+                    : circuits.filter(c => c.archetype === archetype);
+
+                const countBadgeEl = document.getElementById('profilerFilterCountBadge');
+                if (countBadgeEl) {
+                    countBadgeEl.textContent = (archetype === 'all')
+                        ? `Showing All ${circuits.length} Circuits`
+                        : `Showing ${matchingCircuits.length} Circuits in ${CIRCUIT_ARCHETYPES[archetype]?.shortName || archetype}`;
+                }
+
+                // Update archetype pill count badges
+                const pillCounts = { all: circuits.length, street: 0, power: 0, balanced: 0, deg: 0 };
+                circuits.forEach(c => {
+                    if (c.archetype === 'high_downforce') pillCounts.street++;
+                    else if (c.archetype === 'low_drag') pillCounts.power++;
+                    else if (c.archetype === 'balanced') pillCounts.balanced++;
+                    else if (c.archetype === 'high_deg') pillCounts.deg++;
+                });
+
+                const badgeAll = document.getElementById('pillBadgeAll');
+                const badgeStreet = document.getElementById('pillBadgeStreet');
+                const badgePower = document.getElementById('pillBadgePower');
+                const badgeBalanced = document.getElementById('pillBadgeBalanced');
+                const badgeDeg = document.getElementById('pillBadgeDeg');
+
+                if (badgeAll) badgeAll.textContent = `${pillCounts.all} Venues`;
+                if (badgeStreet) badgeStreet.textContent = `${pillCounts.street} Venues`;
+                if (badgePower) badgePower.textContent = `${pillCounts.power} Venues`;
+                if (badgeBalanced) badgeBalanced.textContent = `${pillCounts.balanced} Venues`;
+                if (badgeDeg) badgeDeg.textContent = `${pillCounts.deg} Venues`;
+            }
+
+            renderProfilerFilteredStandings(circuitProfilerState.metrics, archetype);
+            renderProfilerCircuitsList(circuitProfilerState.circuits, archetype);
+        }
+
+        function renderProfilerView() {
+            const metrics = circuitProfilerState.metrics;
+            if (!metrics) return;
+
+            renderProfilerKpis(metrics);
+            renderProfilerRadarChart();
+            renderProfilerDeltaMatrix(metrics);
+            setProfilerArchetypeFilter(circuitProfilerState.activeArchetype || 'all');
+        }
+
+        async function loadProfilerData(season, forceRefresh = false) {
+            season = String(season || circuitProfilerState.season || '2024');
+            circuitProfilerState.season = season;
+
+            const cacheKey = `f1_circuit_profiler_v1_${season}`;
+            const badge = typeof document !== 'undefined' ? document.getElementById('profilerCacheBadge') : null;
+            const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+
+            if (!forceRefresh && storage) {
+                const cached = storage.getItem(cacheKey);
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && Array.isArray(parsed.teams) && parsed.teams.length > 0) {
+                            circuitProfilerState.metrics = parsed;
+                            circuitProfilerState.circuits = parsed.circuits || [];
+                            if (badge) {
+                                badge.className = 'cache-badge cached';
+                                badge.textContent = '⚡ Cached (Instant)';
+                            }
+                            renderProfilerView();
+                            return circuitProfilerState;
+                        }
+                    } catch (e) {
+                        storage.removeItem(cacheKey);
+                    }
+                }
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge fetching';
+                badge.textContent = '🌐 Syncing Circuit Profiler...';
+            }
+
+            circuitProfilerState.isLoading = true;
+
+            try {
+                const standingsPromise = fetch(`${BASE_URL}/${season}/constructorStandings.json`)
+                    .then(r => r.ok ? r.json() : null)
+                    .catch(() => null);
+
+                const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(season, 'results', 'Results').catch(() => [])
+                    : Promise.resolve([]);
+
+                const qualPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(season, 'qualifying', 'QualifyingResults').catch(() => [])
+                    : Promise.resolve([]);
+
+                const [standingsResp, raceRounds, qualRounds] = await Promise.all([
+                    standingsPromise,
+                    resultsPromise,
+                    qualPromise
+                ]);
+
+                let standingsList = standingsResp?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings || [];
+
+                const metrics = computeProfilerMetrics(raceRounds, qualRounds, standingsList);
+
+                circuitProfilerState.metrics = metrics;
+                circuitProfilerState.circuits = metrics.circuits || [];
+                circuitProfilerState.isLoading = false;
+
+                if (storage && metrics && metrics.teams && metrics.teams.length > 0) {
+                    try {
+                        storage.setItem(cacheKey, JSON.stringify(metrics));
+                    } catch (e) {}
+                }
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Live Telemetry';
+                }
+
+                renderProfilerView();
+                return circuitProfilerState;
+            } catch (err) {
+                console.warn('Error loading Circuit Profiler data:', err);
+                circuitProfilerState.isLoading = false;
+                circuitProfilerState.metrics = CIRCUIT_PROFILER_FALLBACK_2024;
+                circuitProfilerState.circuits = CIRCUIT_PROFILER_FALLBACK_2024.circuits;
+
+                if (badge) {
+                    badge.className = 'cache-badge no-data';
+                    badge.textContent = '⚠️ Live Telemetry Offline';
+                }
+
+                renderProfilerView();
+                return circuitProfilerState;
+            }
+        }
+
+        function onProfilerSeasonChange(season) {
+            circuitProfilerState.season = String(season);
+            loadProfilerData(season, false);
+        }
+
+        function refreshProfilerData() {
+            const sel = typeof document !== 'undefined' ? document.getElementById('profilerSeasonSelect') : null;
+            const season = sel ? sel.value : circuitProfilerState.season;
+            loadProfilerData(season, true);
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
                 'all': 'tabBtnAll',
+                'profiler': 'tabBtnProfiler',
                 'constructors': 'tabBtnConstructors',
                 'sprint': 'tabBtnSprint',
                 'clinch': 'tabBtnClinch',
@@ -8710,6 +10075,7 @@
             const activeBtn = document.getElementById(btnMap[tabId] || `tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
             if (activeBtn) activeBtn.classList.add('active');
 
+            const profilerSec = document.getElementById('circuit-profiler-section');
             const constructorSec = document.getElementById('constructor-atr-section');
             const sprintSec = document.getElementById('sprint-disparity-section');
             const clinchSec = document.getElementById('clinch-engine-section');
@@ -8719,7 +10085,18 @@
             const latestRaceSec = document.getElementById('latest-race-section');
             const standingsTableSec = document.getElementById('standings-table-section');
 
-            if (tabId === 'constructors') {
+            if (tabId === 'profiler') {
+                if (profilerSec) profilerSec.style.display = 'block';
+                if (constructorSec) constructorSec.style.display = 'none';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'constructors') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
@@ -8729,6 +10106,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'sprint') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'none';
@@ -8738,6 +10116,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'clinch') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'block';
@@ -8747,6 +10126,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'pitstops') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
@@ -8756,6 +10136,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'telemetry') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
@@ -8765,6 +10146,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'progression') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
@@ -8774,6 +10156,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'results') {
+                if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
@@ -8783,6 +10166,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
                 if (standingsTableSec) standingsTableSec.style.display = 'block';
             } else {
+                if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'block';
@@ -8801,6 +10185,9 @@
                 if (constructorTrajectoryChartInstance && typeof constructorTrajectoryChartInstance.resize === 'function') {
                     constructorTrajectoryChartInstance.resize();
                 }
+                if (profilerRadarChartInstance && typeof profilerRadarChartInstance.resize === 'function') {
+                    profilerRadarChartInstance.resize();
+                }
             }, 50);
         }
 
@@ -8810,6 +10197,9 @@
             if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
             if (constructorTrajectoryChartInstance && typeof constructorTrajectoryChartInstance.resize === 'function') {
                 constructorTrajectoryChartInstance.resize();
+            }
+            if (profilerRadarChartInstance && typeof profilerRadarChartInstance.resize === 'function') {
+                profilerRadarChartInstance.resize();
             }
             if (chartInstance) chartInstance.resize();
         });
@@ -8856,6 +10246,11 @@
             if (pitStopSeasonSelect) {
                 loadPitStopTelemetry(pitStopSeasonSelect.value, false);
             }
+
+            const profilerSeasonSelect = document.getElementById('profilerSeasonSelect');
+            if (profilerSeasonSelect) {
+                loadProfilerData(profilerSeasonSelect.value, false);
+            }
         });
 
         if (typeof window !== 'undefined') {
@@ -8888,6 +10283,23 @@
             window.renderConstructorKpis = renderConstructorKpis;
             window.getAtrTierInfo = getAtrTierInfo;
             window.constructorAtrState = constructorAtrState;
+            window.loadProfilerData = loadProfilerData;
+            window.loadCircuitProfilerData = loadProfilerData;
+            window.onProfilerSeasonChange = onProfilerSeasonChange;
+            window.refreshProfilerData = refreshProfilerData;
+            window.setProfilerArchetypeFilter = setProfilerArchetypeFilter;
+            window.toggleProfilerTeam = toggleProfilerTeam;
+            window.renderProfilerView = renderProfilerView;
+            window.renderProfilerKpis = renderProfilerKpis;
+            window.renderProfilerRadarChart = renderProfilerRadarChart;
+            window.renderProfilerDeltaMatrix = renderProfilerDeltaMatrix;
+            window.renderProfilerFilteredStandings = renderProfilerFilteredStandings;
+            window.renderProfilerCircuitsList = renderProfilerCircuitsList;
+            window.getCircuitArchetype = getCircuitArchetype;
+            window.computeProfilerMetrics = computeProfilerMetrics;
+            window.CIRCUIT_ARCHETYPES = CIRCUIT_ARCHETYPES;
+            window.circuitProfilerState = circuitProfilerState;
+            window.profilerState = circuitProfilerState;
         }
 
         function extractFastestLapFromResult(results) {
@@ -8954,7 +10366,24 @@
                 renderConstructorTrajectoryChart,
                 renderConstructorKpis,
                 getAtrTierInfo,
-                constructorAtrState
+                constructorAtrState,
+                loadProfilerData,
+                loadCircuitProfilerData: loadProfilerData,
+                onProfilerSeasonChange,
+                refreshProfilerData,
+                setProfilerArchetypeFilter,
+                toggleProfilerTeam,
+                renderProfilerView,
+                renderProfilerKpis,
+                renderProfilerRadarChart,
+                renderProfilerDeltaMatrix,
+                renderProfilerFilteredStandings,
+                renderProfilerCircuitsList,
+                getCircuitArchetype,
+                computeProfilerMetrics,
+                CIRCUIT_ARCHETYPES,
+                circuitProfilerState,
+                profilerState: circuitProfilerState
             };
         }
     </script>
