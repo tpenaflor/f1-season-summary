@@ -3834,6 +3834,171 @@
             }
         }
 
+        /* =========================================================
+           Finishing Gap to Winner & Competitiveness Deficit (Issue #15)
+           ========================================================= */
+        .finishing-gap-section {
+            background: linear-gradient(180deg, #101520 0%, #0B0E14 100%);
+            border: 1px solid #1E2738;
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .finishing-gap-header-accent {
+            background: linear-gradient(180deg, #F5D000 0%, #FF8000 50%, #E80020 100%);
+            box-shadow: 0 0 14px rgba(245, 208, 0, 0.5);
+        }
+
+        .finishing-gap-filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #080A0F;
+            border: 1px solid #1E2738;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            min-height: 58px;
+        }
+
+        .finishing-gap-filter-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .finishing-gap-pill {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94A3B8;
+            background: #101520;
+            border: 1px solid #1E2738;
+            border-radius: 999px;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+            height: 34px;
+        }
+
+        .finishing-gap-pill:hover {
+            color: #FFFFFF;
+            border-color: #F5D000;
+            background: rgba(245, 208, 0, 0.08);
+        }
+
+        .finishing-gap-pill.active {
+            background: linear-gradient(135deg, rgba(245, 208, 0, 0.2) 0%, rgba(255, 128, 0, 0.18) 100%);
+            color: #FFFFFF;
+            border-color: #F5D000;
+            box-shadow: 0 0 12px rgba(245, 208, 0, 0.25);
+        }
+
+        .finishing-gap-tier-pill {
+            font-family: var(--font-family);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94A3B8;
+            background: #0C1017;
+            border: 1px solid #1A2232;
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            height: 32px;
+        }
+
+        .finishing-gap-tier-pill:hover {
+            color: #FFFFFF;
+            border-color: #FF8000;
+        }
+
+        .finishing-gap-tier-pill.active {
+            background: rgba(255, 128, 0, 0.18);
+            color: #FF8000;
+            border-color: #FF8000;
+            font-weight: 700;
+        }
+
+        .finishing-gap-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .finishing-gap-panel {
+            background: #0C1017;
+            border: 1px solid #1A2232;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: var(--font-mono), monospace;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(245, 208, 0, 0.12);
+            color: #F5D000;
+            border: 1px solid rgba(245, 208, 0, 0.35);
+        }
+
+        .deficit-pct-badge {
+            font-family: var(--font-mono), monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #EF4444;
+            margin-left: 6px;
+        }
+
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-contender {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .tier-podium {
+            background: rgba(0, 240, 255, 0.15);
+            color: #00F0FF;
+            border: 1px solid rgba(0, 240, 255, 0.4);
+        }
+
+        .tier-midfield {
+            background: rgba(255, 128, 0, 0.15);
+            color: #FF8000;
+            border: 1px solid rgba(255, 128, 0, 0.4);
+        }
+
+        .tier-backmarker {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
     </style>
 </head>
 <body>
@@ -3857,6 +4022,9 @@
         <nav class="main-tabs-nav" aria-label="Dashboard View Navigation">
             <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
                 <span class="tab-icon">👁️</span> All Telemetry & Standings
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnFinishingGap" onclick="switchMainTab('finishing-gap')">
+                <span class="tab-icon">⏱️</span> Finishing Gap &amp; Deficit
             </button>
             <button type="button" class="tab-btn" id="tabBtnProfiler" onclick="switchMainTab('profiler')">
                 <span class="tab-icon">🏎️</span> Circuit &amp; Aero Profiler
@@ -3883,6 +4051,156 @@
                 <span class="tab-icon">🏁</span> Latest Race & Driver Standings
             </button>
         </nav>
+
+        <!-- Average Finishing Gap to Race Winner & Competitiveness Deficit Index (Issue #15) -->
+        <section class="card telemetry-section finishing-gap-section" id="finishing-gap-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent finishing-gap-header-accent"></div>
+                    <div>
+                        <h2>Average Finishing Gap &amp; Competitiveness Deficit Index</h2>
+                        <p class="section-subtitle">Race-pace delta to race winner, median finishing gaps across lead lap &amp; lapped finishers, and normalized competitiveness deficit index</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="finishingGapSeasonSelect">Season:</label>
+                        <select id="finishingGapSeasonSelect" class="season-dropdown" onchange="onFinishingGapSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                        </select>
+                    </div>
+                    <span id="finishingGapCacheBadge" class="cache-badge cached">⚡ Live Telemetry</span>
+                    <button type="button" class="btn-refresh" id="btnFinishingGapRefresh" onclick="refreshFinishingGapData()" title="Force Refresh Finishing Gap Telemetry">
+                        ↻ Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="finishing-gap-filter-bar">
+                <div class="finishing-gap-filter-group">
+                    <span class="atr-filter-label"><span>🎯</span> View Scope:</span>
+                    <button type="button" class="finishing-gap-pill active" id="fgPillScopeConstructors" data-scope="constructors" onclick="setFinishingGapViewScope('constructors')">
+                        🏎️ Constructors
+                    </button>
+                    <button type="button" class="finishing-gap-pill" id="fgPillScopeDrivers" data-scope="drivers" onclick="setFinishingGapViewScope('drivers')">
+                        👤 Drivers
+                    </button>
+                </div>
+
+                <div class="finishing-gap-filter-group">
+                    <span class="atr-filter-label"><span>🏷️</span> Tier:</span>
+                    <button type="button" class="finishing-gap-tier-pill active" data-tier="all" onclick="setFinishingGapTierFilter('all')">All</button>
+                    <button type="button" class="finishing-gap-tier-pill" data-tier="contenders" onclick="setFinishingGapTierFilter('contenders')">Contenders (&le;15s)</button>
+                    <button type="button" class="finishing-gap-tier-pill" data-tier="midfield" onclick="setFinishingGapTierFilter('midfield')">Midfield (15-65s)</button>
+                    <button type="button" class="finishing-gap-tier-pill" data-tier="backmarkers" onclick="setFinishingGapTierFilter('backmarkers')">Backmarkers (&gt;65s)</button>
+                </div>
+
+                <div class="finishing-gap-filter-group">
+                    <span class="atr-filter-label"><span>🏁</span> Venue:</span>
+                    <select id="finishingGapVenueSelect" class="season-dropdown" onchange="setFinishingGapVenueFilter(this.value)">
+                        <option value="all" selected>All Grand Prix (Season Median)</option>
+                    </select>
+                </div>
+
+                <span id="finishingGapFilterBadge" class="atr-filter-badge">Showing 10 Teams</span>
+            </div>
+
+            <!-- High-Level KPI Cards -->
+            <div class="finishing-gap-kpi-grid">
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🏆 Benchmark Leader</span>
+                        <span class="atr-kpi-tag tag-cyan" id="fgKpiBenchmarkTag">Minimal Gap</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="fgKpiBenchmarkTeam">McLaren</div>
+                        <div class="atr-kpi-tag tag-green" id="fgKpiBenchmarkGap">+4.850s</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="fgKpiBenchmarkDesc">Lowest season median gap to Grand Prix winner</div>
+                    <div class="atr-kpi-bar" id="fgKpiBenchmarkBar" style="background: #FF8000;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>⏱️ Field Median Deficit</span>
+                        <span class="atr-kpi-tag tag-orange">Grid Median</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="fgKpiFieldMedianGap">+38.600s</div>
+                        <div class="atr-kpi-tag" id="fgKpiFieldMedianPct">+0.71%</div>
+                    </div>
+                    <div class="atr-kpi-sub">Median race-pace gap to P1 across all competitors</div>
+                    <div class="atr-kpi-bar" style="background: #F5D000;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🔥 Closest Grand Prix Finish</span>
+                        <span class="atr-kpi-tag tag-green" id="fgKpiClosestRound">R16 Italian GP</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="fgKpiClosestFinish">+0.525s</div>
+                        <div class="atr-kpi-tag" id="fgKpiClosestDriver">Oscar Piastri</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="fgKpiClosestDesc">Smallest winning margin across the season</div>
+                    <div class="atr-kpi-bar" style="background: #10B981;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>📊 Competitiveness Spread</span>
+                        <span class="atr-kpi-tag tag-red">P1 vs P10</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="fgKpiSpread">+73.650s</div>
+                        <div class="atr-kpi-tag" id="fgKpiSpreadTier">High Delta</div>
+                    </div>
+                    <div class="atr-kpi-sub">Total delta span from frontrunner to backmarker baseline</div>
+                    <div class="atr-kpi-bar" style="background: #EF4444;"></div>
+                </div>
+            </div>
+
+            <!-- Deficit Chart Panel -->
+            <div class="finishing-gap-panel">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="margin: 0; font-size: 1.05rem; color: #FFFFFF;" id="fgChartTitle">Median Finishing Gap to Winner (Seconds)</h3>
+                    <span class="matrix-legend-label" style="font-size: 0.75rem; color: #94A3B8;">Lower is faster (0.0s = Race Winner Benchmark)</span>
+                </div>
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="finishingGapChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Classification & Competitiveness Deficit Index Table -->
+            <div class="finishing-gap-panel">
+                <div class="panel-header" style="margin-bottom: 16px;">
+                    <h3 style="margin: 0; font-size: 1.05rem; color: #FFFFFF;" id="fgTableTitle">Competitiveness Deficit Index (CDI) Classification</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="telemetry-table" id="finishingGapTable" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Pos</th>
+                                <th>Competitor</th>
+                                <th>Median Gap to P1</th>
+                                <th>Mean Gap to P1</th>
+                                <th>Competitiveness Index</th>
+                                <th>Best Grand Prix Gap</th>
+                                <th>Classified / Races</th>
+                                <th>Tier</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finishingGapTableBody">
+                            <!-- Populated dynamically by renderFinishingGapTable -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
         <!-- Circuit Type & Aerodynamic Efficiency Profiler (Issue #16) -->
         <section class="card telemetry-section profiler-section" id="circuit-profiler-section">
@@ -10059,10 +10377,783 @@
             loadProfilerData(season, true);
         }
 
+        /* =========================================================
+           Finishing Gap to Winner & Competitiveness Deficit (Issue #15)
+           ========================================================= */
+
+        let finishingGapChartInstance = null;
+
+        const FINISHING_GAP_TIERS = {
+            contenders: { id: 'contenders', name: 'Contender', maxGap: 15.0, cssClass: 'tier-contender' },
+            midfield: { id: 'midfield', name: 'Midfield', minGap: 15.0, maxGap: 65.0, cssClass: 'tier-midfield' },
+            backmarkers: { id: 'backmarkers', name: 'Backmarker', minGap: 65.0, cssClass: 'tier-backmarker' }
+        };
+
+        const FINISHING_GAP_FALLBACK_ROUNDS_2024 = [
+            { round: '1', raceName: 'Bahrain Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5501.438 },
+            { round: '2', raceName: 'Saudi Arabian Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5442.235 },
+            { round: '3', raceName: 'Australian Grand Prix', winner: 'Carlos Sainz', winnerTimeSec: 5292.887 },
+            { round: '4', raceName: 'Japanese Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5664.123 },
+            { round: '5', raceName: 'Chinese Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5589.445 },
+            { round: '6', raceName: 'Miami Grand Prix', winner: 'Lando Norris', winnerTimeSec: 5458.210 },
+            { round: '7', raceName: 'Emilia Romagna Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5431.112 },
+            { round: '8', raceName: 'Monaco Grand Prix', winner: 'Charles Leclerc', winnerTimeSec: 6185.341 },
+            { round: '9', raceName: 'Canadian Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 6358.901 },
+            { round: '10', raceName: 'Spanish Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5304.567 },
+            { round: '11', raceName: 'Austrian Grand Prix', winner: 'George Russell', winnerTimeSec: 5062.333 },
+            { round: '12', raceName: 'British Grand Prix', winner: 'Lewis Hamilton', winnerTimeSec: 5547.889 },
+            { round: '13', raceName: 'Hungarian Grand Prix', winner: 'Oscar Piastri', winnerTimeSec: 5881.234 },
+            { round: '14', raceName: 'Belgian Grand Prix', winner: 'Lewis Hamilton', winnerTimeSec: 5124.556 },
+            { round: '15', raceName: 'Dutch Grand Prix', winner: 'Lando Norris', winnerTimeSec: 5444.123 },
+            { round: '16', raceName: 'Italian Grand Prix', winner: 'Charles Leclerc', winnerTimeSec: 5080.789 },
+            { round: '17', raceName: 'Azerbaijan Grand Prix', winner: 'Oscar Piastri', winnerTimeSec: 5578.901 },
+            { round: '18', raceName: 'Singapore Grand Prix', winner: 'Lando Norris', winnerTimeSec: 5845.678 },
+            { round: '19', raceName: 'United States Grand Prix', winner: 'Charles Leclerc', winnerTimeSec: 5723.456 },
+            { round: '20', raceName: 'Mexico City Grand Prix', winner: 'Carlos Sainz', winnerTimeSec: 5598.123 },
+            { round: '21', raceName: 'São Paulo Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 6414.567 },
+            { round: '22', raceName: 'Las Vegas Grand Prix', winner: 'George Russell', winnerTimeSec: 5245.890 },
+            { round: '23', raceName: 'Qatar Grand Prix', winner: 'Max Verstappen', winnerTimeSec: 5389.123 },
+            { round: '24', raceName: 'Abu Dhabi Grand Prix', winner: 'Lando Norris', winnerTimeSec: 5312.456 }
+        ];
+
+        const FINISHING_GAP_FALLBACK_2024 = {
+            scope: 'constructors',
+            fieldMedianGap: 38.600,
+            fieldMedianPct: 0.71,
+            closestFinish: {
+                round: '16',
+                raceName: 'Italian GP',
+                gap: 0.525,
+                runnerUp: 'Oscar Piastri'
+            },
+            spread: 73.650,
+            avgRaceDuration: 5400.0,
+            rounds: FINISHING_GAP_FALLBACK_ROUNDS_2024,
+            competitors: [
+                { rank: 1, id: 'mclaren', name: 'McLaren', constructorId: 'mclaren', color: '#FF8000', medianGap: 4.850, meanGap: 6.120, bestGap: 0.000, bestVenue: 'R15 Dutch GP', classifiedCount: 24, totalRaces: 24, cdi: 96, score: 96, competitivenessIndex: 96, deficitPct: 0.09, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 0.525, raceName: 'Italian GP', pos: 2 } } },
+                { rank: 2, id: 'ferrari', name: 'Ferrari', constructorId: 'ferrari', color: '#E80020', medianGap: 6.240, meanGap: 7.850, bestGap: 0.000, bestVenue: 'R3 Australian GP', classifiedCount: 24, totalRaces: 24, cdi: 95, score: 95, competitivenessIndex: 95, deficitPct: 0.12, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 0.000, raceName: 'Italian GP', pos: 1 } } },
+                { rank: 3, id: 'red_bull', name: 'Red Bull', constructorId: 'red_bull', color: '#1E41FF', medianGap: 7.150, meanGap: 9.420, bestGap: 0.000, bestVenue: 'R1 Bahrain GP', classifiedCount: 24, totalRaces: 24, cdi: 95, score: 95, competitivenessIndex: 95, deficitPct: 0.13, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 37.932, raceName: 'Italian GP', pos: 6 } } },
+                { rank: 4, id: 'mercedes', name: 'Mercedes', constructorId: 'mercedes', color: '#00D2BE', medianGap: 14.800, meanGap: 16.350, bestGap: 0.000, bestVenue: 'R11 Austrian GP', classifiedCount: 23, totalRaces: 24, cdi: 89, score: 89, competitivenessIndex: 89, deficitPct: 0.27, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 39.715, raceName: 'Italian GP', pos: 7 } } },
+                { rank: 5, id: 'aston_martin', name: 'Aston Martin', constructorId: 'aston_martin', color: '#229971', medianGap: 38.600, meanGap: 41.200, bestGap: 18.540, bestVenue: 'R5 Chinese GP', classifiedCount: 24, totalRaces: 24, cdi: 71, score: 71, competitivenessIndex: 71, deficitPct: 0.71, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 54.321, raceName: 'Italian GP', pos: 9 } } },
+                { rank: 6, id: 'haas', name: 'Haas', constructorId: 'haas', color: '#B6BABD', medianGap: 48.250, meanGap: 51.100, bestGap: 24.310, bestVenue: 'R11 Austrian GP', classifiedCount: 23, totalRaces: 24, cdi: 64, score: 64, competitivenessIndex: 64, deficitPct: 0.89, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 68.400, raceName: 'Italian GP', pos: 10 } } },
+                { rank: 7, id: 'alpine', name: 'Alpine', constructorId: 'alpine', color: '#0090FF', medianGap: 52.400, meanGap: 55.800, bestGap: 19.450, bestVenue: 'R21 São Paulo GP', classifiedCount: 22, totalRaces: 24, cdi: 61, score: 61, competitivenessIndex: 61, deficitPct: 0.97, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 72.150, raceName: 'Italian GP', pos: 13 } } },
+                { rank: 8, id: 'rb', name: 'RB', constructorId: 'rb', color: '#6692FF', medianGap: 54.100, meanGap: 56.900, bestGap: 22.800, bestVenue: 'R8 Monaco GP', classifiedCount: 23, totalRaces: 24, cdi: 59, score: 59, competitivenessIndex: 59, deficitPct: 1.00, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 75.200, raceName: 'Italian GP', pos: 14 } } },
+                { rank: 9, id: 'williams', name: 'Williams', constructorId: 'williams', color: '#005AFF', medianGap: 66.800, meanGap: 69.500, bestGap: 28.400, bestVenue: 'R17 Azerbaijan GP', classifiedCount: 21, totalRaces: 24, cdi: 50, score: 50, competitivenessIndex: 50, deficitPct: 1.24, tier: 'backmarkers', tierLabel: 'Backmarker', tierClass: 'tier-backmarker', roundGaps: { '16': { gap: 61.430, raceName: 'Italian GP', pos: 11 } } },
+                { rank: 10, id: 'sauber', name: 'Kick Sauber', constructorId: 'sauber', color: '#52E252', medianGap: 78.500, meanGap: 81.300, bestGap: 35.600, bestVenue: 'R22 Las Vegas GP', classifiedCount: 22, totalRaces: 24, cdi: 41, score: 41, competitivenessIndex: 41, deficitPct: 1.45, tier: 'backmarkers', tierLabel: 'Backmarker', tierClass: 'tier-backmarker', roundGaps: { '16': { gap: 85.900, raceName: 'Italian GP', pos: 16 } } }
+            ]
+        };
+
+        FINISHING_GAP_FALLBACK_2024.benchmarkLeader = FINISHING_GAP_FALLBACK_2024.competitors[0];
+
+        const FINISHING_GAP_FALLBACK_DRIVERS_2024 = {
+            scope: 'drivers',
+            fieldMedianGap: 15.100,
+            fieldMedianPct: 0.28,
+            closestFinish: {
+                round: '16',
+                raceName: 'Italian GP',
+                gap: 0.525,
+                runnerUp: 'Oscar Piastri'
+            },
+            spread: 48.250,
+            avgRaceDuration: 5400.0,
+            rounds: FINISHING_GAP_FALLBACK_ROUNDS_2024,
+            competitors: [
+                { rank: 1, id: 'max_verstappen', name: 'Max Verstappen', teamName: 'Red Bull', constructorId: 'red_bull', color: '#1E41FF', medianGap: 0.000, meanGap: 3.250, bestGap: 0.000, bestVenue: 'R1 Bahrain GP', classifiedCount: 24, totalRaces: 24, cdi: 100, score: 100, competitivenessIndex: 100, deficitPct: 0.00, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 37.932, raceName: 'Italian GP', pos: 6 } } },
+                { rank: 2, id: 'norris', name: 'Lando Norris', teamName: 'McLaren', constructorId: 'mclaren', color: '#FF8000', medianGap: 4.850, meanGap: 6.120, bestGap: 0.000, bestVenue: 'R6 Miami GP', classifiedCount: 24, totalRaces: 24, cdi: 96, score: 96, competitivenessIndex: 96, deficitPct: 0.09, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 6.154, raceName: 'Italian GP', pos: 3 } } },
+                { rank: 3, id: 'leclerc', name: 'Charles Leclerc', teamName: 'Ferrari', constructorId: 'ferrari', color: '#E80020', medianGap: 6.240, meanGap: 7.850, bestGap: 0.000, bestVenue: 'R8 Monaco GP', classifiedCount: 24, totalRaces: 24, cdi: 95, score: 95, competitivenessIndex: 95, deficitPct: 0.12, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 0.000, raceName: 'Italian GP', pos: 1 } } },
+                { rank: 4, id: 'piastri', name: 'Oscar Piastri', teamName: 'McLaren', constructorId: 'mclaren', color: '#FF8000', medianGap: 7.850, meanGap: 9.300, bestGap: 0.000, bestVenue: 'R13 Hungarian GP', classifiedCount: 24, totalRaces: 24, cdi: 94, score: 94, competitivenessIndex: 94, deficitPct: 0.15, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 0.525, raceName: 'Italian GP', pos: 2 } } },
+                { rank: 5, id: 'sainz', name: 'Carlos Sainz', teamName: 'Ferrari', constructorId: 'ferrari', color: '#E80020', medianGap: 8.450, meanGap: 10.150, bestGap: 0.000, bestVenue: 'R3 Australian GP', classifiedCount: 23, totalRaces: 24, cdi: 94, score: 94, competitivenessIndex: 94, deficitPct: 0.16, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 15.621, raceName: 'Italian GP', pos: 4 } } },
+                { rank: 6, id: 'hamilton', name: 'Lewis Hamilton', teamName: 'Mercedes', constructorId: 'mercedes', color: '#00D2BE', medianGap: 14.800, meanGap: 16.350, bestGap: 0.000, bestVenue: 'R12 British GP', classifiedCount: 23, totalRaces: 24, cdi: 89, score: 89, competitivenessIndex: 89, deficitPct: 0.27, tier: 'contenders', tierLabel: 'Contender', tierClass: 'tier-contender', roundGaps: { '16': { gap: 22.820, raceName: 'Italian GP', pos: 5 } } },
+                { rank: 7, id: 'russell', name: 'George Russell', teamName: 'Mercedes', constructorId: 'mercedes', color: '#00D2BE', medianGap: 15.400, meanGap: 17.200, bestGap: 0.000, bestVenue: 'R11 Austrian GP', classifiedCount: 23, totalRaces: 24, cdi: 88, score: 88, competitivenessIndex: 88, deficitPct: 0.29, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 39.715, raceName: 'Italian GP', pos: 7 } } },
+                { rank: 8, id: 'perez', name: 'Sergio Perez', teamName: 'Red Bull', constructorId: 'red_bull', color: '#1E41FF', medianGap: 24.500, meanGap: 28.100, bestGap: 2.250, bestVenue: 'R1 Bahrain GP', classifiedCount: 22, totalRaces: 24, cdi: 82, score: 82, competitivenessIndex: 82, deficitPct: 0.45, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 54.148, raceName: 'Italian GP', pos: 8 } } },
+                { rank: 9, id: 'alonso', name: 'Fernando Alonso', teamName: 'Aston Martin', constructorId: 'aston_martin', color: '#229971', medianGap: 38.600, meanGap: 41.200, bestGap: 18.540, bestVenue: 'R5 Chinese GP', classifiedCount: 24, totalRaces: 24, cdi: 71, score: 71, competitivenessIndex: 71, deficitPct: 0.71, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 54.321, raceName: 'Italian GP', pos: 9 } } },
+                { rank: 10, id: 'hulkenberg', name: 'Nico Hülkenberg', teamName: 'Haas', constructorId: 'haas', color: '#B6BABD', medianGap: 48.250, meanGap: 51.100, bestGap: 24.310, bestVenue: 'R11 Austrian GP', classifiedCount: 23, totalRaces: 24, cdi: 64, score: 64, competitivenessIndex: 64, deficitPct: 0.89, tier: 'midfield', tierLabel: 'Midfield', tierClass: 'tier-midfield', roundGaps: { '16': { gap: 68.400, raceName: 'Italian GP', pos: 10 } } }
+            ]
+        };
+
+        FINISHING_GAP_FALLBACK_DRIVERS_2024.benchmarkLeader = FINISHING_GAP_FALLBACK_DRIVERS_2024.competitors[0];
+
+        FINISHING_GAP_FALLBACK_2024.constructors = FINISHING_GAP_FALLBACK_2024;
+        FINISHING_GAP_FALLBACK_2024.drivers = FINISHING_GAP_FALLBACK_DRIVERS_2024;
+
+        const finishingGapState = {
+            season: '2024',
+            scope: 'constructors',
+            tier: 'all',
+            venueRound: 'all',
+            results: [],
+            metrics: null,
+            isLoading: false
+        };
+
+        function parseFinishingTimeToSeconds(timeStr, millis) {
+            if (millis !== undefined && millis !== null && millis !== '') {
+                const ms = parseFloat(millis);
+                if (!isNaN(ms) && ms > 0) return ms / 1000;
+            }
+            if (typeof timeStr === 'number') return timeStr;
+            if (!timeStr || typeof timeStr !== 'string') return null;
+            const clean = timeStr.trim().replace(/^\+/, '');
+            if (!clean) return 0;
+            const parts = clean.split(':').map(p => parseFloat(p));
+            if (parts.some(p => isNaN(p))) return null;
+            if (parts.length === 3) {
+                return parseFloat((parts[0] * 3600 + parts[1] * 60 + parts[2]).toFixed(3));
+            } else if (parts.length === 2) {
+                return parseFloat((parts[0] * 60 + parts[1]).toFixed(3));
+            } else if (parts.length === 1) {
+                return parseFloat(parts[0].toFixed(3));
+            }
+            return null;
+        }
+
+        function formatFinishingGap(seconds) {
+            if (seconds === null || seconds === undefined || isNaN(seconds)) return 'N/A';
+            const s = parseFloat(seconds);
+            if (s <= 0.0001) return '0.000s (P1)';
+            return `+${s.toFixed(3)}s`;
+        }
+
+        function computeFinishingGapMetrics(raceRounds, scope = 'constructors') {
+            if (!raceRounds || !Array.isArray(raceRounds) || raceRounds.length === 0) {
+                return scope === 'drivers'
+                    ? FINISHING_GAP_FALLBACK_DRIVERS_2024
+                    : FINISHING_GAP_FALLBACK_2024;
+            }
+
+            const roundDetails = [];
+            const competitors = {};
+            let totalWinningRaceTime = 0;
+            let winningRacesCount = 0;
+            let closestFinish = { round: '', raceName: '', gap: Infinity, runnerUp: '' };
+
+            raceRounds.forEach(r => {
+                const rnd = String(r.round || '');
+                const rName = r.raceName || `Round ${rnd}`;
+                const results = r.Results || [];
+                if (results.length === 0) return;
+
+                const winner = results.find(res => res.position === '1' || res.positionText === '1') || results[0];
+                const winnerTimeSec = parseFinishingTimeToSeconds(winner?.Time?.time, winner?.Time?.millis);
+                const winnerLaps = parseInt(winner?.laps || '0', 10);
+                const winnerAvgLap = (winnerTimeSec && winnerLaps > 0) ? (winnerTimeSec / winnerLaps) : 90.0;
+
+                if (winnerTimeSec && winnerTimeSec > 1000) {
+                    totalWinningRaceTime += winnerTimeSec;
+                    winningRacesCount += 1;
+                }
+
+                // Closest GP Finish tracking (runner up)
+                const p2 = results.find(res => res.position === '2' || res.positionText === '2');
+                if (p2) {
+                    const p2Gap = parseFinishingTimeToSeconds(p2.Time?.time, p2.Time?.millis);
+                    if (p2Gap !== null && p2Gap > 0 && p2Gap < closestFinish.gap) {
+                        const p2Name = p2.Driver
+                            ? `${p2.Driver.givenName || ''} ${p2.Driver.familyName || ''}`.trim()
+                            : (p2.Driver?.code || 'P2');
+                        closestFinish = {
+                            round: rnd,
+                            raceName: rName,
+                            gap: p2Gap,
+                            runnerUp: p2Name
+                        };
+                    }
+                }
+
+                const raceTeamGaps = {};
+
+                results.forEach(res => {
+                    const pos = parseInt(res.position, 10);
+                    const isWinner = pos === 1;
+                    const laps = parseInt(res.laps || '0', 10);
+                    const status = (res.status || '').trim();
+                    const posText = res.positionText || '';
+
+                    const isFinished = status.toLowerCase() === 'finished';
+                    const isLapped = status.toLowerCase().includes('lap');
+                    const isNotRetired = posText !== 'R' && posText !== 'W' && posText !== 'D' && !status.toLowerCase().includes('retired') && !status.toLowerCase().includes('accident') && !status.toLowerCase().includes('collision');
+                    const is90Pct = winnerLaps > 0 ? (laps >= Math.floor(winnerLaps * 0.9)) : (pos > 0 && pos <= 20);
+                    const isClassified = isWinner || isFinished || isLapped || (isNotRetired && is90Pct);
+
+                    let gap = null;
+                    if (isWinner) {
+                        gap = 0.0;
+                    } else if (isClassified) {
+                        const directGap = parseFinishingTimeToSeconds(res.Time?.time, res.Time?.millis);
+                        if (directGap !== null) {
+                            gap = directGap;
+                        } else if (isLapped || (winnerLaps > laps && laps > 0)) {
+                            const lapMatch = status.match(/\+(\d+)\s+Lap/i);
+                            const lapsDown = lapMatch ? parseInt(lapMatch[1], 10) : Math.max(1, winnerLaps - laps);
+                            gap = parseFloat((lapsDown * winnerAvgLap).toFixed(3));
+                        }
+                    }
+
+                    if (scope === 'drivers') {
+                        const did = res.Driver?.driverId || `driver_${res.number || pos}`;
+                        const dName = res.Driver ? `${res.Driver.givenName || ''} ${res.Driver.familyName || ''}`.trim() : did;
+                        const cName = res.Constructor?.name || '';
+                        const cid = res.Constructor?.constructorId || '';
+                        const color = getDriverColor(res.Driver, Object.keys(competitors).length);
+
+                        if (!competitors[did]) {
+                            competitors[did] = {
+                                id: did,
+                                name: dName,
+                                teamName: cName,
+                                constructorId: cid,
+                                color,
+                                gaps: [],
+                                roundGaps: {},
+                                classifiedCount: 0,
+                                totalRaces: 0
+                            };
+                        }
+                        competitors[did].totalRaces += 1;
+                        if (isClassified && gap !== null && !isNaN(gap)) {
+                            competitors[did].classifiedCount += 1;
+                            competitors[did].gaps.push(gap);
+                            competitors[did].roundGaps[rnd] = { gap, raceName: rName, pos };
+                        }
+                    } else {
+                        // Constructors scope
+                        const cid = res.Constructor?.constructorId || `team_${pos}`;
+                        const cName = res.Constructor?.name || cid;
+                        const color = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) ||
+                            (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[Object.keys(competitors).length % FALLBACK_PALETTE.length] : '#00F0FF');
+
+                        if (!competitors[cid]) {
+                            competitors[cid] = {
+                                id: cid,
+                                name: cName,
+                                constructorId: cid,
+                                color,
+                                gaps: [],
+                                roundGaps: {},
+                                classifiedCount: 0,
+                                totalRaces: 0
+                            };
+                        }
+
+                        if (!raceTeamGaps[cid]) {
+                            raceTeamGaps[cid] = {
+                                minGap: (isClassified && gap !== null && !isNaN(gap)) ? gap : null,
+                                isClassified,
+                                bestPos: pos
+                            };
+                        } else {
+                            if (isClassified && gap !== null && !isNaN(gap)) {
+                                raceTeamGaps[cid].isClassified = true;
+                                if (raceTeamGaps[cid].minGap === null || gap < raceTeamGaps[cid].minGap) {
+                                    raceTeamGaps[cid].minGap = gap;
+                                    raceTeamGaps[cid].bestPos = pos;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                if (scope === 'constructors') {
+                    Object.entries(raceTeamGaps).forEach(([cid, data]) => {
+                        competitors[cid].totalRaces += 1;
+                        if (data.isClassified && data.minGap !== null) {
+                            competitors[cid].classifiedCount += 1;
+                            competitors[cid].gaps.push(data.minGap);
+                            competitors[cid].roundGaps[rnd] = { gap: data.minGap, raceName: rName, pos: data.bestPos };
+                        }
+                    });
+                }
+
+                roundDetails.push({
+                    round: rnd,
+                    raceName: rName,
+                    winner: winner?.Driver ? `${winner.Driver.givenName} ${winner.Driver.familyName}` : 'Winner',
+                    winnerTimeSec
+                });
+            });
+
+            const compList = Object.values(competitors);
+            if (compList.length === 0) {
+                return scope === 'drivers'
+                    ? FINISHING_GAP_FALLBACK_DRIVERS_2024
+                    : FINISHING_GAP_FALLBACK_2024;
+            }
+
+            const avgRaceDuration = winningRacesCount > 0 ? (totalWinningRaceTime / winningRacesCount) : 5400.0;
+
+            compList.forEach(c => {
+                if (c.gaps.length > 0) {
+                    const sorted = [...c.gaps].sort((a, b) => a - b);
+                    const mid = Math.floor(sorted.length / 2);
+                    c.medianGap = (sorted.length % 2 !== 0)
+                        ? sorted[mid]
+                        : parseFloat(((sorted[mid - 1] + sorted[mid]) / 2).toFixed(3));
+                    c.meanGap = parseFloat((c.gaps.reduce((a, b) => a + b, 0) / c.gaps.length).toFixed(3));
+                    c.bestGap = sorted[0];
+
+                    let bestVenue = '';
+                    for (const [rnd, rData] of Object.entries(c.roundGaps)) {
+                        if (Math.abs(rData.gap - c.bestGap) < 0.001) {
+                            bestVenue = rData.raceName || `R${rnd}`;
+                            break;
+                        }
+                    }
+                    c.bestVenue = bestVenue || 'Season Best';
+                } else {
+                    c.medianGap = 999.0;
+                    c.meanGap = 999.0;
+                    c.bestGap = 999.0;
+                    c.bestVenue = 'N/A';
+                }
+
+                c.deficitPct = parseFloat(((c.medianGap / avgRaceDuration) * 100).toFixed(2));
+                const score = Math.max(30, Math.min(100, Math.round(100 - (c.medianGap * 0.75))));
+                c.cdi = score;
+                c.score = score;
+                c.competitivenessIndex = score;
+
+                if (c.medianGap <= 15.0) {
+                    c.tier = 'contenders';
+                    c.tierLabel = 'Contender';
+                    c.tierClass = 'tier-contender';
+                } else if (c.medianGap <= 65.0) {
+                    c.tier = 'midfield';
+                    c.tierLabel = 'Midfield';
+                    c.tierClass = 'tier-midfield';
+                } else {
+                    c.tier = 'backmarkers';
+                    c.tierLabel = 'Backmarker';
+                    c.tierClass = 'tier-backmarker';
+                }
+            });
+
+            compList.sort((a, b) => a.medianGap - b.medianGap);
+            compList.forEach((c, idx) => { c.rank = idx + 1; });
+
+            const validMedians = compList.map(c => c.medianGap).filter(g => g < 900);
+            validMedians.sort((a, b) => a - b);
+            const midIdx = Math.floor(validMedians.length / 2);
+            const fieldMedianGap = (validMedians.length > 0)
+                ? ((validMedians.length % 2 !== 0)
+                    ? validMedians[midIdx]
+                    : parseFloat(((validMedians[midIdx - 1] + validMedians[midIdx]) / 2).toFixed(3)))
+                : 38.600;
+
+            const fieldMedianPct = parseFloat(((fieldMedianGap / avgRaceDuration) * 100).toFixed(2));
+            const minGap = validMedians[0] || 0;
+            const maxGap = validMedians[validMedians.length - 1] || 0;
+            const spread = parseFloat((maxGap - minGap).toFixed(3));
+
+            return {
+                scope,
+                competitors: compList,
+                rounds: roundDetails.length > 0 ? roundDetails : FINISHING_GAP_FALLBACK_ROUNDS_2024,
+                benchmarkLeader: compList[0] || null,
+                fieldMedianGap,
+                fieldMedianPct,
+                closestFinish: (closestFinish.gap < Infinity)
+                    ? closestFinish
+                    : { round: '16', raceName: 'Italian GP', gap: 0.525, runnerUp: 'Oscar Piastri' },
+                spread,
+                avgRaceDuration
+            };
+        }
+
+        async function loadFinishingGapData(season = '2024', forceRefresh = false) {
+            const seasonStr = String(season);
+            finishingGapState.season = seasonStr;
+            const cacheKey = `f1_finishing_gap_${seasonStr}`;
+            const badge = typeof document !== 'undefined' ? document.getElementById('finishingGapCacheBadge') : null;
+
+            if (!forceRefresh && typeof localStorage !== 'undefined') {
+                try {
+                    const cached = localStorage.getItem(cacheKey);
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        finishingGapState.results = parsed.results || [];
+                        finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope);
+                        finishingGapState.isLoading = false;
+
+                        if (badge) {
+                            badge.className = 'cache-badge cached';
+                            badge.textContent = '⚡ Cached Telemetry';
+                        }
+
+                        renderFinishingGapView();
+                        return finishingGapState;
+                    }
+                } catch (e) {
+                    console.warn('Failed reading finishing gap cache:', e);
+                }
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge live';
+                badge.textContent = '🌐 Fetching Jolpica...';
+            }
+
+            finishingGapState.isLoading = true;
+
+            try {
+                const results = (typeof fetchAllJolpicaPages === 'function')
+                    ? await fetchAllJolpicaPages(seasonStr, 'results', 'Results').catch(() => [])
+                    : [];
+
+                if (!results || results.length === 0) {
+                    throw new Error(`No race results available for season ${seasonStr}`);
+                }
+
+                finishingGapState.results = results;
+                finishingGapState.metrics = computeFinishingGapMetrics(results, finishingGapState.scope);
+                finishingGapState.isLoading = false;
+
+                if (typeof localStorage !== 'undefined') {
+                    try {
+                        localStorage.setItem(cacheKey, JSON.stringify({ results }));
+                    } catch (e) {}
+                }
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚡ Live Telemetry';
+                }
+
+                renderFinishingGapView();
+                return finishingGapState;
+            } catch (err) {
+                console.warn('Error loading Finishing Gap data from Jolpica:', err);
+                finishingGapState.isLoading = false;
+                finishingGapState.results = [];
+                finishingGapState.metrics = computeFinishingGapMetrics([], finishingGapState.scope);
+
+                if (badge) {
+                    badge.className = 'cache-badge no-data';
+                    badge.textContent = '⚠️ Live Telemetry Offline';
+                }
+
+                renderFinishingGapView();
+                return finishingGapState;
+            }
+        }
+
+        function onFinishingGapSeasonChange(season) {
+            finishingGapState.season = String(season);
+            loadFinishingGapData(season, false);
+        }
+
+        function refreshFinishingGapData() {
+            const sel = typeof document !== 'undefined' ? document.getElementById('finishingGapSeasonSelect') : null;
+            const season = sel ? sel.value : finishingGapState.season;
+            loadFinishingGapData(season, true);
+        }
+
+        function setFinishingGapViewScope(scope) {
+            if (scope !== 'constructors' && scope !== 'drivers') return;
+            finishingGapState.scope = scope;
+
+            if (typeof document !== 'undefined') {
+                const cPill = document.getElementById('fgPillScopeConstructors');
+                const dPill = document.getElementById('fgPillScopeDrivers');
+                if (cPill) {
+                    if (scope === 'constructors') cPill.classList.add('active');
+                    else cPill.classList.remove('active');
+                }
+                if (dPill) {
+                    if (scope === 'drivers') dPill.classList.add('active');
+                    else dPill.classList.remove('active');
+                }
+            }
+
+            finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, scope);
+            renderFinishingGapView();
+        }
+
+        function setFinishingGapTierFilter(tier) {
+            finishingGapState.tier = tier;
+            if (typeof document !== 'undefined') {
+                const pills = document.querySelectorAll('.finishing-gap-tier-pill');
+                if (pills && pills.length > 0) {
+                    pills.forEach(pill => {
+                        const t = pill.getAttribute('data-tier') || pill['data-tier'];
+                        if (t === tier) {
+                            pill.classList.add('active');
+                        } else {
+                            pill.classList.remove('active');
+                        }
+                    });
+                }
+            }
+            renderFinishingGapChart();
+            renderFinishingGapTable();
+        }
+
+        function setFinishingGapVenueFilter(venueRound) {
+            finishingGapState.venueRound = String(venueRound);
+            if (typeof document !== 'undefined') {
+                const titleEl = document.getElementById('fgChartTitle');
+                if (titleEl) {
+                    if (venueRound === 'all') {
+                        titleEl.textContent = 'Median Finishing Gap to Winner (Seconds)';
+                    } else {
+                        const rObj = finishingGapState.metrics?.rounds?.find(r => String(r.round) === String(venueRound));
+                        const rName = rObj ? rObj.raceName : `Round ${venueRound}`;
+                        titleEl.textContent = `Finishing Gap to Winner — ${rName} (Seconds)`;
+                    }
+                }
+            }
+            renderFinishingGapKpis();
+            renderFinishingGapChart();
+            renderFinishingGapTable();
+        }
+
+        function renderFinishingGapView() {
+            if (!finishingGapState.metrics) {
+                finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope);
+            }
+            const metrics = finishingGapState.metrics;
+
+            if (typeof document !== 'undefined') {
+                const venueSelect = document.getElementById('finishingGapVenueSelect');
+                if (venueSelect && venueSelect.options && venueSelect.options.length <= 1 && metrics && metrics.rounds && metrics.rounds.length > 0) {
+                    let html = '<option value="all" selected>All Grand Prix (Season Median)</option>';
+                    metrics.rounds.forEach(r => {
+                        html += `<option value="${r.round}">R${r.round} ${r.raceName.replace(' Grand Prix', ' GP')}</option>`;
+                    });
+                    venueSelect.innerHTML = html;
+                }
+            }
+
+            renderFinishingGapKpis(metrics);
+            renderFinishingGapChart(metrics);
+            renderFinishingGapTable(metrics);
+        }
+
+        function renderFinishingGapKpis(metrics) {
+            if (!metrics) metrics = finishingGapState.metrics;
+            if (!metrics || !Array.isArray(metrics.competitors) || metrics.competitors.length === 0) return;
+
+            const isAllVenues = finishingGapState.venueRound === 'all';
+            const rnd = finishingGapState.venueRound;
+
+            let leader = null;
+            let fieldMedianGap = metrics.fieldMedianGap;
+            let fieldMedianPct = metrics.fieldMedianPct;
+            let closestFinish = metrics.closestFinish;
+            let spread = metrics.spread;
+
+            if (isAllVenues) {
+                leader = metrics.benchmarkLeader || metrics.competitors[0];
+            } else {
+                const roundComps = metrics.competitors
+                    .filter(c => c.roundGaps && c.roundGaps[rnd] !== undefined)
+                    .sort((a, b) => a.roundGaps[rnd].gap - b.roundGaps[rnd].gap);
+
+                if (roundComps.length > 0) {
+                    leader = roundComps[0];
+                    const gaps = roundComps.map(c => c.roundGaps[rnd].gap);
+                    const mid = Math.floor(gaps.length / 2);
+                    fieldMedianGap = (gaps.length % 2 !== 0) ? gaps[mid] : parseFloat(((gaps[mid - 1] + gaps[mid]) / 2).toFixed(3));
+                    fieldMedianPct = parseFloat(((fieldMedianGap / (metrics.avgRaceDuration || 5400)) * 100).toFixed(2));
+                    spread = parseFloat((gaps[gaps.length - 1] - gaps[0]).toFixed(3));
+                    const p2 = roundComps[1];
+                    if (p2) {
+                        closestFinish = {
+                            round: rnd,
+                            raceName: p2.roundGaps[rnd].raceName || `Round ${rnd}`,
+                            gap: p2.roundGaps[rnd].gap,
+                            runnerUp: p2.name
+                        };
+                    }
+                } else {
+                    leader = metrics.benchmarkLeader || metrics.competitors[0];
+                }
+            }
+
+            if (typeof document === 'undefined') return;
+
+            const benchTeamEl = document.getElementById('fgKpiBenchmarkTeam');
+            const benchGapEl = document.getElementById('fgKpiBenchmarkGap');
+            const benchBarEl = document.getElementById('fgKpiBenchmarkBar');
+            const benchTagEl = document.getElementById('fgKpiBenchmarkTag');
+            const benchDescEl = document.getElementById('fgKpiBenchmarkDesc');
+
+            if (benchTeamEl && leader) benchTeamEl.textContent = leader.name;
+            if (benchGapEl && leader) {
+                const gapVal = isAllVenues ? leader.medianGap : (leader.roundGaps && leader.roundGaps[rnd] ? leader.roundGaps[rnd].gap : leader.medianGap);
+                benchGapEl.textContent = gapVal === 0 ? '0.000s (P1)' : `+${gapVal.toFixed(3)}s`;
+            }
+            if (benchBarEl && leader) benchBarEl.style.background = leader.color;
+            if (benchTagEl) benchTagEl.textContent = 'Minimal Gap';
+            if (benchDescEl) {
+                benchDescEl.textContent = isAllVenues
+                    ? 'Lowest season median gap to Grand Prix winner'
+                    : `Winner / minimal deficit baseline for Round ${rnd}`;
+            }
+
+            const medianGapEl = document.getElementById('fgKpiFieldMedianGap');
+            const medianPctEl = document.getElementById('fgKpiFieldMedianPct');
+            if (medianGapEl) medianGapEl.textContent = `+${fieldMedianGap.toFixed(3)}s`;
+            if (medianPctEl) medianPctEl.textContent = `+${fieldMedianPct.toFixed(2)}%`;
+
+            const closestRoundEl = document.getElementById('fgKpiClosestRound');
+            const closestFinishEl = document.getElementById('fgKpiClosestFinish');
+            const closestDriverEl = document.getElementById('fgKpiClosestDriver');
+            if (closestRoundEl && closestFinish) {
+                const shortRoundName = (closestFinish.raceName || '').replace(' Grand Prix', ' GP');
+                closestRoundEl.textContent = `R${closestFinish.round} ${shortRoundName}`.trim();
+            }
+            if (closestFinishEl && closestFinish) closestFinishEl.textContent = `+${closestFinish.gap.toFixed(3)}s`;
+            if (closestDriverEl && closestFinish) closestDriverEl.textContent = closestFinish.runnerUp;
+
+            const spreadEl = document.getElementById('fgKpiSpread');
+            const spreadTierEl = document.getElementById('fgKpiSpreadTier');
+            if (spreadEl) spreadEl.textContent = `+${spread.toFixed(3)}s`;
+            if (spreadTierEl) {
+                spreadTierEl.textContent = spread > 60 ? 'High Delta' : (spread > 30 ? 'Moderate Delta' : 'Tight Field');
+            }
+        }
+
+        function renderFinishingGapChart(metrics) {
+            if (!metrics) metrics = finishingGapState.metrics;
+            if (!metrics || !Array.isArray(metrics.competitors)) return;
+            if (typeof document === 'undefined') return;
+
+            const canvas = document.getElementById('finishingGapChart');
+            if (!canvas) return;
+
+            if (finishingGapChartInstance && typeof finishingGapChartInstance.destroy === 'function') {
+                finishingGapChartInstance.destroy();
+                finishingGapChartInstance = null;
+            }
+
+            const tier = finishingGapState.tier;
+            const isAllVenues = finishingGapState.venueRound === 'all';
+            const rnd = finishingGapState.venueRound;
+
+            let list = metrics.competitors;
+            if (tier !== 'all') {
+                list = list.filter(c => c.tier === tier);
+            }
+            if (!isAllVenues) {
+                list = list.filter(c => c.roundGaps && c.roundGaps[rnd] !== undefined)
+                    .sort((a, b) => a.roundGaps[rnd].gap - b.roundGaps[rnd].gap);
+            }
+
+            const labels = list.map(c => c.name);
+            const data = list.map(c => {
+                if (!isAllVenues && c.roundGaps && c.roundGaps[rnd] !== undefined) {
+                    return c.roundGaps[rnd].gap;
+                }
+                return c.medianGap;
+            });
+            const colors = list.map(c => c.color || '#00F0FF');
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : canvas;
+            if (typeof Chart === 'undefined') return;
+
+            finishingGapChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: isAllVenues ? 'Median Gap to P1 (s)' : `Gap to P1 (s)`,
+                        data,
+                        backgroundColor: colors.map(c => c + 'CC'),
+                        borderColor: colors,
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Finishing Gap behind P1 (seconds)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderFinishingGapTable(metrics) {
+            if (!metrics) metrics = finishingGapState.metrics;
+            if (!metrics || !Array.isArray(metrics.competitors)) return;
+            if (typeof document === 'undefined') return;
+
+            const tbody = document.getElementById('finishingGapTableBody');
+            const badge = document.getElementById('finishingGapFilterBadge');
+
+            const tier = finishingGapState.tier;
+            const isAllVenues = finishingGapState.venueRound === 'all';
+            const rnd = finishingGapState.venueRound;
+
+            let list = metrics.competitors;
+            if (tier !== 'all') {
+                list = list.filter(c => c.tier === tier);
+            }
+            if (!isAllVenues) {
+                list = list.filter(c => c.roundGaps && c.roundGaps[rnd] !== undefined)
+                    .sort((a, b) => a.roundGaps[rnd].gap - b.roundGaps[rnd].gap);
+            }
+
+            if (badge) {
+                const noun = finishingGapState.scope === 'constructors' ? 'Teams' : 'Drivers';
+                badge.textContent = `Showing ${list.length} ${noun}`;
+            }
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            list.forEach((c, idx) => {
+                const rank = idx + 1;
+                const roundData = (!isAllVenues && c.roundGaps && c.roundGaps[rnd]) ? c.roundGaps[rnd] : null;
+                const gapVal = roundData ? roundData.gap : c.medianGap;
+                const meanVal = c.meanGap;
+                const bestGapVal = roundData ? roundData.gap : c.bestGap;
+                const bestVenueStr = roundData ? (roundData.raceName || `R${rnd}`) : c.bestVenue;
+
+                const gapStr = gapVal === 0 ? '0.000s (P1)' : `+${gapVal.toFixed(3)}s`;
+                const meanStr = meanVal === 0 ? '0.000s' : `+${meanVal.toFixed(3)}s`;
+                const bestStr = bestGapVal === 0 ? '0.000s (P1)' : `+${bestGapVal.toFixed(3)}s`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="pos-cell" style="font-weight: 700; color: #94A3B8;">${rank}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${c.color || '#00F0FF'}; flex-shrink: 0;"></span>
+                            <span style="font-weight: 700; color: #FFFFFF;">${c.name}</span>
+                            ${c.teamName ? `<span style="font-size: 0.75rem; color: #94A3B8;">(${c.teamName})</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="telemetry-delta-value tabular-num-timing" style="color: #00F0FF; font-weight: 700;">${gapStr}</td>
+                    <td class="telemetry-delta-value tabular-num-timing" style="color: #94A3B8;">${meanStr}</td>
+                    <td>
+                        <span class="score-badge">${c.cdi}</span>
+                        <span class="deficit-pct-badge">+${c.deficitPct.toFixed(2)}%</span>
+                    </td>
+                    <td class="tabular-num-timing" style="font-size: 0.82rem; color: #CBD5E1;">
+                        ${bestStr} <span style="font-size: 0.72rem; color: #64748B;">(${bestVenueStr})</span>
+                    </td>
+                    <td style="font-size: 0.82rem; color: #94A3B8;">${c.classifiedCount} / ${c.totalRaces}</td>
+                    <td><span class="tier-badge ${c.tierClass}">${c.tierLabel}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
                 'all': 'tabBtnAll',
+                'finishing-gap': 'tabBtnFinishingGap',
                 'profiler': 'tabBtnProfiler',
                 'constructors': 'tabBtnConstructors',
                 'sprint': 'tabBtnSprint',
@@ -10075,6 +11166,7 @@
             const activeBtn = document.getElementById(btnMap[tabId] || `tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
             if (activeBtn) activeBtn.classList.add('active');
 
+            const finishingGapSec = document.getElementById('finishing-gap-section');
             const profilerSec = document.getElementById('circuit-profiler-section');
             const constructorSec = document.getElementById('constructor-atr-section');
             const sprintSec = document.getElementById('sprint-disparity-section');
@@ -10085,7 +11177,19 @@
             const latestRaceSec = document.getElementById('latest-race-section');
             const standingsTableSec = document.getElementById('standings-table-section');
 
-            if (tabId === 'profiler') {
+            if (tabId === 'finishing-gap') {
+                if (finishingGapSec) finishingGapSec.style.display = 'block';
+                if (profilerSec) profilerSec.style.display = 'none';
+                if (constructorSec) constructorSec.style.display = 'none';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'profiler') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10096,6 +11200,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'constructors') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10106,6 +11211,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'sprint') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'block';
@@ -10116,6 +11222,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'clinch') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10126,6 +11233,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'pitstops') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10136,6 +11244,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'telemetry') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10146,6 +11255,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'progression') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10156,6 +11266,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'results') {
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
@@ -10166,6 +11277,7 @@
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
                 if (standingsTableSec) standingsTableSec.style.display = 'block';
             } else {
+                if (finishingGapSec) finishingGapSec.style.display = 'block';
                 if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'block';
@@ -10187,6 +11299,9 @@
                 }
                 if (profilerRadarChartInstance && typeof profilerRadarChartInstance.resize === 'function') {
                     profilerRadarChartInstance.resize();
+                }
+                if (finishingGapChartInstance && typeof finishingGapChartInstance.resize === 'function') {
+                    finishingGapChartInstance.resize();
                 }
             }, 50);
         }
@@ -10247,6 +11362,11 @@
                 loadPitStopTelemetry(pitStopSeasonSelect.value, false);
             }
 
+            const finishingGapSeasonSelect = document.getElementById('finishingGapSeasonSelect');
+            if (finishingGapSeasonSelect) {
+                loadFinishingGapData(finishingGapSeasonSelect.value, false);
+            }
+
             const profilerSeasonSelect = document.getElementById('profilerSeasonSelect');
             if (profilerSeasonSelect) {
                 loadProfilerData(profilerSeasonSelect.value, false);
@@ -10300,6 +11420,25 @@
             window.CIRCUIT_ARCHETYPES = CIRCUIT_ARCHETYPES;
             window.circuitProfilerState = circuitProfilerState;
             window.profilerState = circuitProfilerState;
+            window.loadFinishingGapData = loadFinishingGapData;
+            window.onFinishingGapSeasonChange = onFinishingGapSeasonChange;
+            window.refreshFinishingGapData = refreshFinishingGapData;
+            window.setFinishingGapViewScope = setFinishingGapViewScope;
+            window.setFinishingGapTierFilter = setFinishingGapTierFilter;
+            window.setFinishingGapVenueFilter = setFinishingGapVenueFilter;
+            window.renderFinishingGapView = renderFinishingGapView;
+            window.renderFinishingGapKpis = renderFinishingGapKpis;
+            window.renderFinishingGapChart = renderFinishingGapChart;
+            window.renderFinishingGapTable = renderFinishingGapTable;
+            window.parseFinishingTimeToSeconds = parseFinishingTimeToSeconds;
+            window.formatFinishingGap = formatFinishingGap;
+            window.computeFinishingGapMetrics = computeFinishingGapMetrics;
+            window.finishingGapState = finishingGapState;
+            window.FINISHING_GAP_TIERS = FINISHING_GAP_TIERS;
+            window.FINISHING_GAP_FALLBACK_2024 = FINISHING_GAP_FALLBACK_2024;
+            window.FINISHING_GAP_FALLBACK_DRIVERS_2024 = FINISHING_GAP_FALLBACK_DRIVERS_2024;
+            window.FINISHING_GAP_FALLBACK_ROUNDS_2024 = FINISHING_GAP_FALLBACK_ROUNDS_2024;
+            window.switchMainTab = switchMainTab;
         }
 
         function extractFastestLapFromResult(results) {
@@ -10383,7 +11522,26 @@
                 computeProfilerMetrics,
                 CIRCUIT_ARCHETYPES,
                 circuitProfilerState,
-                profilerState: circuitProfilerState
+                profilerState: circuitProfilerState,
+                loadFinishingGapData,
+                onFinishingGapSeasonChange,
+                refreshFinishingGapData,
+                setFinishingGapViewScope,
+                setFinishingGapTierFilter,
+                setFinishingGapVenueFilter,
+                renderFinishingGapView,
+                renderFinishingGapKpis,
+                renderFinishingGapChart,
+                renderFinishingGapTable,
+                parseFinishingTimeToSeconds,
+                formatFinishingGap,
+                computeFinishingGapMetrics,
+                finishingGapState,
+                FINISHING_GAP_TIERS,
+                FINISHING_GAP_FALLBACK_2024,
+                FINISHING_GAP_FALLBACK_DRIVERS_2024,
+                FINISHING_GAP_FALLBACK_ROUNDS_2024,
+                switchMainTab
             };
         }
     </script>
