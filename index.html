@@ -8313,6 +8313,38 @@
             window.onPitStopSeasonChange = onPitStopSeasonChange;
             window.refreshPitStopData = refreshPitStopData;
         }
+
+        function extractFastestLapFromResult(results) {
+            if (!results || !Array.isArray(results) || results.length === 0) return null;
+            const entry = results.find(r => r && r.FastestLap && (r.FastestLap.rank === '1' || r.FastestLap.rank === 1));
+            if (!entry) return null;
+            return {
+                driverName: `${entry.Driver?.givenName || ''} ${entry.Driver?.familyName || ''}`.trim(),
+                driverCode: entry.Driver?.code || '',
+                lapTime: entry.FastestLap?.Time?.time || '',
+                lapNum: entry.FastestLap?.lap || ''
+            };
+        }
+
+        function renderFastestLapInfo() {}
+
+        function renderStatsSummary(driverStandings, constructorStandings, season) {
+            const yr = parseInt(season, 10);
+            const leadingConstrEl = document.getElementById('statLeadingConstructor');
+            const leadingConstrPtsEl = document.getElementById('statLeadingConstructorPts');
+            if (!leadingConstrEl || !leadingConstrPtsEl) return;
+            if (yr < 1958) {
+                leadingConstrEl.textContent = 'None (Inaugurated 1958)';
+                leadingConstrPtsEl.textContent = 'No WCC prior to 1958';
+                return;
+            }
+            if (constructorStandings && constructorStandings.length > 0) {
+                const top = constructorStandings[0];
+                leadingConstrEl.textContent = top.Constructor?.name || '';
+                leadingConstrPtsEl.textContent = `${top.points || 0} PTS`;
+            }
+        }
+
         if (typeof module !== 'undefined' && module.exports) {
             module.exports = {
                 loadSprintData,

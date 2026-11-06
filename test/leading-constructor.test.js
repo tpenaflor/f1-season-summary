@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 function loadScriptExports() {
     const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf-8');
-    const scriptMatch = html.match(/<script[\s\S]*?>([\s\S]*?)<\/script>/i);
+    const scriptMatch = html.match(/<script(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/i);
     if (!scriptMatch) throw new Error('No script in index.html');
     const mockElements = {};
     const sandbox = {
