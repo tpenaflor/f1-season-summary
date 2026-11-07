@@ -5377,7 +5377,7 @@
 
             <div class="chart-footer">
                 <div class="stat-pills" id="chart-stat-pills">
-                    <!-- Populated dynamically -->
+                    <div class="stat-pill">Leading Constructor: <span id="statLeadingConstructor">-</span> (<span id="statLeadingConstructorPts">-</span>)</div>
                 </div>
                 <div>💡 <em>Tip: Click any driver in the legend to toggle their line.</em></div>
             </div>
@@ -5541,6 +5541,19 @@
                             cacheBadge.textContent = '⚡ Cached (Instant)';
                             currentSeasonData = parsedData;
                             renderProgressionChart(parsedData);
+                            renderStatsSummary(parsedData.drivers || [], parsedData.constructorStandings || [], parsedData.season);
+                            if (parseInt(parsedData.season, 10) >= 1958 && (!parsedData.constructorStandings || parsedData.constructorStandings.length === 0)) {
+                                fetch(`${BASE_URL}/${parsedData.season}/constructorStandings.json`)
+                                    .then(r => r.ok ? r.json() : null)
+                                    .then(cJson => {
+                                        const cStandings = cJson?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings || [];
+                                        if (cStandings.length > 0) {
+                                            parsedData.constructorStandings = cStandings;
+                                            try { localStorage.setItem(cacheKey, JSON.stringify(parsedData)); } catch (_) {}
+                                            renderStatsSummary(parsedData.drivers || [], cStandings, parsedData.season);
+                                        }
+                                    }).catch(() => {});
+                            }
                             return;
                         }
                     } catch (err) {
@@ -5560,7 +5573,17 @@
             try {
                 // First fetch season info: https://api.jolpi.ca/ergast/f1/${season}/races.json to get total rounds and race names
                 const racesUrl = `${BASE_URL}/${season}/races.json`;
-                const racesResp = await fetch(racesUrl);
+                const constrPromise = (parseInt(season, 10) >= 1958)
+                    ? fetch(`${BASE_URL}/${season}/constructorStandings.json`)
+                        .then(r => r.ok ? r.json() : null)
+                        .catch(() => null)
+                    : Promise.resolve(null);
+
+                const [racesResp, constrJson] = await Promise.all([
+                    fetch(racesUrl),
+                    constrPromise
+                ]);
+
                 if (!racesResp.ok) {
                     throw new Error(`Failed to load season races schedule (HTTP ${racesResp.status})`);
                 }
@@ -5570,6 +5593,8 @@
                 if (races.length === 0) {
                     throw new Error(`No race schedule found for ${season}.`);
                 }
+
+                const constructorStandings = constrJson?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings || [];
 
                 const totalRounds = races.length;
                 const roundStandingsList = [];
@@ -5619,7 +5644,8 @@
                 }
 
                 // Parse and transform data structure
-                const parsedData = processStandingsData(season, completedRaces, roundStandingsList);
+                const parsedData = processStandingsData(season, completedRaces, roundStandingsList, constructorStandings);
+                parsedData.constructorStandings = constructorStandings;
 
                 // Save to localStorage so future visits are instant
                 try {
@@ -5635,6 +5661,7 @@
                 progressContainer.style.display = 'none';
                 currentSeasonData = parsedData;
                 renderProgressionChart(parsedData);
+                renderStatsSummary(parsedData.drivers || [], parsedData.constructorStandings || [], parsedData.season);
 
             } catch (error) {
                 if (fetchId === currentFetchId) {
@@ -5653,7 +5680,7 @@
             if (fillElem) fillElem.style.width = `${percent}%`;
         }
 
-        function processStandingsData(season, completedRaces, roundStandingsList) {
+        function processStandingsData(season, completedRaces, roundStandingsList, constructorStandings = []) {
             const numRounds = roundStandingsList.length;
 
             const racesMeta = completedRaces.map((r, idx) => {
@@ -5718,7 +5745,8 @@
             return {
                 season: season,
                 races: racesMeta,
-                drivers: drivers
+                drivers: drivers,
+                constructorStandings: constructorStandings || []
             };
         }
 
@@ -5877,11 +5905,11 @@
             const pillsContainer = document.getElementById('chart-stat-pills');
             if (!pillsContainer) return;
 
-            const leader = data.drivers[0];
-            const runnerUp = data.drivers[1];
-            const totalRaces = data.races.length;
+            const leader = data?.drivers?.[0];
+            const runnerUp = data?.drivers?.[1];
+            const totalRaces = data?.races?.length || 0;
 
-            let html = `<div class="stat-pill">Season: <span>${data.season}</span></div>`;
+            let html = `<div class="stat-pill">Season: <span>${data?.season || ''}</span></div>`;
             html += `<div class="stat-pill">Races: <span>${totalRaces} Rounds</span></div>`;
             if (leader) {
                 html += `<div class="stat-pill">P1 Champion/Leader: <span>${leader.name} (${leader.latestPoints} pts)</span></div>`;
@@ -5890,7 +5918,10 @@
                 const diff = (leader.latestPoints - runnerUp.latestPoints).toFixed(0);
                 html += `<div class="stat-pill">P2: <span>${runnerUp.name}</span> (-${diff} pts)</div>`;
             }
+            html += `<div class="stat-pill">Leading Constructor: <span id="statLeadingConstructor">-</span> (<span id="statLeadingConstructorPts">-</span>)</div>`;
             pillsContainer.innerHTML = html;
+
+            renderStatsSummary(data?.drivers || [], data?.constructorStandings || [], data?.season);
         }
 
         function setDriverFilter(type) {
@@ -11467,7 +11498,7 @@
             }
             if (constructorStandings && constructorStandings.length > 0) {
                 const top = constructorStandings[0];
-                leadingConstrEl.textContent = top.Constructor?.name || '';
+                leadingConstrEl.textContent = top.Constructor?.name || top.name || '';
                 leadingConstrPtsEl.textContent = `${top.points || 0} PTS`;
             }
         }
@@ -11495,6 +11526,10 @@
                 extractFastestLapFromResult,
                 renderFastestLapInfo,
                 renderStatsSummary,
+                updateChartStatsPills,
+                loadSeasonStandingsProgression,
+                processStandingsData,
+                renderProgressionChart,
                 loadConstructorAtrData,
                 onConstructorSeasonChange,
                 refreshConstructorAtrData,
