@@ -228,7 +228,7 @@ function createSampleRaceResults() {
           positionText: '2',
           laps: '57',
           status: 'Finished',
-          Time: { time: '+22.457', millis: '22457' },
+          Time: { time: '+22.457', millis: '5527199' },
           Driver: { driverId: 'perez', givenName: 'Sergio', familyName: 'Perez', code: 'PER' },
           Constructor: { constructorId: 'red_bull', name: 'Red Bull' }
         },
@@ -237,7 +237,7 @@ function createSampleRaceResults() {
           positionText: '3',
           laps: '57',
           status: 'Finished',
-          Time: { time: '+25.110', millis: '25110' },
+          Time: { time: '+25.110', millis: '5529852' },
           Driver: { driverId: 'sainz', givenName: 'Carlos', familyName: 'Sainz', code: 'SAI' },
           Constructor: { constructorId: 'ferrari', name: 'Ferrari' }
         },
@@ -246,7 +246,7 @@ function createSampleRaceResults() {
           positionText: '4',
           laps: '57',
           status: 'Finished',
-          Time: { time: '+39.669', millis: '39669' },
+          Time: { time: '+39.669', millis: '5544411' },
           Driver: { driverId: 'leclerc', givenName: 'Charles', familyName: 'Leclerc', code: 'LEC' },
           Constructor: { constructorId: 'ferrari', name: 'Ferrari' }
         },
@@ -255,7 +255,7 @@ function createSampleRaceResults() {
           positionText: '5',
           laps: '57',
           status: 'Finished',
-          Time: { time: '+46.735', millis: '46735' },
+          Time: { time: '+46.735', millis: '5551477' },
           Driver: { driverId: 'russell', givenName: 'George', familyName: 'Russell', code: 'RUS' },
           Constructor: { constructorId: 'mercedes', name: 'Mercedes' }
         },
@@ -264,7 +264,7 @@ function createSampleRaceResults() {
           positionText: '6',
           laps: '57',
           status: 'Finished',
-          Time: { time: '+48.458', millis: '48458' },
+          Time: { time: '+48.458', millis: '5553200' },
           Driver: { driverId: 'norris', givenName: 'Lando', familyName: 'Norris', code: 'NOR' },
           Constructor: { constructorId: 'mclaren', name: 'McLaren' }
         },
@@ -312,7 +312,7 @@ function createSampleRaceResults() {
           positionText: '2',
           laps: '50',
           status: 'Finished',
-          Time: { time: '+13.643', millis: '13643' },
+          Time: { time: '+13.643', millis: '4856916' },
           Driver: { driverId: 'perez', givenName: 'Sergio', familyName: 'Perez', code: 'PER' },
           Constructor: { constructorId: 'red_bull', name: 'Red Bull' }
         },
@@ -321,7 +321,7 @@ function createSampleRaceResults() {
           positionText: '3',
           laps: '50',
           status: 'Finished',
-          Time: { time: '+18.639', millis: '18639' },
+          Time: { time: '+18.639', millis: '4861912' },
           Driver: { driverId: 'leclerc', givenName: 'Charles', familyName: 'Leclerc', code: 'LEC' },
           Constructor: { constructorId: 'ferrari', name: 'Ferrari' }
         },
@@ -330,7 +330,7 @@ function createSampleRaceResults() {
           positionText: '4',
           laps: '50',
           status: 'Finished',
-          Time: { time: '+32.007', millis: '32007' },
+          Time: { time: '+32.007', millis: '4875280' },
           Driver: { driverId: 'piastri', givenName: 'Oscar', familyName: 'Piastri', code: 'PIA' },
           Constructor: { constructorId: 'mclaren', name: 'McLaren' }
         },
@@ -339,7 +339,7 @@ function createSampleRaceResults() {
           positionText: '5',
           laps: '50',
           status: 'Finished',
-          Time: { time: '+35.708', millis: '35708' },
+          Time: { time: '+35.708', millis: '4878981' },
           Driver: { driverId: 'alonso', givenName: 'Fernando', familyName: 'Alonso', code: 'ALO' },
           Constructor: { constructorId: 'aston_martin', name: 'Aston Martin' }
         },
@@ -348,7 +348,7 @@ function createSampleRaceResults() {
           positionText: '6',
           laps: '50',
           status: 'Finished',
-          Time: { time: '+45.709', millis: '45709' },
+          Time: { time: '+45.709', millis: '4888982' },
           Driver: { driverId: 'norris', givenName: 'Lando', familyName: 'Norris', code: 'NOR' },
           Constructor: { constructorId: 'mclaren', name: 'McLaren' }
         },
@@ -380,7 +380,7 @@ function createSampleRaceResults() {
           positionText: '2',
           laps: '53',
           status: 'Finished',
-          Time: { time: '+0.525', millis: '525' },
+          Time: { time: '+0.525', millis: '4481314' },
           Driver: { driverId: 'piastri', givenName: 'Oscar', familyName: 'Piastri', code: 'PIA' },
           Constructor: { constructorId: 'mclaren', name: 'McLaren' }
         },
@@ -389,7 +389,7 @@ function createSampleRaceResults() {
           positionText: '3',
           laps: '53',
           status: 'Finished',
-          Time: { time: '+6.154', millis: '6154' },
+          Time: { time: '+6.154', millis: '4486943' },
           Driver: { driverId: 'norris', givenName: 'Lando', familyName: 'Norris', code: 'NOR' },
           Constructor: { constructorId: 'mclaren', name: 'McLaren' }
         },
@@ -398,7 +398,7 @@ function createSampleRaceResults() {
           positionText: '4',
           laps: '53',
           status: 'Finished',
-          Time: { time: '+37.932', millis: '37932' },
+          Time: { time: '+37.932', millis: '4518721' },
           Driver: { driverId: 'max_verstappen', givenName: 'Max', familyName: 'Verstappen', code: 'VER' },
           Constructor: { constructorId: 'red_bull', name: 'Red Bull' }
         },
@@ -781,29 +781,29 @@ describe('Issue #15: Competitiveness Deficit Metrics Engine (computeFinishingGap
       {
         round: '1',
         Results: [
-          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000' }, Constructor: { constructorId: 'team_a' } },
-          { position: '2', laps: '50', status: 'Finished', Time: { time: '+10.000', millis: '10000' }, Constructor: { constructorId: 'team_b' } }
+          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000', millis: '5000000' }, Constructor: { constructorId: 'team_a' } },
+          { position: '2', laps: '50', status: 'Finished', Time: { time: '+10.000', millis: '5010000' }, Constructor: { constructorId: 'team_b' } }
         ]
       },
       {
         round: '2',
         Results: [
-          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000' }, Constructor: { constructorId: 'team_a' } },
-          { position: '2', laps: '50', status: 'Finished', Time: { time: '+20.000', millis: '20000' }, Constructor: { constructorId: 'team_b' } }
+          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000', millis: '5000000' }, Constructor: { constructorId: 'team_a' } },
+          { position: '2', laps: '50', status: 'Finished', Time: { time: '+20.000', millis: '5020000' }, Constructor: { constructorId: 'team_b' } }
         ]
       },
       {
         round: '3',
         Results: [
-          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000' }, Constructor: { constructorId: 'team_a' } },
-          { position: '2', laps: '50', status: 'Finished', Time: { time: '+30.000', millis: '30000' }, Constructor: { constructorId: 'team_b' } }
+          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000', millis: '5000000' }, Constructor: { constructorId: 'team_a' } },
+          { position: '2', laps: '50', status: 'Finished', Time: { time: '+30.000', millis: '5030000' }, Constructor: { constructorId: 'team_b' } }
         ]
       },
       {
         round: '4',
         Results: [
-          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000' }, Constructor: { constructorId: 'team_a' } },
-          { position: '2', laps: '50', status: 'Finished', Time: { time: '+40.000', millis: '40000' }, Constructor: { constructorId: 'team_b' } }
+          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000', millis: '5000000' }, Constructor: { constructorId: 'team_a' } },
+          { position: '2', laps: '50', status: 'Finished', Time: { time: '+40.000', millis: '5040000' }, Constructor: { constructorId: 'team_b' } }
         ]
       }
     ];
@@ -856,8 +856,8 @@ describe('Issue #15: Competitiveness Deficit Metrics Engine (computeFinishingGap
       {
         round: '1',
         Results: [
-          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000' }, Constructor: { constructorId: 'leader' } },
-          { position: '2', laps: '50', status: 'Finished', Time: { time: '+200.000', millis: '200000' }, Constructor: { constructorId: 'slow' } }
+          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000', millis: '5000000' }, Constructor: { constructorId: 'leader' } },
+          { position: '2', laps: '50', status: 'Finished', Time: { time: '+200.000', millis: '5200000' }, Constructor: { constructorId: 'slow' } }
         ]
       }
     ];
@@ -883,10 +883,10 @@ describe('Issue #15: Competitiveness Deficit Metrics Engine (computeFinishingGap
       {
         round: '1',
         Results: [
-          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000' }, Constructor: { constructorId: 'team_p1' } },
-          { position: '2', laps: '50', status: 'Finished', Time: { time: '+12.000', millis: '12000' }, Constructor: { constructorId: 'team_contender' } },
-          { position: '3', laps: '50', status: 'Finished', Time: { time: '+45.000', millis: '45000' }, Constructor: { constructorId: 'team_midfield' } },
-          { position: '4', laps: '50', status: 'Finished', Time: { time: '+75.000', millis: '75000' }, Constructor: { constructorId: 'team_backmarker' } }
+          { position: '1', laps: '50', status: 'Finished', Time: { time: '5000', millis: '5000000' }, Constructor: { constructorId: 'team_p1' } },
+          { position: '2', laps: '50', status: 'Finished', Time: { time: '+12.000', millis: '5012000' }, Constructor: { constructorId: 'team_contender' } },
+          { position: '3', laps: '50', status: 'Finished', Time: { time: '+45.000', millis: '5045000' }, Constructor: { constructorId: 'team_midfield' } },
+          { position: '4', laps: '50', status: 'Finished', Time: { time: '+75.000', millis: '5075000' }, Constructor: { constructorId: 'team_backmarker' } }
         ]
       }
     ];
@@ -1352,5 +1352,74 @@ describe('Issue #15: Jolpica API Integration, Caching, & Error Handling (loadFin
     assert.doesNotThrow(() => {
       listeners['DOMContentLoaded'].forEach(fn => fn());
     });
+  });
+});
+
+describe('Issue #18: Cumulative Time.millis vs Delta Time.time Fix', () => {
+  test('parseFinishingTimeToSeconds prioritizes delta Time.time string over cumulative Time.millis', () => {
+    const { exports: f1App } = createTestEnv();
+    const parse = f1App.parseFinishingTimeToSeconds;
+
+    // In Jolpica API, P2 has time: "+22.457", millis: "5527199" (cumulative total race millis)
+    assert.equal(parse('+22.457', '5527199'), 22.457);
+    assert.equal(parse('+13.643', '4856916'), 13.643);
+    assert.equal(parse('+0.525', '4481314'), 0.525);
+    assert.equal(parse('+1:05.123', '5569865'), 65.123);
+  });
+
+  test('parseFinishingTimeToSeconds calculates difference between driver millis and winner millis when timeStr is missing', () => {
+    const { exports: f1App } = createTestEnv();
+    const parse = f1App.parseFinishingTimeToSeconds;
+
+    // Winner: 5504742 ms, Driver: 5527199 ms -> Delta = 22.457s
+    assert.equal(parse(null, '5527199', '5504742'), 22.457);
+    assert.equal(parse(undefined, 5527199, 5504742), 22.457);
+    assert.equal(parse('', '4856916', '4843273'), 13.643);
+  });
+
+  test('computeFinishingGapMetrics produces accurate sub-minute gaps and avoids multi-thousand-second inflation', () => {
+    const { exports: f1App } = createTestEnv();
+    const results = createSampleRaceResults();
+    const metrics = f1App.computeFinishingGapMetrics(results, 'constructors');
+
+    // Verify all competitors have realistic median gaps under 200s (no 5000s+ gaps)
+    metrics.competitors.forEach(c => {
+      if (c.classifiedCount > 0) {
+        assert.ok(c.medianGap < 300, `Competitor ${c.name} has unrealistic gap: ${c.medianGap}`);
+      }
+    });
+
+    // Red Bull won 2 races and finished P4 in round 3 (+37.932s) -> median gap is 0.0s
+    const redBull = metrics.competitors.find(c => c.id === 'red_bull');
+    assert.ok(redBull);
+    assert.equal(redBull.medianGap, 0.0);
+    assert.equal(redBull.tier, 'contenders');
+
+    // Ferrari had gaps: R1 25.110, R2 18.639, R3 0.000 -> median is 18.639s
+    const ferrari = metrics.competitors.find(c => c.id === 'ferrari');
+    assert.ok(ferrari);
+    assert.equal(ferrari.medianGap, 18.639);
+    assert.equal(ferrari.tier, 'midfield');
+
+    // Closest finish margin is 0.525s at Italian GP (Piastri vs Leclerc)
+    assert.equal(metrics.closestFinish.gap, 0.525);
+    assert.equal(metrics.closestFinish.round, '3');
+    assert.equal(metrics.closestFinish.runnerUp, 'Oscar Piastri');
+  });
+
+  test('maintains proper tier classifications and CDI scores without being crushed to backmarker tier', () => {
+    const { exports: f1App } = createTestEnv();
+    const results = createSampleRaceResults();
+    const metrics = f1App.computeFinishingGapMetrics(results, 'constructors');
+
+    const contenders = metrics.competitors.filter(c => c.tier === 'contenders');
+    const midfield = metrics.competitors.filter(c => c.tier === 'midfield');
+
+    assert.ok(contenders.length > 0, 'Should have at least one contender');
+    assert.ok(midfield.length > 0, 'Should have midfield teams');
+
+    // Ensure CDI scores reflect true competitiveness (not all clamped to 30)
+    const nonClamped = metrics.competitors.filter(c => c.cdi > 30);
+    assert.ok(nonClamped.length >= 3, 'Multiple teams should have CDI > 30');
   });
 });

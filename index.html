@@ -10518,24 +10518,47 @@
             isLoading: false
         };
 
-        function parseFinishingTimeToSeconds(timeStr, millis) {
+        function parseFinishingTimeToSeconds(timeStr, millis, winnerMillis) {
+            if (typeof timeStr === 'number') return timeStr;
+
+            if (typeof timeStr === 'string' && timeStr.length > 0) {
+                const clean = timeStr.trim().replace(/^\+/, '');
+                if (!clean) return 0;
+                const parts = clean.split(':').map(p => parseFloat(p));
+                if (!parts.some(p => isNaN(p))) {
+                    let totalSec = null;
+                    if (parts.length === 3) {
+                        totalSec = parseFloat((parts[0] * 3600 + parts[1] * 60 + parts[2]).toFixed(3));
+                    } else if (parts.length === 2) {
+                        totalSec = parseFloat((parts[0] * 60 + parts[1]).toFixed(3));
+                    } else if (parts.length === 1) {
+                        totalSec = parseFloat(parts[0].toFixed(3));
+                    }
+                    if (totalSec !== null) {
+                        if (winnerMillis !== undefined && winnerMillis !== null && winnerMillis !== '') {
+                            const wSec = parseFloat(winnerMillis) > 1000 ? parseFloat(winnerMillis) / 1000 : parseFloat(winnerMillis);
+                            if (!isNaN(wSec) && wSec > 500 && totalSec >= wSec) {
+                                return parseFloat((totalSec - wSec).toFixed(3));
+                            }
+                        }
+                        return totalSec;
+                    }
+                }
+            }
+
             if (millis !== undefined && millis !== null && millis !== '') {
                 const ms = parseFloat(millis);
-                if (!isNaN(ms) && ms > 0) return ms / 1000;
+                if (!isNaN(ms) && ms > 0) {
+                    if (winnerMillis !== undefined && winnerMillis !== null && winnerMillis !== '') {
+                        const wMs = parseFloat(winnerMillis);
+                        if (!isNaN(wMs) && wMs > 0 && ms >= wMs) {
+                            return parseFloat(((ms - wMs) / 1000).toFixed(3));
+                        }
+                    }
+                    return ms / 1000;
+                }
             }
-            if (typeof timeStr === 'number') return timeStr;
-            if (!timeStr || typeof timeStr !== 'string') return null;
-            const clean = timeStr.trim().replace(/^\+/, '');
-            if (!clean) return 0;
-            const parts = clean.split(':').map(p => parseFloat(p));
-            if (parts.some(p => isNaN(p))) return null;
-            if (parts.length === 3) {
-                return parseFloat((parts[0] * 3600 + parts[1] * 60 + parts[2]).toFixed(3));
-            } else if (parts.length === 2) {
-                return parseFloat((parts[0] * 60 + parts[1]).toFixed(3));
-            } else if (parts.length === 1) {
-                return parseFloat(parts[0].toFixed(3));
-            }
+
             return null;
         }
 
@@ -10567,6 +10590,9 @@
 
                 const winner = results.find(res => res.position === '1' || res.positionText === '1') || results[0];
                 const winnerTimeSec = parseFinishingTimeToSeconds(winner?.Time?.time, winner?.Time?.millis);
+                const winnerMillis = (winner?.Time?.millis !== undefined && winner?.Time?.millis !== null && winner?.Time?.millis !== '')
+                    ? parseFloat(winner.Time.millis)
+                    : (winnerTimeSec ? winnerTimeSec * 1000 : null);
                 const winnerLaps = parseInt(winner?.laps || '0', 10);
                 const winnerAvgLap = (winnerTimeSec && winnerLaps > 0) ? (winnerTimeSec / winnerLaps) : 90.0;
 
@@ -10578,7 +10604,10 @@
                 // Closest GP Finish tracking (runner up)
                 const p2 = results.find(res => res.position === '2' || res.positionText === '2');
                 if (p2) {
-                    const p2Gap = parseFinishingTimeToSeconds(p2.Time?.time, p2.Time?.millis);
+                    let p2Gap = parseFinishingTimeToSeconds(p2.Time?.time, p2.Time?.millis, winnerMillis);
+                    if (p2Gap !== null && winnerTimeSec && winnerTimeSec > 500 && p2Gap >= winnerTimeSec) {
+                        p2Gap = parseFloat((p2Gap - winnerTimeSec).toFixed(3));
+                    }
                     if (p2Gap !== null && p2Gap > 0 && p2Gap < closestFinish.gap) {
                         const p2Name = p2.Driver
                             ? `${p2.Driver.givenName || ''} ${p2.Driver.familyName || ''}`.trim()
@@ -10611,7 +10640,10 @@
                     if (isWinner) {
                         gap = 0.0;
                     } else if (isClassified) {
-                        const directGap = parseFinishingTimeToSeconds(res.Time?.time, res.Time?.millis);
+                        let directGap = parseFinishingTimeToSeconds(res.Time?.time, res.Time?.millis, winnerMillis);
+                        if (directGap !== null && winnerTimeSec && winnerTimeSec > 500 && directGap >= winnerTimeSec) {
+                            directGap = parseFloat((directGap - winnerTimeSec).toFixed(3));
+                        }
                         if (directGap !== null) {
                             gap = directGap;
                         } else if (isLapped || (winnerLaps > laps && laps > 0)) {
