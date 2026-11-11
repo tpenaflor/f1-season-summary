@@ -7783,6 +7783,45 @@
             loadClinchEngineData(clinchState.season, clinchState.round, true);
         }
 
+        async function fetchWithRetry(url, options = {}, retries = 2, delay = 500) {
+            const maxRetries = Math.max(0, typeof retries === 'number' ? retries : 2);
+            let currentDelay = Math.max(0, typeof delay === 'number' ? delay : 500);
+            let lastError;
+
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        const isTransient = response.status === 429 || response.status === 408 || response.status >= 500;
+                        const error = new Error(`HTTP error! status: ${response.status}`);
+                        error.status = response.status;
+                        error.response = response;
+                        if (!isTransient || attempt >= maxRetries) {
+                            throw error;
+                        }
+                        lastError = error;
+                    } else {
+                        return typeof response.json === 'function' ? await response.json() : response;
+                    }
+                } catch (err) {
+                    if (err.name === 'AbortError') throw err;
+                    if (err.status && !(err.status === 429 || err.status === 408 || err.status >= 500)) {
+                        throw err;
+                    }
+                    lastError = err;
+                    if (attempt >= maxRetries) {
+                        throw err;
+                    }
+                }
+
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, currentDelay));
+                    currentDelay *= 2;
+                }
+            }
+            throw lastError;
+        }
+
         async function loadClinchEngineData(season, round = 'latest', forceRefresh = false) {
             const mode = clinchState.mode;
             const cacheKey = `f1_clinch_v1_${season}_${mode}_${round}`;
@@ -7949,6 +7988,9 @@
                 simPositions: {},
                 simFastestLapId: null
             };
+            if (typeof window !== 'undefined') {
+                window.clinchState = clinchState;
+            }
 
             // Initialize default simulation controls to "0" (no simulated delta yet)
             clinchState.standings.slice(0, 6).forEach(c => {
@@ -13378,6 +13420,23 @@
             window.refreshResultsData = refreshResultsData;
             window.populateSeasonDropdown = populateSeasonDropdown;
             window.loadSeasonLapsLed = loadSeasonLapsLed;
+            window.fetchWithRetry = fetchWithRetry;
+            window.loadClinchEngineData = loadClinchEngineData;
+            window.clinchState = clinchState;
+            window.setClinchChampionshipMode = setClinchChampionshipMode;
+            window.onClinchSeasonChange = onClinchSeasonChange;
+            window.onClinchRoundChange = onClinchRoundChange;
+            window.refreshClinchEngineData = refreshClinchEngineData;
+            window.applyClinchPayload = applyClinchPayload;
+            window.populateClinchRoundDropdown = populateClinchRoundDropdown;
+            window.renderClinchSimControls = renderClinchSimControls;
+            window.onClinchSimPosChange = onClinchSimPosChange;
+            window.onClinchSimFlChange = onClinchSimFlChange;
+            window.applyClinchSimPreset = applyClinchSimPreset;
+            window.recalculateAndRenderClinchMath = recalculateAndRenderClinchMath;
+            window.renderClinchScenariosAndTiebreaker = renderClinchScenariosAndTiebreaker;
+            window.renderClinchScenarioMatrixTable = renderClinchScenarioMatrixTable;
+            window.CLINCH_FALLBACK_2024 = CLINCH_FALLBACK_2024;
         }
 
         function extractFastestLapFromResult(results) {
@@ -13515,7 +13574,25 @@
                 refreshCurrentSeason,
                 refreshResultsData,
                 populateSeasonDropdown,
-                loadSeasonLapsLed
+                loadSeasonLapsLed,
+                fetchWithRetry,
+                loadClinchEngineData,
+                get clinchState() { return clinchState; },
+                set clinchState(val) { clinchState = val; },
+                setClinchChampionshipMode,
+                onClinchSeasonChange,
+                onClinchRoundChange,
+                refreshClinchEngineData,
+                applyClinchPayload,
+                populateClinchRoundDropdown,
+                renderClinchSimControls,
+                onClinchSimPosChange,
+                onClinchSimFlChange,
+                applyClinchSimPreset,
+                recalculateAndRenderClinchMath,
+                renderClinchScenariosAndTiebreaker,
+                renderClinchScenarioMatrixTable,
+                CLINCH_FALLBACK_2024
             };
         }
     </script>
