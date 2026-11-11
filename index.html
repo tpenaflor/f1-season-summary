@@ -4233,6 +4233,27 @@
             transition: width 0.3s ease;
         }
 
+        .card-badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            font-family: var(--font-mono), monospace;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #00F0FF;
+            margin-bottom: 4px;
+        }
+
+        .card-badge.no-data,
+        .card-badge.no-telemetry {
+            color: #FFB800;
+        }
+
+        .laps-led-empty-row td {
+            text-align: center;
+            color: #94A3B8;
+            padding: 32px 16px;
+        }
+
         .round-lead-timeline {
             display: flex;
             align-items: center;
@@ -4328,6 +4349,9 @@
                             <option value="2023">2023 Season</option>
                             <option value="2022">2022 Season</option>
                             <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                            <option value="2018">2018 Season</option>
                         </select>
                     </div>
                     <div class="dropdown-group">
@@ -4380,14 +4404,19 @@
                 <div class="card laps-led-card" id="seasonLapsLedCard">
                     <div class="card-header-flex">
                         <div>
-                            <div class="card-badge">👑 SEASON TELEMETRY</div>
-                            <h3 class="card-title">Season Laps Led Leaderboard</h3>
-                            <p class="card-subtitle">Aggregated every lap where position === '1' across all contested rounds</p>
+                            <div class="card-badge" id="lapsLedCardBadge">👑 SEASON TELEMETRY</div>
+                            <h3 class="card-title" id="lapsLedCardTitle">Season Laps Led Leaderboard</h3>
+                            <p class="card-subtitle" id="lapsLedCardSubtitle">Aggregated every lap where position === '1' across all contested rounds</p>
                         </div>
-                        <div class="leaderboard-kpi-highlight" id="lapsLedTopLeaderHighlight">
-                            <span class="highlight-label">Season Lap Leader</span>
-                            <span class="highlight-val" id="lapsLedTopDriverName">Max Verstappen</span>
-                            <span class="highlight-sub" id="lapsLedTopDriverCount">448 Laps Led (31.1%)</span>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" class="btn-refresh" id="btnLoadAllSeasonLaps" onclick="loadSeasonLapsLed()" title="Fetch all rounds from JOLPICA F1 API to aggregate full season laps led" style="font-size: 0.78rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                ⚡ Load Full Season
+                            </button>
+                            <div class="leaderboard-kpi-highlight" id="lapsLedTopLeaderHighlight">
+                                <span class="highlight-label" id="lapsLedLeaderLabel">Season Lap Leader</span>
+                                <span class="highlight-val" id="lapsLedTopDriverName">Max Verstappen</span>
+                                <span class="highlight-sub" id="lapsLedTopDriverCount">448 Laps Led (31.1%)</span>
+                            </div>
                         </div>
                     </div>
                     <div class="table-responsive">
@@ -11732,6 +11761,10 @@
         // =========================================================================
 
         const SEASON_LAPS_LED_FALLBACK_2024 = {
+            season: '2024',
+            isFallback: true,
+            totalRounds: 24,
+            loadedRounds: Array.from({ length: 24 }, (_, i) => String(i + 1)),
             totalLapsLed: 1440,
             leader: {
                 rank: 1,
@@ -11904,24 +11937,43 @@
             return positions;
         }
 
-        function computeSeasonLapsLed(lapsData, resultsData = []) {
+        function computeSeasonLapsLed(lapsData, resultsData = [], season = (typeof lapChartState !== 'undefined' ? lapChartState.season : '2024')) {
+            const seasonStr = String(season || '2024');
             let lapList = [];
-            if (!lapsData || (Array.isArray(lapsData) && lapsData.length === 0) || (typeof lapsData === 'object' && Object.keys(lapsData).length === 0)) {
-                return SEASON_LAPS_LED_FALLBACK_2024;
+            let loadedRounds = [];
+
+            if (!lapsData || (Array.isArray(lapsData) && lapsData.length === 0) || (typeof lapsData === 'object' && lapsData !== null && Object.keys(lapsData).length === 0)) {
+                if (seasonStr === '2024') {
+                    return SEASON_LAPS_LED_FALLBACK_2024;
+                }
+                return {
+                    leaderboard: [],
+                    totalLapsLed: 0,
+                    leader: null,
+                    season: seasonStr,
+                    loadedRounds: [],
+                    totalRounds: Array.isArray(resultsData) ? resultsData.length : 0,
+                    isFallback: false
+                };
             }
 
             if (Array.isArray(lapsData)) {
                 if (lapsData[0] && Array.isArray(lapsData[0].Laps)) {
                     lapsData.forEach(race => {
+                        if (race.round) loadedRounds.push(String(race.round));
                         if (Array.isArray(race.Laps)) {
                             lapList.push(...race.Laps);
                         }
                     });
                 } else if (lapsData[0] && (lapsData[0].Timings || lapsData[0].number)) {
                     lapList = lapsData;
+                    if (typeof lapChartState !== 'undefined' && lapChartState.round) {
+                        loadedRounds.push(String(lapChartState.round));
+                    }
                 }
-            } else if (typeof lapsData === 'object') {
-                Object.values(lapsData).forEach(item => {
+            } else if (typeof lapsData === 'object' && lapsData !== null) {
+                Object.entries(lapsData).forEach(([rnd, item]) => {
+                    loadedRounds.push(String(rnd));
                     if (Array.isArray(item)) {
                         lapList.push(...item);
                     } else if (item && Array.isArray(item.Laps)) {
@@ -11930,8 +11982,21 @@
                 });
             }
 
+            loadedRounds = Array.from(new Set(loadedRounds));
+
             if (lapList.length === 0) {
-                return SEASON_LAPS_LED_FALLBACK_2024;
+                if (seasonStr === '2024') {
+                    return SEASON_LAPS_LED_FALLBACK_2024;
+                }
+                return {
+                    leaderboard: [],
+                    totalLapsLed: 0,
+                    leader: null,
+                    season: seasonStr,
+                    loadedRounds: [],
+                    totalRounds: Array.isArray(resultsData) ? resultsData.length : 0,
+                    isFallback: false
+                };
             }
 
             const driverLookup = {};
@@ -11971,7 +12036,18 @@
             });
 
             if (totalLapsLed === 0) {
-                return SEASON_LAPS_LED_FALLBACK_2024;
+                if (seasonStr === '2024') {
+                    return SEASON_LAPS_LED_FALLBACK_2024;
+                }
+                return {
+                    leaderboard: [],
+                    totalLapsLed: 0,
+                    leader: null,
+                    season: seasonStr,
+                    loadedRounds,
+                    totalRounds: Array.isArray(resultsData) ? resultsData.length : 0,
+                    isFallback: false
+                };
             }
 
             const leaderboard = Object.keys(counts).map(driverId => {
@@ -12000,13 +12076,28 @@
             return {
                 leaderboard,
                 totalLapsLed,
-                leader: leaderboard[0] || null
+                leader: leaderboard[0] || null,
+                season: seasonStr,
+                loadedRounds,
+                totalRounds: Array.isArray(resultsData) ? resultsData.length : 0,
+                isFallback: false
             };
         }
 
-        function processLapChartData(laps, results = [], selectedRound = '1') {
+        function processLapChartData(laps, results = [], selectedRound = '1', season = (typeof lapChartState !== 'undefined' ? lapChartState.season : '2024')) {
+            const seasonStr = String(season || '2024');
             if (!laps || !Array.isArray(laps) || laps.length === 0) {
-                return LAP_CHART_FALLBACK_2024;
+                if (seasonStr === '2024') {
+                    return LAP_CHART_FALLBACK_2024;
+                }
+                return {
+                    labels: [],
+                    maxLaps: 0,
+                    totalDrivers: 0,
+                    retirementsCount: 0,
+                    drivers: [],
+                    datasets: []
+                };
             }
 
             let maxLaps = 0;
@@ -12298,21 +12389,99 @@
         }
 
         function renderSeasonLapsLedLeaderboard(lapsLedData) {
-            const data = lapsLedData || computeSeasonLapsLed(lapChartState.seasonLapsByRound, lapChartState.seasonResults);
+            const data = lapsLedData || computeSeasonLapsLed(
+                lapChartState.seasonLapsByRound,
+                lapChartState.seasonResults,
+                lapChartState.season
+            );
             lapChartState.seasonLapsLed = data;
 
             const tbody = document.getElementById('seasonLapsLedTableBody');
             const topNameEl = document.getElementById('lapsLedTopDriverName');
             const topCountEl = document.getElementById('lapsLedTopDriverCount');
+            const badgeEl = document.getElementById('lapsLedCardBadge');
+            const titleEl = document.getElementById('lapsLedCardTitle');
+            const subtitleEl = document.getElementById('lapsLedCardSubtitle');
+            const leaderLabelEl = document.getElementById('lapsLedLeaderLabel');
+            const btnLoadAll = document.getElementById('btnLoadAllSeasonLaps');
 
-            if (!data || !Array.isArray(data.leaderboard)) return;
+            const seasonStr = (data && data.season) || (lapChartState && lapChartState.season) || '2024';
+            const totalRounds = (data && typeof data.totalRounds === 'number' && data.totalRounds > 0)
+                ? data.totalRounds
+                : ((lapChartState.seasonResults && lapChartState.seasonResults.length) || 0);
 
+            const loadedRoundsCount = (data && Array.isArray(data.loadedRounds))
+                ? data.loadedRounds.length
+                : Object.keys(lapChartState.seasonLapsByRound || {}).length;
+
+            const isFullSeason = Boolean(
+                data?.isFallback ||
+                (totalRounds > 0 && loadedRoundsCount >= totalRounds)
+            );
+
+            // Clean state / Empty state handling
+            if (!data || !Array.isArray(data.leaderboard) || data.leaderboard.length === 0) {
+                if (topNameEl) topNameEl.textContent = '—';
+                if (topCountEl) topCountEl.textContent = '0 Laps Led (0.0%)';
+                if (leaderLabelEl) leaderLabelEl.textContent = 'Season Lap Leader';
+                if (badgeEl) badgeEl.textContent = 'ℹ️ NO TELEMETRY';
+                if (titleEl) titleEl.textContent = `${seasonStr} Season Laps Led Leaderboard`;
+                if (subtitleEl) {
+                    subtitleEl.textContent = `No lap lead telemetry available for the ${seasonStr} Formula 1 season.`;
+                }
+                if (btnLoadAll) {
+                    btnLoadAll.style.display = totalRounds > 0 ? 'inline-flex' : 'none';
+                    btnLoadAll.textContent = '⚡ Load Season Laps';
+                }
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr class="laps-led-empty-row">
+                            <td colspan="6" style="text-align: center; color: #94A3B8; padding: 28px 16px;">
+                                <div style="font-weight: 700; color: #E2E8F0; margin-bottom: 4px;">No Lap Lead Telemetry Available</div>
+                                <div style="font-size: 0.82rem; color: #64748B;">No lap timing data is available or loaded for the ${seasonStr} season.</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                return;
+            }
+
+            // Update Top Leader KPI
             if (data.leader) {
                 if (topNameEl) topNameEl.textContent = data.leader.driverName;
                 if (topCountEl) topCountEl.textContent = `${data.leader.lapsLed} Laps Led (${data.leader.percentage}%)`;
             } else {
                 if (topNameEl) topNameEl.textContent = '—';
                 if (topCountEl) topCountEl.textContent = '0 Laps Led (0.0%)';
+            }
+
+            // Clearly label Loaded Rounds vs Full Season Aggregate
+            if (isFullSeason) {
+                if (badgeEl) badgeEl.textContent = '👑 FULL SEASON AGGREGATE';
+                if (titleEl) titleEl.textContent = `${seasonStr} Season Laps Led Leaderboard`;
+                if (subtitleEl) {
+                    subtitleEl.textContent = totalRounds > 0
+                        ? `Aggregated every lap where position === '1' across all ${totalRounds} contested rounds`
+                        : `Aggregated every lap where position === '1' across all contested rounds`;
+                }
+                if (leaderLabelEl) leaderLabelEl.textContent = 'Season Lap Leader';
+                if (btnLoadAll) {
+                    btnLoadAll.style.display = 'inline-flex';
+                    btnLoadAll.textContent = '✓ Full Season Loaded';
+                    btnLoadAll.disabled = true;
+                }
+            } else {
+                if (badgeEl) badgeEl.textContent = `🔄 LOADED ROUNDS (${loadedRoundsCount}/${totalRounds || '?'} ROUNDS)`;
+                if (titleEl) titleEl.textContent = 'Laps Led Leaderboard (Loaded Rounds)';
+                if (subtitleEl) {
+                    subtitleEl.textContent = `Aggregated from ${loadedRoundsCount} of ${totalRounds || loadedRoundsCount} contested rounds loaded into telemetry.`;
+                }
+                if (leaderLabelEl) leaderLabelEl.textContent = 'Loaded Rounds Leader';
+                if (btnLoadAll) {
+                    btnLoadAll.style.display = 'inline-flex';
+                    btnLoadAll.textContent = '⚡ Load Full Season';
+                    btnLoadAll.disabled = false;
+                }
             }
 
             if (!tbody) return;
@@ -12341,6 +12510,116 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        async function loadSeasonLapsLed(season) {
+            const seasonStr = String(season || lapChartState.season || '2024');
+            lapChartState.season = seasonStr;
+
+            const badgeEl = document.getElementById('lapsLedCardBadge');
+            const subtitleEl = document.getElementById('lapsLedCardSubtitle');
+            const btnLoadAll = document.getElementById('btnLoadAllSeasonLaps');
+            if (badgeEl) {
+                badgeEl.textContent = '🌐 Fetching Season Telemetry...';
+            }
+            if (btnLoadAll) {
+                btnLoadAll.textContent = '⏳ Loading...';
+                btnLoadAll.disabled = true;
+            }
+
+            try {
+                let races = (lapChartState.season === seasonStr && Array.isArray(lapChartState.seasonResults) && lapChartState.seasonResults.length > 0)
+                    ? lapChartState.seasonResults
+                    : await fetchSeasonResults(seasonStr).catch(() => []);
+
+                lapChartState.seasonResults = races;
+                lapChartState.resultsData = races;
+
+                if (!Array.isArray(races) || races.length === 0) {
+                    const emptyData = {
+                        leaderboard: [],
+                        totalLapsLed: 0,
+                        leader: null,
+                        season: seasonStr,
+                        loadedRounds: [],
+                        totalRounds: 0,
+                        isFallback: false
+                    };
+                    renderSeasonLapsLedLeaderboard(emptyData);
+                    if (btnLoadAll) {
+                        btnLoadAll.textContent = '⚡ Load Full Season';
+                        btnLoadAll.disabled = false;
+                    }
+                    return emptyData;
+                }
+
+                // Query laps for each round in parallel
+                const roundPromises = races.map(async (race) => {
+                    const rnd = String(race.round);
+                    const cacheKeyLaps = `f1_laps_${seasonStr}_${rnd}`;
+                    if (lapChartState.seasonLapsByRound && lapChartState.seasonLapsByRound[rnd] && lapChartState.seasonLapsByRound[rnd].length > 0) {
+                        return { round: rnd, laps: lapChartState.seasonLapsByRound[rnd] };
+                    }
+                    if (typeof localStorage !== 'undefined') {
+                        try {
+                            const cached = localStorage.getItem(cacheKeyLaps);
+                            if (cached) {
+                                const parsed = JSON.parse(cached);
+                                if (Array.isArray(parsed) && parsed.length > 0) {
+                                    return { round: rnd, laps: parsed };
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    try {
+                        const laps = await fetchLapPositions(seasonStr, rnd);
+                        if (Array.isArray(laps) && laps.length > 0) {
+                            if (typeof localStorage !== 'undefined') {
+                                try {
+                                    localStorage.setItem(cacheKeyLaps, JSON.stringify(laps));
+                                } catch (e) {}
+                            }
+                            return { round: rnd, laps };
+                        }
+                    } catch (err) {
+                        console.warn(`Error fetching laps for ${seasonStr} round ${rnd}:`, err);
+                    }
+                    return { round: rnd, laps: [] };
+                });
+
+                const roundResults = await Promise.all(roundPromises);
+                roundResults.forEach(res => {
+                    if (res.laps && res.laps.length > 0) {
+                        lapChartState.seasonLapsByRound[res.round] = res.laps;
+                    }
+                });
+
+                const ledData = computeSeasonLapsLed(lapChartState.seasonLapsByRound, races, seasonStr);
+                renderSeasonLapsLedLeaderboard(ledData);
+
+                if (btnLoadAll) {
+                    btnLoadAll.textContent = '✓ Full Season Loaded';
+                    btnLoadAll.disabled = true;
+                }
+                return ledData;
+            } catch (err) {
+                console.warn('Error loading season laps led:', err);
+                const emptyData = {
+                    leaderboard: [],
+                    totalLapsLed: 0,
+                    leader: null,
+                    season: seasonStr,
+                    loadedRounds: Object.keys(lapChartState.seasonLapsByRound || {}),
+                    totalRounds: (lapChartState.seasonResults && lapChartState.seasonResults.length) || 0,
+                    isFallback: false
+                };
+                renderSeasonLapsLedLeaderboard(emptyData);
+                if (btnLoadAll) {
+                    btnLoadAll.textContent = '⚡ Load Full Season';
+                    btnLoadAll.disabled = false;
+                }
+                return emptyData;
+            }
         }
 
         function renderLapRoundBreakdown(laps, results) {
@@ -13098,6 +13377,7 @@
             window.refreshCurrentSeason = refreshCurrentSeason;
             window.refreshResultsData = refreshResultsData;
             window.populateSeasonDropdown = populateSeasonDropdown;
+            window.loadSeasonLapsLed = loadSeasonLapsLed;
         }
 
         function extractFastestLapFromResult(results) {
@@ -13234,7 +13514,8 @@
                 onResultsSeasonChange,
                 refreshCurrentSeason,
                 refreshResultsData,
-                populateSeasonDropdown
+                populateSeasonDropdown,
+                loadSeasonLapsLed
             };
         }
     </script>
