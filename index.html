@@ -5713,7 +5713,7 @@
             <div class="chart-controls-bar">
                 <div class="dropdown-group">
                     <label for="seasonSelect">Championship Season:</label>
-                    <select id="seasonSelect" class="season-dropdown">
+                    <select id="seasonSelect" class="season-dropdown" onchange="onSeasonChange(this.value)">
                         <option value="2026" selected>2026 Season</option>
                         <option value="2025">2025 Season</option>
                         <option value="2024">2024 Season</option>
@@ -5777,6 +5777,26 @@
                 <div class="section-title">
                     <div class="section-title-accent"></div>
                     <h2>Latest F1 Grand Prix Results</h2>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="resultsSeasonSelect">Season:</label>
+                        <select id="resultsSeasonSelect" class="season-dropdown" onchange="onResultsSeasonChange(this.value)">
+                            <option value="2026" selected>2026 Season</option>
+                            <option value="2025">2025 Season</option>
+                            <option value="2024">2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                            <option value="2018">2018 Season</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-refresh" id="btnResultsRefresh" onclick="refreshResultsData()" title="Re-fetch race results and standings from API">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Data
+                    </button>
                 </div>
             </div>
             <div id="latest-race-results">
@@ -6334,53 +6354,124 @@
             chartInstance.update();
         }
 
-        function refreshCurrentSeason() {
-            const season = document.getElementById('seasonSelect').value;
-            loadSeasonStandingsProgression(season, true);
+        let resultsFetchId = 0;
+        let standingsFetchId = 0;
+        let lastHandledSeason = null;
+        let lastHandledTimestamp = 0;
+
+        async function onSeasonChange(season) {
+            const seasonVal = (season && String(season).trim()) || document.getElementById('seasonSelect')?.value || '2026';
+            const seasonSelect = document.getElementById('seasonSelect');
+            if (seasonSelect && seasonSelect.value !== seasonVal) {
+                seasonSelect.value = seasonVal;
+            }
+            const resultsSeasonSelect = document.getElementById('resultsSeasonSelect');
+            if (resultsSeasonSelect && resultsSeasonSelect.value !== seasonVal) {
+                resultsSeasonSelect.value = seasonVal;
+            }
+            const now = Date.now();
+            if (lastHandledSeason === seasonVal && (now - lastHandledTimestamp) < 50) {
+                return;
+            }
+            lastHandledSeason = seasonVal;
+            lastHandledTimestamp = now;
+
+            return Promise.all([
+                loadSeasonStandingsProgression(seasonVal),
+                fetchLatestRaceResults(seasonVal),
+                fetchDriverStandings(seasonVal)
+            ]);
+        }
+
+        async function onResultsSeasonChange(season) {
+            return onSeasonChange(season);
+        }
+
+        async function refreshCurrentSeason() {
+            const season = document.getElementById('seasonSelect')?.value || '2026';
+            return Promise.all([
+                loadSeasonStandingsProgression(season, true),
+                fetchLatestRaceResults(season),
+                fetchDriverStandings(season)
+            ]);
+        }
+
+        async function refreshResultsData() {
+            const season = document.getElementById('resultsSeasonSelect')?.value || document.getElementById('seasonSelect')?.value || '2026';
+            return Promise.all([
+                fetchLatestRaceResults(season),
+                fetchDriverStandings(season)
+            ]);
         }
 
         function populateSeasonDropdown(currentYear = 2026, startYear = 1950) {
-            const seasonSelect = document.getElementById('seasonSelect');
-            if (!seasonSelect) return;
+            const dropdowns = [
+                document.getElementById('seasonSelect'),
+                document.getElementById('resultsSeasonSelect')
+            ].filter(Boolean);
 
-            seasonSelect.innerHTML = '';
-            for (let year = currentYear; year >= startYear; year--) {
-                const option = document.createElement('option');
-                option.value = year.toString();
-                option.textContent = `${year} Season`;
-                if (year === currentYear) {
-                    option.selected = true;
+            if (dropdowns.length === 0) return;
+
+            dropdowns.forEach(sel => {
+                sel.innerHTML = '';
+                for (let year = currentYear; year >= startYear; year--) {
+                    const option = document.createElement('option');
+                    option.value = year.toString();
+                    option.textContent = `${year} Season`;
+                    if (year === currentYear) {
+                        option.selected = true;
+                    }
+                    if (typeof sel.appendChild === 'function') {
+                        sel.appendChild(option);
+                    }
                 }
-                seasonSelect.appendChild(option);
-            }
-            seasonSelect.value = currentYear.toString();
+                sel.value = currentYear.toString();
+            });
         }
 
         // ==========================================
-        // Existing Latest Race & Standings Logic
+        // Latest Race & Standings Logic (Issue #21)
         // ==========================================
 
-        async function fetchLatestRaceResults() {
+        async function fetchLatestRaceResults(season) {
             const resultsSection = document.getElementById('latest-race-results');
+            if (resultsSection) {
+                resultsSection.innerHTML = '<div class="loading-state">Loading latest race results...</div>';
+            }
+            const fetchId = ++resultsFetchId;
             try {
-                const response = await fetch(`${BASE_URL}/current/last/results.json`);
+                const targetSeason = (season && String(season).trim()) || document.getElementById('seasonSelect')?.value || document.getElementById('resultsSeasonSelect')?.value || 'current';
+                const response = await fetch(`${BASE_URL}/${targetSeason}/last/results.json`);
+                if (fetchId !== resultsFetchId) return;
+
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        if (resultsSection) {
+                            resultsSection.innerHTML = `<p>No recent Grand Prix data available for the ${targetSeason} season.</p>`;
+                        }
+                        return;
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                const raceData = data.MRData.RaceTable.Races[0];
+                if (fetchId !== resultsFetchId) return;
+
+                const raceData = data.MRData?.RaceTable?.Races?.[0];
 
                 if (!raceData) {
-                    resultsSection.innerHTML = '<p>No recent Grand Prix data available.</p>';
+                    if (resultsSection) {
+                        resultsSection.innerHTML = `<p>No recent Grand Prix data available for the ${targetSeason} season.</p>`;
+                    }
                     return;
                 }
 
-                const raceName = raceData.raceName;
-                const circuitName = raceData.Circuit.circuitName;
-                const raceDate = new Date(raceData.date).toLocaleDateString(undefined, {
+                const raceName = raceData.raceName || 'Grand Prix';
+                const circuitName = raceData.Circuit?.circuitName || 'Unknown Circuit';
+                const raceDate = raceData.date ? new Date(raceData.date).toLocaleDateString(undefined, {
                     year: 'numeric', month: 'short', day: 'numeric'
-                });
-                const winner = raceData.Results.find(r => r.position === "1");
+                }) : 'N/A';
+                const results = raceData.Results || [];
+                const winner = results.find(r => r.position === "1" || r.position === 1);
 
                 let html = `
                     <div class="race-summary-grid">
@@ -6399,7 +6490,7 @@
                         <div class="summary-metric">
                             <div class="metric-label">Race Winner</div>
                             <div class="metric-val" style="color: var(--f1-red);">
-                                ${winner ? `${winner.Driver.givenName} ${winner.Driver.familyName}` : 'N/A'}
+                                ${winner && winner.Driver ? `${winner.Driver.givenName || ''} ${winner.Driver.familyName || ''}`.trim() : 'N/A'}
                             </div>
                         </div>
                     </div>
@@ -6419,47 +6510,74 @@
                             </thead>
                             <tbody>`;
 
-                raceData.Results.forEach(result => {
+                results.forEach(result => {
                     const posNum = parseInt(result.position, 10);
                     const posClass = posNum === 1 ? 'pos-1' : (posNum === 2 ? 'pos-2' : (posNum === 3 ? 'pos-3' : ''));
-                    const driverColor = DRIVER_COLORS[result.Driver.driverId] || '#9ca3af';
+                    const driverId = result.Driver?.driverId;
+                    const driverColor = (driverId && DRIVER_COLORS[driverId]) || '#9ca3af';
+                    const driverName = result.Driver ? `${result.Driver.givenName || ''} ${result.Driver.familyName || ''}`.trim() : 'N/A';
+                    const teamName = result.Constructor?.name || (result.Constructors?.[0]?.name || 'N/A');
+                    const laps = result.laps !== undefined ? result.laps : '-';
+                    const timeOrStatus = result.Time ? result.Time.time : (result.status || 'N/A');
+                    const points = result.points !== undefined ? result.points : '0';
 
                     html += `<tr>
                                 <td><span class="pos-badge ${posClass}">${result.position}</span></td>
                                 <td>
                                     <span class="driver-cell">
                                         <span class="driver-dot" style="background-color: ${driverColor};"></span>
-                                        ${result.Driver.givenName} ${result.Driver.familyName}
+                                        ${driverName}
                                     </span>
                                 </td>
-                                <td>${result.Constructor.name}</td>
-                                <td>${result.laps}</td>
-                                <td>${result.Time ? result.Time.time : (result.status || 'N/A')}</td>
-                                <td><span class="points-val">${result.points}</span></td>
+                                <td>${teamName}</td>
+                                <td>${laps}</td>
+                                <td>${timeOrStatus}</td>
+                                <td><span class="points-val">${points}</span></td>
                             </tr>`;
                 });
 
                 html += `</tbody></table></div>`;
-                resultsSection.innerHTML = html;
+                if (resultsSection) {
+                    resultsSection.innerHTML = html;
+                }
 
             } catch (error) {
                 console.error('Error fetching latest race results:', error);
-                resultsSection.innerHTML = `<div class="error-message">Failed to load race results: ${error.message}</div>`;
+                if (resultsSection) {
+                    resultsSection.innerHTML = `<div class="error-message">Failed to load race results: ${error.message}</div>`;
+                }
             }
         }
 
-        async function fetchDriverStandings() {
+        async function fetchDriverStandings(season) {
             const standingsSection = document.getElementById('driver-standings');
+            if (standingsSection) {
+                standingsSection.innerHTML = '<div class="loading-state">Loading driver standings...</div>';
+            }
+            const fetchId = ++standingsFetchId;
             try {
-                const response = await fetch(`${BASE_URL}/current/driverStandings.json`);
+                const targetSeason = (season && String(season).trim()) || document.getElementById('seasonSelect')?.value || document.getElementById('resultsSeasonSelect')?.value || 'current';
+                const response = await fetch(`${BASE_URL}/${targetSeason}/driverStandings.json`);
+                if (fetchId !== standingsFetchId) return;
+
                 if (!response.ok) {
+                    if (response.status === 404) {
+                        if (standingsSection) {
+                            standingsSection.innerHTML = `<p>No driver standings data available for the ${targetSeason} season.</p>`;
+                        }
+                        return;
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                const driverStandings = data.MRData.StandingsTable.StandingsLists[0]?.DriverStandings;
+                if (fetchId !== standingsFetchId) return;
+
+                const driverStandings = data.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings;
 
                 if (!driverStandings || driverStandings.length === 0) {
-                    standingsSection.innerHTML = '<p>No driver standings data available.</p>';
+                    if (standingsSection) {
+                        standingsSection.innerHTML = `<p>No driver standings data available for the ${targetSeason} season.</p>`;
+                    }
                     return;
                 }
 
@@ -6480,28 +6598,37 @@
                 driverStandings.forEach(standing => {
                     const posNum = parseInt(standing.position, 10);
                     const posClass = posNum === 1 ? 'pos-1' : (posNum === 2 ? 'pos-2' : (posNum === 3 ? 'pos-3' : ''));
-                    const driverColor = DRIVER_COLORS[standing.Driver.driverId] || '#9ca3af';
+                    const driverId = standing.Driver?.driverId;
+                    const driverColor = (driverId && DRIVER_COLORS[driverId]) || '#9ca3af';
+                    const driverName = standing.Driver ? `${standing.Driver.givenName || ''} ${standing.Driver.familyName || ''}`.trim() : 'N/A';
+                    const teamName = standing.Constructors?.[0]?.name || (standing.Constructor?.name || 'N/A');
+                    const wins = standing.wins !== undefined ? standing.wins : '0';
+                    const points = standing.points !== undefined ? standing.points : '0';
 
                     html += `<tr>
                                 <td><span class="pos-badge ${posClass}">${standing.position}</span></td>
                                 <td>
                                     <span class="driver-cell">
                                         <span class="driver-dot" style="background-color: ${driverColor};"></span>
-                                        ${standing.Driver.givenName} ${standing.Driver.familyName}
+                                        ${driverName}
                                     </span>
                                 </td>
-                                <td>${standing.Constructors[0]?.name || 'N/A'}</td>
-                                <td>${standing.wins || '0'}</td>
-                                <td><span class="points-val">${standing.points}</span></td>
+                                <td>${teamName}</td>
+                                <td>${wins}</td>
+                                <td><span class="points-val">${points}</span></td>
                             </tr>`;
                 });
 
                 html += `</tbody></table></div>`;
-                standingsSection.innerHTML = html;
+                if (standingsSection) {
+                    standingsSection.innerHTML = html;
+                }
 
             } catch (error) {
                 console.error('Error fetching driver standings:', error);
-                standingsSection.innerHTML = `<div class="error-message">Failed to load driver standings: ${error.message}</div>`;
+                if (standingsSection) {
+                    standingsSection.innerHTML = `<div class="error-message">Failed to load driver standings: ${error.message}</div>`;
+                }
             }
         }
 
@@ -12812,16 +12939,24 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             populateSeasonDropdown();
-            fetchLatestRaceResults();
-            fetchDriverStandings();
-
             const seasonSelect = document.getElementById('seasonSelect');
+            const initialSeason = (seasonSelect && seasonSelect.value) || '2026';
+            fetchLatestRaceResults(initialSeason);
+            fetchDriverStandings(initialSeason);
+
             if (seasonSelect) {
                 seasonSelect.addEventListener('change', (e) => {
-                    loadSeasonStandingsProgression(e.target.value);
+                    onSeasonChange(e.target.value);
                 });
                 // Initial load of Driver Standings Progression Chart
                 loadSeasonStandingsProgression(seasonSelect.value);
+            }
+
+            const resultsSeasonSelect = document.getElementById('resultsSeasonSelect');
+            if (resultsSeasonSelect) {
+                resultsSeasonSelect.addEventListener('change', (e) => {
+                    onSeasonChange(e.target.value);
+                });
             }
 
             const telemetrySeasonSelect = document.getElementById('telemetrySeasonSelect');
@@ -12956,6 +13091,13 @@
             window.FINISHING_GAP_FALLBACK_DRIVERS_2024 = FINISHING_GAP_FALLBACK_DRIVERS_2024;
             window.FINISHING_GAP_FALLBACK_ROUNDS_2024 = FINISHING_GAP_FALLBACK_ROUNDS_2024;
             window.switchMainTab = switchMainTab;
+            window.fetchLatestRaceResults = fetchLatestRaceResults;
+            window.fetchDriverStandings = fetchDriverStandings;
+            window.onSeasonChange = onSeasonChange;
+            window.onResultsSeasonChange = onResultsSeasonChange;
+            window.refreshCurrentSeason = refreshCurrentSeason;
+            window.refreshResultsData = refreshResultsData;
+            window.populateSeasonDropdown = populateSeasonDropdown;
         }
 
         function extractFastestLapFromResult(results) {
@@ -13085,7 +13227,14 @@
                 LAP_CHART_FALLBACK_DRIVERS_2024,
                 LAP_CHART_FALLBACK_LAPS_2024,
                 SEASON_LAPS_LED_FALLBACK_2024,
-                switchMainTab
+                switchMainTab,
+                fetchLatestRaceResults,
+                fetchDriverStandings,
+                onSeasonChange,
+                onResultsSeasonChange,
+                refreshCurrentSeason,
+                refreshResultsData,
+                populateSeasonDropdown
             };
         }
     </script>
