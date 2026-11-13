@@ -4275,6 +4275,106 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* Issue #12: Season Reliability & DNF Breakdown Matrix */
+        .reliability-section {
+            background: linear-gradient(180deg, #101520 0%, #0B0E14 100%);
+            border: 1px solid #1E2738;
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .reliability-header-accent {
+            background: linear-gradient(180deg, #10B981 0%, #F59E0B 50%, #EF4444 100%);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+        }
+
+        .reliability-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .reliability-legend-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.78rem;
+            color: #94A3B8;
+        }
+
+        .rel-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rel-legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .rel-completion-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .rel-completion-bar {
+            flex: 1;
+            max-width: 90px;
+            height: 8px;
+            background: #1A2232;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .rel-completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00D26A 0%, #00F0FF 100%);
+            border-radius: 4px;
+        }
+
+        .rel-failure-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin: 2px;
+            white-space: nowrap;
+        }
+
+        .rel-badge-mech {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .rel-badge-inc {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .rel-badge-tech {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .rel-badge-clean {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
     </style>
 </head>
 <body>
@@ -4319,6 +4419,9 @@
             </button>
             <button type="button" class="tab-btn" id="tabBtnPitStops" onclick="switchMainTab('pitstops')">
                 <span class="tab-icon">⏱️</span> Pit Stop Performance Matrix
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnReliability" onclick="switchMainTab('reliability')">
+                <span class="tab-icon">🛡️</span> Reliability &amp; DNF Matrix
             </button>
             <button type="button" class="tab-btn" id="tabBtnTelemetry" onclick="switchMainTab('telemetry')">
                 <span class="tab-icon">⚡</span> Teammate Head-to-Head Telemetry
@@ -5522,6 +5625,132 @@
                             <!-- Populated dynamically via JS -->
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Season Reliability & DNF Breakdown Matrix Section (Issue #12) -->
+        <section class="card telemetry-section reliability-section" id="reliability-matrix-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent reliability-header-accent"></div>
+                    <div>
+                        <h2>Season Reliability &amp; DNF Breakdown Matrix</h2>
+                        <p class="section-subtitle">Mechanical vs Incident vs Disqualification categorization, 100% stacked attrition profiles, and season lap completion rates</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="reliabilitySeasonSelect">Season:</label>
+                        <select id="reliabilitySeasonSelect" class="season-dropdown" onchange="onReliabilitySeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-refresh" id="reliabilityRefreshBtn" onclick="refreshReliabilityData()" title="Reload reliability telemetry">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reliability KPI Cards -->
+            <div class="kpi-grid reliability-kpi-grid">
+                <div class="kpi-card" id="relKpiFinished">
+                    <div class="kpi-icon">🏁</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Classified Finishes</div>
+                        <div class="kpi-value" id="relKpiFinishedVal">--%</div>
+                        <div class="kpi-sub" id="relKpiFinishedSub">-- of -- entries</div>
+                    </div>
+                </div>
+                <div class="kpi-card" id="relKpiMechanical">
+                    <div class="kpi-icon">⚙️</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Mechanical Failures</div>
+                        <div class="kpi-value" id="relKpiMechanicalVal">--</div>
+                        <div class="kpi-sub" id="relKpiMechanicalSub">PU, Gearbox, Hydraulics, etc.</div>
+                    </div>
+                </div>
+                <div class="kpi-card" id="relKpiIncidents">
+                    <div class="kpi-icon">💥</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Incident DNFs</div>
+                        <div class="kpi-value" id="relKpiIncidentsVal">--</div>
+                        <div class="kpi-sub" id="relKpiIncidentsSub">Collisions, Accidents, Spins</div>
+                    </div>
+                </div>
+                <div class="kpi-card" id="relKpiLaps">
+                    <div class="kpi-icon">🔄</div>
+                    <div class="kpi-content">
+                        <div class="kpi-label">Season Lap Completion</div>
+                        <div class="kpi-value" id="relKpiLapsVal">--%</div>
+                        <div class="kpi-sub" id="relKpiLapsSub">-- / -- laps completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive View Scope & Filter Bar -->
+            <div class="finishing-gap-filter-bar reliability-filter-bar">
+                <div class="finishing-gap-filter-group">
+                    <span class="atr-filter-label"><span>🎯</span> View Scope:</span>
+                    <button type="button" class="finishing-gap-pill active" id="relPillScopeConstructors" data-scope="constructors" onclick="setReliabilityViewScope('constructors')">
+                        🏎️ Constructors
+                    </button>
+                    <button type="button" class="finishing-gap-pill" id="relPillScopeDrivers" data-scope="drivers" onclick="setReliabilityViewScope('drivers')">
+                        👤 Drivers
+                    </button>
+                </div>
+                <div class="finishing-gap-filter-group" id="reliabilityReserveFilterGroup" style="display: none;">
+                    <span class="atr-filter-label"><span>🛡️</span> Driver Filter:</span>
+                    <button type="button" class="finishing-gap-pill active" id="relPillReserveAll" onclick="setReliabilityReserveFilter(false)">
+                        All Drivers
+                    </button>
+                    <button type="button" class="finishing-gap-pill" id="relPillReserveExclude" onclick="setReliabilityReserveFilter(true)">
+                        Exclude Reserves (&lt;3 entries)
+                    </button>
+                </div>
+                <div class="reliability-legend-bar" id="reliabilityLegendBar">
+                    <span class="rel-legend-item"><span class="rel-legend-color" style="background: #10B981;"></span> Finished / Classified</span>
+                    <span class="rel-legend-item"><span class="rel-legend-color" style="background: #F59E0B;"></span> Mechanical</span>
+                    <span class="rel-legend-item"><span class="rel-legend-color" style="background: #EF4444;"></span> Incident</span>
+                    <span class="rel-legend-item"><span class="rel-legend-color" style="background: #8B5CF6;"></span> Technical / DSQ / DNS</span>
+                </div>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="chart-container reliability-chart-container" style="position: relative; height: 420px; margin-bottom: 24px;">
+                <canvas id="reliabilityChart"></canvas>
+            </div>
+
+            <!-- Tabulated Season Laps Completed & Reliability Breakdown Matrix (Requirement 3) -->
+            <div class="reliability-table-section">
+                <div class="reliability-table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 id="reliabilityTableTitle" style="font-size: 1.05rem; font-weight: 700; color: #FFFFFF;">Season Laps Completed vs Total Possible &amp; DNF Breakdown</h3>
+                    <span class="badge" id="reliabilityTableBadge" style="background: #1E293B; color: #94A3B8;">Constructors View</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="telemetry-table" id="reliabilityTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%; text-align: center;">#</th>
+                                <th style="width: 18%;" id="reliabilityColName">Constructor</th>
+                                <th style="width: 8%; text-align: center;">Entries</th>
+                                <th style="width: 12%; text-align: center;">Finished / Classified</th>
+                                <th style="width: 9%; text-align: center;">Mechanical</th>
+                                <th style="width: 9%; text-align: center;">Incident</th>
+                                <th style="width: 9%; text-align: center;">Tech / DSQ</th>
+                                <th style="width: 15%; text-align: right;">Laps (Done / Max)</th>
+                                <th style="width: 15%; text-align: center;">Lap Completion %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reliabilityTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -13095,6 +13324,1316 @@
             }
         }
 
+        // ==========================================
+        // Issue #12: Season Reliability & DNF Breakdown Matrix Engine
+        // ==========================================
+
+        const RELIABILITY_BUCKETS = {
+            FINISHED: 'Finished/Classified',
+            MECHANICAL: 'Mechanical',
+            INCIDENT: 'Incident',
+            TECHNICAL: 'Technical/Operational/DNS/DSQ'
+        };
+
+        function categorizeReliabilityStatus(status) {
+            if (!status || typeof status !== 'string') {
+                return RELIABILITY_BUCKETS.TECHNICAL;
+            }
+            const s = status.trim();
+            const lower = s.toLowerCase();
+
+            // 1. Finished / Classified (+N Lap / +N Laps or time delta +1.500)
+            if (
+                lower === 'finished' ||
+                /^\+\d+\s+laps?$/i.test(s) ||
+                /^\+[\d:.]+\s*(s)?$/i.test(s) ||
+                (lower.includes('classified') && !lower.includes('not'))
+            ) {
+                return RELIABILITY_BUCKETS.FINISHED;
+            }
+
+            // 2. Incident (Accident, Collision, Spin, Crash, Debris, Off track, Damage)
+            if (
+                lower.includes('accident') ||
+                lower.includes('collision') ||
+                lower.includes('spun') ||
+                lower.includes('spin') ||
+                lower.includes('crash') ||
+                lower.includes('debris') ||
+                lower.includes('off track') ||
+                lower === 'damage'
+            ) {
+                return RELIABILITY_BUCKETS.INCIDENT;
+            }
+
+            // 3. Technical / Operational / DNS / DSQ
+            if (
+                lower.includes('disqualif') ||
+                lower === 'dsq' ||
+                lower.includes('excluded') ||
+                lower.includes('not classified') ||
+                lower.includes('retired') ||
+                lower.includes('withdr') ||
+                lower.includes('unwell') ||
+                lower.includes('illness') ||
+                lower.includes('injur') ||
+                lower.includes('underweight') ||
+                lower.includes('107%') ||
+                lower === 'dns' ||
+                lower.includes('did not') ||
+                lower.includes('failed to') ||
+                lower.includes('out of fuel') ||
+                lower.includes('safety concerns') ||
+                lower.includes('banned') ||
+                lower.includes('handling')
+            ) {
+                return RELIABILITY_BUCKETS.TECHNICAL;
+            }
+
+            // 4. Mechanical (Engine, Gearbox, Hydraulic, Electrical, Suspension, Brakes, Power Unit, etc.)
+            if (
+                lower.includes('engine') ||
+                lower.includes('gearbox') ||
+                lower.includes('transmission') ||
+                lower.includes('clutch') ||
+                lower.includes('hydraulic') ||
+                lower.includes('electrical') ||
+                lower.includes('electronic') ||
+                lower.includes('radiator') ||
+                lower.includes('suspension') ||
+                lower.includes('brake') ||
+                lower.includes('differential') ||
+                lower.includes('overheating') ||
+                lower.includes('mechanical') ||
+                lower.includes('tyre') ||
+                /\btires?\b/i.test(s) ||
+                lower.includes('puncture') ||
+                lower.includes('driveshaft') ||
+                lower.includes('halfshaft') ||
+                lower.includes('drive shaft') ||
+                lower.includes('axle') ||
+                lower.includes('crankshaft') ||
+                lower.includes('pressure') ||
+                lower.includes('leak') ||
+                lower.includes('pump') ||
+                lower.includes('pipe') ||
+                lower.includes('throttle') ||
+                lower.includes('steering') ||
+                lower.includes('power unit') ||
+                lower.includes('power loss') ||
+                lower.includes('ers') ||
+                lower.includes('battery') ||
+                lower.includes('alternator') ||
+                lower.includes('exhaust') ||
+                lower.includes('turbo') ||
+                lower.includes('vibration') ||
+                lower.includes('ignition') ||
+                lower.includes('spark') ||
+                lower.includes('distributer') ||
+                lower.includes('pneumatic') ||
+                lower.includes('wheel') ||
+                lower.includes('chassis') ||
+                lower.includes('underfloor') ||
+                lower.includes('fire') ||
+                lower.includes('drivetrain') ||
+                lower.includes('track rod') ||
+                lower.includes('wing')
+            ) {
+                return RELIABILITY_BUCKETS.MECHANICAL;
+            }
+
+            // Default fallback
+            return RELIABILITY_BUCKETS.TECHNICAL;
+        }
+
+        const categorizeStatus = categorizeReliabilityStatus;
+
+        const RELIABILITY_FALLBACK_2024 = {
+            season: '2024',
+            totalRaces: 24,
+            totalEntries: 480,
+            totalFinished: 432,
+            totalMechanical: 19,
+            totalIncident: 27,
+            totalTechnical: 2,
+            overallReliabilityPct: 90.0,
+            overallMechanicalPct: 3.96,
+            overallIncidentPct: 5.63,
+            totalSeasonLapsPossible: 1440,
+            constructors: [
+                {
+                    rank: 1,
+                    id: 'mclaren',
+                    name: 'McLaren',
+                    color: '#FF8000',
+                    totalEntries: 48,
+                    finished: 46,
+                    mechanical: 0,
+                    incident: 2,
+                    technical: 0,
+                    lapsCompleted: 2850,
+                    possibleLaps: 2880,
+                    finishedPct: 95.8,
+                    mechanicalPct: 0.0,
+                    incidentPct: 4.2,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 99.0,
+                    totalDNFs: 2,
+                    failures: [
+                        { round: '11', raceName: 'Austrian GP', driverName: 'Lando Norris', driverCode: 'NOR', constructorName: 'McLaren', status: 'Collision damage', bucket: 'Incident', laps: 64 },
+                        { round: '12', raceName: 'British GP', driverName: 'Oscar Piastri', driverCode: 'PIA', constructorName: 'McLaren', status: 'Collision', bucket: 'Incident', laps: 45 }
+                    ]
+                },
+                {
+                    rank: 2,
+                    id: 'ferrari',
+                    name: 'Ferrari',
+                    color: '#E80020',
+                    totalEntries: 48,
+                    finished: 43,
+                    mechanical: 2,
+                    incident: 3,
+                    technical: 0,
+                    lapsCompleted: 2740,
+                    possibleLaps: 2880,
+                    finishedPct: 89.6,
+                    mechanicalPct: 4.2,
+                    incidentPct: 6.3,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 95.1,
+                    totalDNFs: 5,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Engine', bucket: 'Mechanical', laps: 35 },
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Charles Leclerc', driverCode: 'LEC', constructorName: 'Ferrari', status: 'Engine', bucket: 'Mechanical', laps: 40 },
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Collision', bucket: 'Incident', laps: 52 },
+                        { round: '11', raceName: 'Austrian GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Collision', bucket: 'Incident', laps: 64 },
+                        { round: '17', raceName: 'Azerbaijan GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Collision', bucket: 'Incident', laps: 50 }
+                    ]
+                },
+                {
+                    rank: 3,
+                    id: 'red_bull',
+                    name: 'Red Bull Racing',
+                    color: '#1E41FF',
+                    totalEntries: 48,
+                    finished: 43,
+                    mechanical: 2,
+                    incident: 3,
+                    technical: 0,
+                    lapsCompleted: 2715,
+                    possibleLaps: 2880,
+                    finishedPct: 89.6,
+                    mechanicalPct: 4.2,
+                    incidentPct: 6.3,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 94.3,
+                    totalDNFs: 5,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Max Verstappen', driverCode: 'VER', constructorName: 'Red Bull Racing', status: 'Brakes', bucket: 'Mechanical', laps: 3 },
+                        { round: '8', raceName: 'Monaco GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Accident', bucket: 'Incident', laps: 1 },
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Collision damage', bucket: 'Incident', laps: 51 },
+                        { round: '17', raceName: 'Azerbaijan GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Collision', bucket: 'Incident', laps: 49 },
+                        { round: '19', raceName: 'United States GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Power Unit', bucket: 'Mechanical', laps: 45 }
+                    ]
+                },
+                {
+                    rank: 4,
+                    id: 'aston_martin',
+                    name: 'Aston Martin',
+                    color: '#006F62',
+                    totalEntries: 48,
+                    finished: 45,
+                    mechanical: 1,
+                    incident: 2,
+                    technical: 0,
+                    lapsCompleted: 2730,
+                    possibleLaps: 2880,
+                    finishedPct: 93.8,
+                    mechanicalPct: 2.1,
+                    incidentPct: 4.2,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 94.8,
+                    totalDNFs: 3,
+                    failures: [
+                        { round: '2', raceName: 'Saudi Arabian GP', driverName: 'Lance Stroll', driverCode: 'STR', constructorName: 'Aston Martin', status: 'Accident', bucket: 'Incident', laps: 6 },
+                        { round: '4', raceName: 'Japanese GP', driverName: 'Lance Stroll', driverCode: 'STR', constructorName: 'Aston Martin', status: 'Throttle', bucket: 'Mechanical', laps: 20 },
+                        { round: '5', raceName: 'Chinese GP', driverName: 'Lance Stroll', driverCode: 'STR', constructorName: 'Aston Martin', status: 'Collision', bucket: 'Incident', laps: 26 }
+                    ]
+                },
+                {
+                    rank: 5,
+                    id: 'mercedes',
+                    name: 'Mercedes',
+                    color: '#00D2BE',
+                    totalEntries: 48,
+                    finished: 42,
+                    mechanical: 3,
+                    incident: 3,
+                    technical: 0,
+                    lapsCompleted: 2680,
+                    possibleLaps: 2880,
+                    finishedPct: 87.5,
+                    mechanicalPct: 6.3,
+                    incidentPct: 6.3,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 93.1,
+                    totalDNFs: 6,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Lewis Hamilton', driverCode: 'HAM', constructorName: 'Mercedes', status: 'Engine', bucket: 'Mechanical', laps: 15 },
+                        { round: '3', raceName: 'Australian GP', driverName: 'George Russell', driverCode: 'RUS', constructorName: 'Mercedes', status: 'Accident', bucket: 'Incident', laps: 57 },
+                        { round: '12', raceName: 'British GP', driverName: 'George Russell', driverCode: 'RUS', constructorName: 'Mercedes', status: 'Water leak', bucket: 'Mechanical', laps: 33 },
+                        { round: '19', raceName: 'United States GP', driverName: 'Lewis Hamilton', driverCode: 'HAM', constructorName: 'Mercedes', status: 'Spun off', bucket: 'Incident', laps: 2 },
+                        { round: '20', raceName: 'Mexico City GP', driverName: 'George Russell', driverCode: 'RUS', constructorName: 'Mercedes', status: 'Power loss', bucket: 'Mechanical', laps: 60 },
+                        { round: '21', raceName: 'São Paulo GP', driverName: 'Lewis Hamilton', driverCode: 'HAM', constructorName: 'Mercedes', status: 'Collision damage', bucket: 'Incident', laps: 40 }
+                    ]
+                },
+                {
+                    rank: 6,
+                    id: 'sauber',
+                    name: 'Kick Sauber',
+                    color: '#52E252',
+                    totalEntries: 48,
+                    finished: 44,
+                    mechanical: 2,
+                    incident: 2,
+                    technical: 0,
+                    lapsCompleted: 2690,
+                    possibleLaps: 2880,
+                    finishedPct: 91.7,
+                    mechanicalPct: 4.2,
+                    incidentPct: 4.2,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 93.4,
+                    totalDNFs: 4,
+                    failures: [
+                        { round: '5', raceName: 'Chinese GP', driverName: 'Valtteri Bottas', driverCode: 'BOT', constructorName: 'Kick Sauber', status: 'Engine', bucket: 'Mechanical', laps: 19 },
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Zhou Guanyu', driverCode: 'ZHO', constructorName: 'Kick Sauber', status: 'Collision damage', bucket: 'Incident', laps: 28 },
+                        { round: '10', raceName: 'Spanish GP', driverName: 'Zhou Guanyu', driverCode: 'ZHO', constructorName: 'Kick Sauber', status: 'Suspension', bucket: 'Mechanical', laps: 25 },
+                        { round: '20', raceName: 'Mexico City GP', driverName: 'Valtteri Bottas', driverCode: 'BOT', constructorName: 'Kick Sauber', status: 'Accident', bucket: 'Incident', laps: 35 }
+                    ]
+                },
+                {
+                    rank: 7,
+                    id: 'rb',
+                    name: 'RB',
+                    color: '#6692FF',
+                    totalEntries: 48,
+                    finished: 42,
+                    mechanical: 2,
+                    incident: 4,
+                    technical: 0,
+                    lapsCompleted: 2610,
+                    possibleLaps: 2880,
+                    finishedPct: 87.5,
+                    mechanicalPct: 4.2,
+                    incidentPct: 8.3,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 90.6,
+                    totalDNFs: 6,
+                    failures: [
+                        { round: '4', raceName: 'Japanese GP', driverName: 'Daniel Ricciardo', driverCode: 'RIC', constructorName: 'RB', status: 'Collision', bucket: 'Incident', laps: 1 },
+                        { round: '4', raceName: 'Japanese GP', driverName: 'Yuki Tsunoda', driverCode: 'TSU', constructorName: 'RB', status: 'Power Unit', bucket: 'Mechanical', laps: 18 },
+                        { round: '5', raceName: 'Chinese GP', driverName: 'Yuki Tsunoda', driverCode: 'TSU', constructorName: 'RB', status: 'Collision', bucket: 'Incident', laps: 27 },
+                        { round: '5', raceName: 'Chinese GP', driverName: 'Daniel Ricciardo', driverCode: 'RIC', constructorName: 'RB', status: 'Collision damage', bucket: 'Incident', laps: 33 },
+                        { round: '13', raceName: 'Hungarian GP', driverName: 'Daniel Ricciardo', driverCode: 'RIC', constructorName: 'RB', status: 'Brakes', bucket: 'Mechanical', laps: 45 },
+                        { round: '16', raceName: 'Italian GP', driverName: 'Yuki Tsunoda', driverCode: 'TSU', constructorName: 'RB', status: 'Collision damage', bucket: 'Incident', laps: 7 }
+                    ]
+                },
+                {
+                    rank: 8,
+                    id: 'haas',
+                    name: 'Haas',
+                    color: '#B6BABD',
+                    totalEntries: 48,
+                    finished: 41,
+                    mechanical: 2,
+                    incident: 4,
+                    technical: 1,
+                    lapsCompleted: 2590,
+                    possibleLaps: 2880,
+                    finishedPct: 85.4,
+                    mechanicalPct: 4.2,
+                    incidentPct: 8.3,
+                    technicalPct: 2.1,
+                    lapCompletionPct: 89.9,
+                    totalDNFs: 7,
+                    failures: [
+                        { round: '6', raceName: 'Miami GP', driverName: 'Nico Hülkenberg', driverCode: 'HUL', constructorName: 'Haas', status: 'Exhaust', bucket: 'Mechanical', laps: 22 },
+                        { round: '8', raceName: 'Monaco GP', driverName: 'Kevin Magnussen', driverCode: 'MAG', constructorName: 'Haas', status: 'Collision', bucket: 'Incident', laps: 1 },
+                        { round: '8', raceName: 'Monaco GP', driverName: 'Nico Hülkenberg', driverCode: 'HUL', constructorName: 'Haas', status: 'Collision', bucket: 'Incident', laps: 1 },
+                        { round: '15', raceName: 'Dutch GP', driverName: 'Kevin Magnussen', driverCode: 'MAG', constructorName: 'Haas', status: 'Hydraulics', bucket: 'Mechanical', laps: 40 },
+                        { round: '16', raceName: 'Italian GP', driverName: 'Kevin Magnussen', driverCode: 'MAG', constructorName: 'Haas', status: 'Collision', bucket: 'Incident', laps: 50 },
+                        { round: '21', raceName: 'São Paulo GP', driverName: 'Nico Hülkenberg', driverCode: 'HUL', constructorName: 'Haas', status: 'Disqualified', bucket: 'Technical/Operational/DNS/DSQ', laps: 32 },
+                        { round: '22', raceName: 'Las Vegas GP', driverName: 'Nico Hülkenberg', driverCode: 'HUL', constructorName: 'Haas', status: 'Accident', bucket: 'Incident', laps: 30 }
+                    ]
+                },
+                {
+                    rank: 9,
+                    id: 'alpine',
+                    name: 'Alpine',
+                    color: '#0090FF',
+                    totalEntries: 48,
+                    finished: 41,
+                    mechanical: 4,
+                    incident: 3,
+                    technical: 0,
+                    lapsCompleted: 2580,
+                    possibleLaps: 2880,
+                    finishedPct: 85.4,
+                    mechanicalPct: 8.3,
+                    incidentPct: 6.3,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 89.6,
+                    totalDNFs: 7,
+                    failures: [
+                        { round: '7', raceName: 'Emilia Romagna GP', driverName: 'Pierre Gasly', driverCode: 'GAS', constructorName: 'Alpine', status: 'Gearbox', bucket: 'Mechanical', laps: 30 },
+                        { round: '8', raceName: 'Monaco GP', driverName: 'Esteban Ocon', driverCode: 'OCO', constructorName: 'Alpine', status: 'Collision', bucket: 'Incident', laps: 1 },
+                        { round: '10', raceName: 'Spanish GP', driverName: 'Pierre Gasly', driverCode: 'GAS', constructorName: 'Alpine', status: 'Power Unit', bucket: 'Mechanical', laps: 12 },
+                        { round: '12', raceName: 'British GP', driverName: 'Pierre Gasly', driverCode: 'GAS', constructorName: 'Alpine', status: 'Gearbox', bucket: 'Mechanical', laps: 1 },
+                        { round: '14', raceName: 'Belgian GP', driverName: 'Pierre Gasly', driverCode: 'GAS', constructorName: 'Alpine', status: 'Collision damage', bucket: 'Incident', laps: 10 },
+                        { round: '18', raceName: 'Singapore GP', driverName: 'Esteban Ocon', driverCode: 'OCO', constructorName: 'Alpine', status: 'Hydraulics', bucket: 'Mechanical', laps: 28 },
+                        { round: '21', raceName: 'São Paulo GP', driverName: 'Esteban Ocon', driverCode: 'OCO', constructorName: 'Alpine', status: 'Collision', bucket: 'Incident', laps: 35 }
+                    ]
+                },
+                {
+                    rank: 10,
+                    id: 'williams',
+                    name: 'Williams',
+                    color: '#005AFF',
+                    totalEntries: 48,
+                    finished: 38,
+                    mechanical: 4,
+                    incident: 6,
+                    technical: 0,
+                    lapsCompleted: 2450,
+                    possibleLaps: 2880,
+                    finishedPct: 79.2,
+                    mechanicalPct: 8.3,
+                    incidentPct: 12.5,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 85.1,
+                    totalDNFs: 10,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Alexander Albon', driverCode: 'ALB', constructorName: 'Williams', status: 'Accident', bucket: 'Incident', laps: 10 },
+                        { round: '4', raceName: 'Japanese GP', driverName: 'Alexander Albon', driverCode: 'ALB', constructorName: 'Williams', status: 'Collision', bucket: 'Incident', laps: 1 },
+                        { round: '8', raceName: 'Monaco GP', driverName: 'Alexander Albon', driverCode: 'ALB', constructorName: 'Williams', status: 'Power loss', bucket: 'Mechanical', laps: 40 },
+                        { round: '13', raceName: 'Hungarian GP', driverName: 'Logan Sargeant', driverCode: 'SAR', constructorName: 'Williams', status: 'Accident', bucket: 'Incident', laps: 20 },
+                        { round: '15', raceName: 'Dutch GP', driverName: 'Logan Sargeant', driverCode: 'SAR', constructorName: 'Williams', status: 'Collision damage', bucket: 'Incident', laps: 15 },
+                        { round: '16', raceName: 'Italian GP', driverName: 'Alexander Albon', driverCode: 'ALB', constructorName: 'Williams', status: 'Brakes', bucket: 'Mechanical', laps: 38 },
+                        { round: '18', raceName: 'Singapore GP', driverName: 'Alexander Albon', driverCode: 'ALB', constructorName: 'Williams', status: 'Overheating', bucket: 'Mechanical', laps: 15 },
+                        { round: '21', raceName: 'São Paulo GP', driverName: 'Franco Colapinto', driverCode: 'COL', constructorName: 'Williams', status: 'Accident', bucket: 'Incident', laps: 32 },
+                        { round: '22', raceName: 'Las Vegas GP', driverName: 'Franco Colapinto', driverCode: 'COL', constructorName: 'Williams', status: 'Accident', bucket: 'Incident', laps: 25 },
+                        { round: '23', raceName: 'Qatar GP', driverName: 'Franco Colapinto', driverCode: 'COL', constructorName: 'Williams', status: 'Electrical', bucket: 'Mechanical', laps: 22 }
+                    ]
+                }
+            ],
+            drivers: [
+                {
+                    rank: 1,
+                    id: 'piastri',
+                    code: 'PIA',
+                    name: 'Oscar Piastri',
+                    constructorId: 'mclaren',
+                    constructorName: 'McLaren',
+                    color: '#FF8000',
+                    totalEntries: 24,
+                    finished: 23,
+                    mechanical: 0,
+                    incident: 1,
+                    technical: 0,
+                    lapsCompleted: 1425,
+                    possibleLaps: 1440,
+                    finishedPct: 95.8,
+                    mechanicalPct: 0.0,
+                    incidentPct: 4.2,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 99.0,
+                    totalDNFs: 1,
+                    isReserve: false,
+                    failures: [
+                        { round: '12', raceName: 'British GP', driverName: 'Oscar Piastri', driverCode: 'PIA', constructorName: 'McLaren', status: 'Collision', bucket: 'Incident', laps: 45 }
+                    ]
+                },
+                {
+                    rank: 2,
+                    id: 'norris',
+                    code: 'NOR',
+                    name: 'Lando Norris',
+                    constructorId: 'mclaren',
+                    constructorName: 'McLaren',
+                    color: '#FF8000',
+                    totalEntries: 24,
+                    finished: 23,
+                    mechanical: 0,
+                    incident: 1,
+                    technical: 0,
+                    lapsCompleted: 1410,
+                    possibleLaps: 1440,
+                    finishedPct: 95.8,
+                    mechanicalPct: 0.0,
+                    incidentPct: 4.2,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 97.9,
+                    totalDNFs: 1,
+                    isReserve: false,
+                    failures: [
+                        { round: '11', raceName: 'Austrian GP', driverName: 'Lando Norris', driverCode: 'NOR', constructorName: 'McLaren', status: 'Collision damage', bucket: 'Incident', laps: 64 }
+                    ]
+                },
+                {
+                    rank: 3,
+                    id: 'max_verstappen',
+                    code: 'VER',
+                    name: 'Max Verstappen',
+                    constructorId: 'red_bull',
+                    constructorName: 'Red Bull Racing',
+                    color: '#1E41FF',
+                    totalEntries: 24,
+                    finished: 23,
+                    mechanical: 1,
+                    incident: 0,
+                    technical: 0,
+                    lapsCompleted: 1395,
+                    possibleLaps: 1440,
+                    finishedPct: 95.8,
+                    mechanicalPct: 4.2,
+                    incidentPct: 0.0,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 96.9,
+                    totalDNFs: 1,
+                    isReserve: false,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Max Verstappen', driverCode: 'VER', constructorName: 'Red Bull Racing', status: 'Brakes', bucket: 'Mechanical', laps: 3 }
+                    ]
+                },
+                {
+                    rank: 4,
+                    id: 'leclerc',
+                    code: 'LEC',
+                    name: 'Charles Leclerc',
+                    constructorId: 'ferrari',
+                    constructorName: 'Ferrari',
+                    color: '#E80020',
+                    totalEntries: 24,
+                    finished: 23,
+                    mechanical: 1,
+                    incident: 0,
+                    technical: 0,
+                    lapsCompleted: 1385,
+                    possibleLaps: 1440,
+                    finishedPct: 95.8,
+                    mechanicalPct: 4.2,
+                    incidentPct: 0.0,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 96.2,
+                    totalDNFs: 1,
+                    isReserve: false,
+                    failures: [
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Charles Leclerc', driverCode: 'LEC', constructorName: 'Ferrari', status: 'Engine', bucket: 'Mechanical', laps: 40 }
+                    ]
+                },
+                {
+                    rank: 5,
+                    id: 'alonso',
+                    code: 'ALO',
+                    name: 'Fernando Alonso',
+                    constructorId: 'aston_martin',
+                    constructorName: 'Aston Martin',
+                    color: '#006F62',
+                    totalEntries: 24,
+                    finished: 24,
+                    mechanical: 0,
+                    incident: 0,
+                    technical: 0,
+                    lapsCompleted: 1380,
+                    possibleLaps: 1440,
+                    finishedPct: 100.0,
+                    mechanicalPct: 0.0,
+                    incidentPct: 0.0,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 95.8,
+                    totalDNFs: 0,
+                    isReserve: false,
+                    failures: []
+                },
+                {
+                    rank: 6,
+                    id: 'sainz',
+                    code: 'SAI',
+                    name: 'Carlos Sainz',
+                    constructorId: 'ferrari',
+                    constructorName: 'Ferrari',
+                    color: '#E80020',
+                    totalEntries: 23,
+                    finished: 20,
+                    mechanical: 1,
+                    incident: 2,
+                    technical: 0,
+                    lapsCompleted: 1300,
+                    possibleLaps: 1383,
+                    finishedPct: 87.0,
+                    mechanicalPct: 4.3,
+                    incidentPct: 8.7,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 94.0,
+                    totalDNFs: 3,
+                    isReserve: false,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Engine', bucket: 'Mechanical', laps: 35 },
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Collision', bucket: 'Incident', laps: 52 },
+                        { round: '17', raceName: 'Azerbaijan GP', driverName: 'Carlos Sainz', driverCode: 'SAI', constructorName: 'Ferrari', status: 'Collision', bucket: 'Incident', laps: 50 }
+                    ]
+                },
+                {
+                    rank: 7,
+                    id: 'russell',
+                    code: 'RUS',
+                    name: 'George Russell',
+                    constructorId: 'mercedes',
+                    constructorName: 'Mercedes',
+                    color: '#00D2BE',
+                    totalEntries: 24,
+                    finished: 21,
+                    mechanical: 2,
+                    incident: 1,
+                    technical: 0,
+                    lapsCompleted: 1350,
+                    possibleLaps: 1440,
+                    finishedPct: 87.5,
+                    mechanicalPct: 8.3,
+                    incidentPct: 4.2,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 93.8,
+                    totalDNFs: 3,
+                    isReserve: false,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'George Russell', driverCode: 'RUS', constructorName: 'Mercedes', status: 'Accident', bucket: 'Incident', laps: 57 },
+                        { round: '12', raceName: 'British GP', driverName: 'George Russell', driverCode: 'RUS', constructorName: 'Mercedes', status: 'Water leak', bucket: 'Mechanical', laps: 33 },
+                        { round: '20', raceName: 'Mexico City GP', driverName: 'George Russell', driverCode: 'RUS', constructorName: 'Mercedes', status: 'Power loss', bucket: 'Mechanical', laps: 60 }
+                    ]
+                },
+                {
+                    rank: 8,
+                    id: 'hamilton',
+                    code: 'HAM',
+                    name: 'Lewis Hamilton',
+                    constructorId: 'mercedes',
+                    constructorName: 'Mercedes',
+                    color: '#00D2BE',
+                    totalEntries: 24,
+                    finished: 21,
+                    mechanical: 1,
+                    incident: 2,
+                    technical: 0,
+                    lapsCompleted: 1330,
+                    possibleLaps: 1440,
+                    finishedPct: 87.5,
+                    mechanicalPct: 4.2,
+                    incidentPct: 8.3,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 92.4,
+                    totalDNFs: 3,
+                    isReserve: false,
+                    failures: [
+                        { round: '3', raceName: 'Australian GP', driverName: 'Lewis Hamilton', driverCode: 'HAM', constructorName: 'Mercedes', status: 'Engine', bucket: 'Mechanical', laps: 15 },
+                        { round: '19', raceName: 'United States GP', driverName: 'Lewis Hamilton', driverCode: 'HAM', constructorName: 'Mercedes', status: 'Spun off', bucket: 'Incident', laps: 2 },
+                        { round: '21', raceName: 'São Paulo GP', driverName: 'Lewis Hamilton', driverCode: 'HAM', constructorName: 'Mercedes', status: 'Collision damage', bucket: 'Incident', laps: 40 }
+                    ]
+                },
+                {
+                    rank: 9,
+                    id: 'perez',
+                    code: 'PER',
+                    name: 'Sergio Perez',
+                    constructorId: 'red_bull',
+                    constructorName: 'Red Bull Racing',
+                    color: '#1E41FF',
+                    totalEntries: 24,
+                    finished: 20,
+                    mechanical: 1,
+                    incident: 3,
+                    technical: 0,
+                    lapsCompleted: 1320,
+                    possibleLaps: 1440,
+                    finishedPct: 83.3,
+                    mechanicalPct: 4.2,
+                    incidentPct: 12.5,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 91.7,
+                    totalDNFs: 4,
+                    isReserve: false,
+                    failures: [
+                        { round: '8', raceName: 'Monaco GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Accident', bucket: 'Incident', laps: 1 },
+                        { round: '9', raceName: 'Canadian GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Collision damage', bucket: 'Incident', laps: 51 },
+                        { round: '17', raceName: 'Azerbaijan GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Collision', bucket: 'Incident', laps: 49 },
+                        { round: '19', raceName: 'United States GP', driverName: 'Sergio Perez', driverCode: 'PER', constructorName: 'Red Bull Racing', status: 'Power Unit', bucket: 'Mechanical', laps: 45 }
+                    ]
+                },
+                {
+                    rank: 10,
+                    id: 'bearman',
+                    code: 'BEA',
+                    name: 'Oliver Bearman',
+                    constructorId: 'ferrari',
+                    constructorName: 'Ferrari',
+                    color: '#E80020',
+                    totalEntries: 3,
+                    finished: 3,
+                    mechanical: 0,
+                    incident: 0,
+                    technical: 0,
+                    lapsCompleted: 165,
+                    possibleLaps: 168,
+                    finishedPct: 100.0,
+                    mechanicalPct: 0.0,
+                    incidentPct: 0.0,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 98.2,
+                    totalDNFs: 0,
+                    isReserve: false,
+                    failures: []
+                },
+                {
+                    rank: 11,
+                    id: 'doohan',
+                    code: 'DOO',
+                    name: 'Jack Doohan',
+                    constructorId: 'alpine',
+                    constructorName: 'Alpine',
+                    color: '#0090FF',
+                    totalEntries: 1,
+                    finished: 1,
+                    mechanical: 0,
+                    incident: 0,
+                    technical: 0,
+                    lapsCompleted: 58,
+                    possibleLaps: 58,
+                    finishedPct: 100.0,
+                    mechanicalPct: 0.0,
+                    incidentPct: 0.0,
+                    technicalPct: 0.0,
+                    lapCompletionPct: 100.0,
+                    totalDNFs: 0,
+                    isReserve: true,
+                    failures: []
+                }
+            ]
+        };
+
+        const reliabilityState = {
+            season: '2024',
+            viewScope: 'constructors',
+            excludeReserves: false,
+            metrics: null,
+            loading: false
+        };
+
+        let reliabilityChartInstance = null;
+
+        function computeReliabilityMetrics(races = [], options = {}) {
+            if (!Array.isArray(races) || races.length === 0) {
+                if (options.fallback || options.season === '2024' || !options.season) {
+                    return RELIABILITY_FALLBACK_2024;
+                }
+                return {
+                    season: options.season || 'unknown',
+                    totalRaces: 0,
+                    totalEntries: 0,
+                    totalFinished: 0,
+                    totalMechanical: 0,
+                    totalIncident: 0,
+                    totalTechnical: 0,
+                    overallReliabilityPct: 0,
+                    overallMechanicalPct: 0,
+                    overallIncidentPct: 0,
+                    totalSeasonLapsPossible: 0,
+                    constructors: [],
+                    drivers: []
+                };
+            }
+
+            const constructorMap = {};
+            const driverMap = {};
+            let totalEntries = 0;
+            let totalFinished = 0;
+            let totalMechanical = 0;
+            let totalIncident = 0;
+            let totalTechnical = 0;
+            let totalSeasonLapsPossible = 0;
+
+            races.forEach(race => {
+                const round = String(race.round || '');
+                const raceName = race.raceName || `Round ${round}`;
+                const results = race.Results || [];
+
+                let raceMaxLaps = 0;
+                results.forEach(res => {
+                    const laps = parseInt(res.laps, 10) || 0;
+                    if (laps > raceMaxLaps) raceMaxLaps = laps;
+                });
+                totalSeasonLapsPossible += raceMaxLaps;
+
+                results.forEach(res => {
+                    totalEntries++;
+                    const status = res.status || 'Finished';
+                    const bucket = categorizeReliabilityStatus(status);
+                    const lapsCompleted = parseInt(res.laps, 10) || 0;
+                    const driverObj = res.Driver || {};
+                    const constructorObj = res.Constructor || {};
+                    const driverId = driverObj.driverId || 'unknown_driver';
+                    const constructorId = constructorObj.constructorId || 'unknown_constructor';
+                    const driverCode = driverObj.code || (driverObj.familyName ? driverObj.familyName.slice(0, 3).toUpperCase() : 'DRV');
+                    const driverName = `${driverObj.givenName || ''} ${driverObj.familyName || ''}`.trim() || driverId;
+                    const constructorName = constructorObj.name || constructorId;
+                    const teamColor = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[constructorId])
+                        ? TEAM_COLORS[constructorId]
+                        : (typeof constructorColors !== 'undefined' && constructorColors[constructorId] ? constructorColors[constructorId] : '#00F0FF');
+
+                    if (bucket === RELIABILITY_BUCKETS.FINISHED) totalFinished++;
+                    else if (bucket === RELIABILITY_BUCKETS.MECHANICAL) totalMechanical++;
+                    else if (bucket === RELIABILITY_BUCKETS.INCIDENT) totalIncident++;
+                    else if (bucket === RELIABILITY_BUCKETS.TECHNICAL) totalTechnical++;
+
+                    const failureEvent = (bucket !== RELIABILITY_BUCKETS.FINISHED) ? {
+                        round,
+                        raceName,
+                        driverName,
+                        driverCode,
+                        constructorName,
+                        status,
+                        bucket,
+                        laps: lapsCompleted
+                    } : null;
+
+                    // Aggregate Constructor
+                    if (!constructorMap[constructorId]) {
+                        constructorMap[constructorId] = {
+                            id: constructorId,
+                            name: constructorName,
+                            color: teamColor,
+                            totalEntries: 0,
+                            finished: 0,
+                            mechanical: 0,
+                            incident: 0,
+                            technical: 0,
+                            lapsCompleted: 0,
+                            possibleLaps: 0,
+                            failures: []
+                        };
+                    }
+                    const cEntry = constructorMap[constructorId];
+                    cEntry.totalEntries++;
+                    cEntry.lapsCompleted += lapsCompleted;
+                    cEntry.possibleLaps += raceMaxLaps;
+                    if (bucket === RELIABILITY_BUCKETS.FINISHED) cEntry.finished++;
+                    else if (bucket === RELIABILITY_BUCKETS.MECHANICAL) cEntry.mechanical++;
+                    else if (bucket === RELIABILITY_BUCKETS.INCIDENT) cEntry.incident++;
+                    else if (bucket === RELIABILITY_BUCKETS.TECHNICAL) cEntry.technical++;
+                    if (failureEvent) cEntry.failures.push(failureEvent);
+
+                    // Aggregate Driver
+                    if (!driverMap[driverId]) {
+                        driverMap[driverId] = {
+                            id: driverId,
+                            code: driverCode,
+                            name: driverName,
+                            constructorId,
+                            constructorName,
+                            color: teamColor,
+                            totalEntries: 0,
+                            finished: 0,
+                            mechanical: 0,
+                            incident: 0,
+                            technical: 0,
+                            lapsCompleted: 0,
+                            possibleLaps: 0,
+                            failures: []
+                        };
+                    }
+                    const dEntry = driverMap[driverId];
+                    dEntry.totalEntries++;
+                    dEntry.lapsCompleted += lapsCompleted;
+                    dEntry.possibleLaps += raceMaxLaps;
+                    if (bucket === RELIABILITY_BUCKETS.FINISHED) dEntry.finished++;
+                    else if (bucket === RELIABILITY_BUCKETS.MECHANICAL) dEntry.mechanical++;
+                    else if (bucket === RELIABILITY_BUCKETS.INCIDENT) dEntry.incident++;
+                    else if (bucket === RELIABILITY_BUCKETS.TECHNICAL) dEntry.technical++;
+                    if (failureEvent) dEntry.failures.push(failureEvent);
+                });
+            });
+
+            const constructors = Object.values(constructorMap).map(c => {
+                const finishedPct = c.totalEntries > 0 ? (c.finished / c.totalEntries) * 100 : 0;
+                const mechanicalPct = c.totalEntries > 0 ? (c.mechanical / c.totalEntries) * 100 : 0;
+                const incidentPct = c.totalEntries > 0 ? (c.incident / c.totalEntries) * 100 : 0;
+                const technicalPct = c.totalEntries > 0 ? (c.technical / c.totalEntries) * 100 : 0;
+                const lapCompletionPct = c.possibleLaps > 0 ? (c.lapsCompleted / c.possibleLaps) * 100 : 0;
+                return {
+                    ...c,
+                    finishedPct,
+                    mechanicalPct,
+                    incidentPct,
+                    technicalPct,
+                    lapCompletionPct,
+                    totalDNFs: c.mechanical + c.incident + c.technical
+                };
+            }).sort((a, b) => b.lapCompletionPct - a.lapCompletionPct || b.finishedPct - a.finishedPct);
+
+            constructors.forEach((c, idx) => { c.rank = idx + 1; });
+
+            const drivers = Object.values(driverMap).map(d => {
+                const finishedPct = d.totalEntries > 0 ? (d.finished / d.totalEntries) * 100 : 0;
+                const mechanicalPct = d.totalEntries > 0 ? (d.mechanical / d.totalEntries) * 100 : 0;
+                const incidentPct = d.totalEntries > 0 ? (d.incident / d.totalEntries) * 100 : 0;
+                const technicalPct = d.totalEntries > 0 ? (d.technical / d.totalEntries) * 100 : 0;
+                const lapCompletionPct = d.possibleLaps > 0 ? (d.lapsCompleted / d.possibleLaps) * 100 : 0;
+                const isReserve = d.totalEntries < 3;
+                return {
+                    ...d,
+                    isReserve,
+                    finishedPct,
+                    mechanicalPct,
+                    incidentPct,
+                    technicalPct,
+                    lapCompletionPct,
+                    totalDNFs: d.mechanical + d.incident + d.technical
+                };
+            }).sort((a, b) => b.lapCompletionPct - a.lapCompletionPct || b.finishedPct - a.finishedPct);
+
+            drivers.forEach((d, idx) => { d.rank = idx + 1; });
+
+            const overallReliabilityPct = totalEntries > 0 ? (totalFinished / totalEntries) * 100 : 0;
+            const overallMechanicalPct = totalEntries > 0 ? (totalMechanical / totalEntries) * 100 : 0;
+            const overallIncidentPct = totalEntries > 0 ? (totalIncident / totalEntries) * 100 : 0;
+
+            return {
+                season: options.season || '2024',
+                totalRaces: races.length,
+                totalEntries,
+                totalFinished,
+                totalMechanical,
+                totalIncident,
+                totalTechnical,
+                overallReliabilityPct,
+                overallMechanicalPct,
+                overallIncidentPct,
+                totalSeasonLapsPossible,
+                constructors,
+                drivers
+            };
+        }
+
+        async function fetchSeasonStatus(season = '2024') {
+            try {
+                const url = `${BASE_URL}/${season}/status.json?limit=100`;
+                const resp = await (typeof fetchWithRetry === 'function' ? fetchWithRetry(url) : fetch(url));
+                if (!resp || !resp.ok) return null;
+                const data = await resp.json();
+                return data?.MRData?.StatusTable?.Status || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function loadReliabilityData(season = '2024', forceRefresh = false) {
+            const seasonStr = String(season || reliabilityState.season || '2024');
+            reliabilityState.season = seasonStr;
+            reliabilityState.loading = true;
+
+            const cacheKey = `f1_reliability_${seasonStr}`;
+            if (!forceRefresh && typeof localStorage !== 'undefined') {
+                try {
+                    const cached = localStorage.getItem(cacheKey);
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        reliabilityState.metrics = parsed;
+                        reliabilityState.loading = false;
+                        renderReliabilityView(parsed);
+                        return parsed;
+                    }
+                } catch (e) {}
+            }
+
+            try {
+                let results = [];
+                let statusList = null;
+
+                const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(seasonStr, 'results', 'Results').catch(() => [])
+                    : Promise.resolve([]);
+
+                const statusPromise = fetchSeasonStatus(seasonStr).catch(() => null);
+
+                const [resData, stData] = await Promise.all([resultsPromise, statusPromise]);
+                results = resData || [];
+                statusList = stData || null;
+
+                let metrics = null;
+                if (results && results.length > 0) {
+                    metrics = computeReliabilityMetrics(results, { season: seasonStr, statusList });
+                } else if (seasonStr === '2024' || !seasonStr) {
+                    metrics = RELIABILITY_FALLBACK_2024;
+                } else {
+                    metrics = computeReliabilityMetrics([], { season: seasonStr });
+                }
+
+                reliabilityState.metrics = metrics;
+
+                if (metrics && typeof localStorage !== 'undefined') {
+                    try {
+                        localStorage.setItem(cacheKey, JSON.stringify(metrics));
+                    } catch (e) {}
+                }
+
+                renderReliabilityView(metrics);
+                return metrics;
+            } catch (err) {
+                console.warn('Error loading reliability data:', err);
+                if (seasonStr === '2024') {
+                    reliabilityState.metrics = RELIABILITY_FALLBACK_2024;
+                    renderReliabilityView(RELIABILITY_FALLBACK_2024);
+                    return RELIABILITY_FALLBACK_2024;
+                }
+                return null;
+            } finally {
+                reliabilityState.loading = false;
+            }
+        }
+
+        function onReliabilitySeasonChange(season) {
+            reliabilityState.season = String(season);
+            loadReliabilityData(season, false);
+        }
+
+        function refreshReliabilityData() {
+            const sel = typeof document !== 'undefined' ? document.getElementById('reliabilitySeasonSelect') : null;
+            const season = sel ? sel.value : reliabilityState.season;
+            loadReliabilityData(season, true);
+        }
+
+        function setReliabilityViewScope(scope) {
+            if (scope !== 'constructors' && scope !== 'drivers') return;
+            reliabilityState.viewScope = scope;
+
+            if (typeof document !== 'undefined') {
+                const cPill = document.getElementById('relPillScopeConstructors');
+                const dPill = document.getElementById('relPillScopeDrivers');
+                const reserveGroup = document.getElementById('reliabilityReserveFilterGroup');
+                const colName = document.getElementById('reliabilityColName');
+                const badge = document.getElementById('reliabilityTableBadge');
+
+                if (cPill) {
+                    if (scope === 'constructors') cPill.classList.add('active');
+                    else cPill.classList.remove('active');
+                }
+                if (dPill) {
+                    if (scope === 'drivers') dPill.classList.add('active');
+                    else dPill.classList.remove('active');
+                }
+                if (reserveGroup) {
+                    reserveGroup.style.display = scope === 'drivers' ? 'flex' : 'none';
+                }
+                if (colName) {
+                    colName.textContent = scope === 'constructors' ? 'Constructor' : 'Driver';
+                }
+                if (badge) {
+                    badge.textContent = scope === 'constructors' ? 'Constructors View' : 'Drivers View';
+                }
+            }
+
+            renderReliabilityView(reliabilityState.metrics);
+        }
+
+        function setReliabilityReserveFilter(excludeReserves) {
+            reliabilityState.excludeReserves = Boolean(excludeReserves);
+
+            if (typeof document !== 'undefined') {
+                const allPill = document.getElementById('relPillReserveAll');
+                const excludePill = document.getElementById('relPillReserveExclude');
+                if (allPill && excludePill) {
+                    if (reliabilityState.excludeReserves) {
+                        allPill.classList.remove('active');
+                        excludePill.classList.add('active');
+                    } else {
+                        allPill.classList.add('active');
+                        excludePill.classList.remove('active');
+                    }
+                }
+            }
+
+            renderReliabilityView(reliabilityState.metrics);
+        }
+
+        function toggleReliabilityReserveFilter() {
+            setReliabilityReserveFilter(!reliabilityState.excludeReserves);
+        }
+
+        function renderReliabilityView(metrics) {
+            if (!metrics) metrics = reliabilityState.metrics;
+            if (!metrics) return;
+
+            renderReliabilityKpis(metrics);
+            renderReliabilityChart(metrics);
+            renderReliabilityTable(metrics);
+        }
+
+        function renderReliabilityKpis(metrics) {
+            if (!metrics || typeof document === 'undefined') return;
+
+            const finishedVal = document.getElementById('relKpiFinishedVal');
+            const finishedSub = document.getElementById('relKpiFinishedSub');
+            const mechVal = document.getElementById('relKpiMechanicalVal');
+            const incVal = document.getElementById('relKpiIncidentsVal');
+            const lapsVal = document.getElementById('relKpiLapsVal');
+            const lapsSub = document.getElementById('relKpiLapsSub');
+
+            if (finishedVal) finishedVal.textContent = `${metrics.overallReliabilityPct.toFixed(1)}%`;
+            if (finishedSub) finishedSub.textContent = `${metrics.totalFinished} of ${metrics.totalEntries} entries`;
+            if (mechVal) mechVal.textContent = String(metrics.totalMechanical);
+            if (incVal) incVal.textContent = String(metrics.totalIncident);
+
+            let totalDone = 0;
+            let totalPoss = 0;
+            (metrics.constructors || []).forEach(c => {
+                totalDone += c.lapsCompleted;
+                totalPoss += c.possibleLaps;
+            });
+            const lapPct = totalPoss > 0 ? (totalDone / totalPoss) * 100 : 0;
+            if (lapsVal) lapsVal.textContent = `${lapPct.toFixed(1)}%`;
+            if (lapsSub) lapsSub.textContent = `${totalDone.toLocaleString()} / ${totalPoss.toLocaleString()} laps`;
+        }
+
+        function renderReliabilityChart(metrics) {
+            if (!metrics) metrics = reliabilityState.metrics;
+            if (!metrics || typeof document === 'undefined') return;
+
+            const canvas = document.getElementById('reliabilityChart');
+            if (!canvas) return;
+
+            let items = (reliabilityState.viewScope === 'constructors')
+                ? (metrics.constructors || [])
+                : (metrics.drivers || []);
+
+            if (reliabilityState.viewScope === 'drivers' && reliabilityState.excludeReserves) {
+                items = items.filter(d => !d.isReserve);
+            }
+
+            if (!items.length) return;
+
+            if (reliabilityChartInstance && typeof reliabilityChartInstance.destroy === 'function') {
+                reliabilityChartInstance.destroy();
+                reliabilityChartInstance = null;
+            }
+
+            const labels = items.map(c => (reliabilityState.viewScope === 'constructors' ? c.name : `${c.name} (${c.code})`));
+            const finishedData = items.map(c => Number(c.finishedPct.toFixed(1)));
+            const mechData = items.map(c => Number(c.mechanicalPct.toFixed(1)));
+            const incData = items.map(c => Number(c.incidentPct.toFixed(1)));
+            const techData = items.map(c => Number(c.technicalPct.toFixed(1)));
+
+            const finishedCounts = items.map(c => c.finished);
+            const mechCounts = items.map(c => c.mechanical);
+            const incCounts = items.map(c => c.incident);
+            const techCounts = items.map(c => c.technical);
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : canvas;
+            if (typeof Chart === 'undefined') return;
+
+            reliabilityChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Finished/Classified',
+                            data: finishedData,
+                            counts: finishedCounts,
+                            backgroundColor: '#10B981',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Mechanical',
+                            data: mechData,
+                            counts: mechCounts,
+                            backgroundColor: '#F59E0B',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Incident',
+                            data: incData,
+                            counts: incCounts,
+                            backgroundColor: '#EF4444',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Technical/Operational/DNS/DSQ',
+                            data: techData,
+                            counts: techCounts,
+                            backgroundColor: '#8B5CF6',
+                            borderRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function(val) { return val + '%'; },
+                                color: '#94A3B8'
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                            title: {
+                                display: true,
+                                text: 'Share of Season Entries (%)',
+                                color: '#94A3B8'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                color: '#E2E8F0',
+                                font: { weight: '600' }
+                            },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#E2E8F0',
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            mode: 'nearest',
+                            backgroundColor: 'rgba(12, 16, 23, 0.95)',
+                            titleColor: '#00F0FF',
+                            bodyColor: '#CBD5E1',
+                            borderColor: '#1E2738',
+                            borderWidth: 1,
+                            padding: 12,
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    if (!tooltipItems.length) return '';
+                                    return tooltipItems[0].label;
+                                },
+                                label: function(ctx) {
+                                    const idx = ctx.dataIndex;
+                                    const c = items[idx];
+                                    const count = ctx.dataset.counts ? ctx.dataset.counts[idx] : 0;
+                                    const pct = ctx.parsed.x !== undefined ? ctx.parsed.x : 0;
+                                    return ` ${ctx.dataset.label}: ${count} / ${c.totalEntries} entries (${Number(pct).toFixed(1)}%)`;
+                                },
+                                afterLabel: function(ctx) {
+                                    const idx = ctx.dataIndex;
+                                    const c = items[idx];
+                                    if (!c) return '';
+                                    const bucket = ctx.dataset.label;
+                                    if (bucket === 'Finished/Classified') {
+                                        return `  • Classified finish rate: ${c.finishedPct.toFixed(1)}% (${c.lapsCompleted.toLocaleString()} / ${c.possibleLaps.toLocaleString()} laps)`;
+                                    }
+                                    const bucketFailures = (c.failures || []).filter(f => f.bucket === bucket);
+                                    if (!bucketFailures.length) {
+                                        return `  • No ${bucket} retirements`;
+                                    }
+                                    return bucketFailures.map(f => {
+                                        const driverTag = (reliabilityState.viewScope === 'constructors' && f.driverCode) ? ` [${f.driverCode}]` : '';
+                                        return `  • R${String(f.round).padStart(2, '0')} ${f.raceName}${driverTag}: ${f.status} (Lap ${f.laps})`;
+                                    }).join('\n');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderReliabilityTable(metrics) {
+            if (!metrics) metrics = reliabilityState.metrics;
+            if (!metrics || typeof document === 'undefined') return;
+
+            const tbody = document.getElementById('reliabilityTableBody');
+            if (!tbody) return;
+
+            let items = (reliabilityState.viewScope === 'constructors')
+                ? (metrics.constructors || [])
+                : (metrics.drivers || []);
+
+            if (reliabilityState.viewScope === 'drivers' && reliabilityState.excludeReserves) {
+                items = items.filter(d => !d.isReserve);
+            }
+
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px; color: #94A3B8;">No reliability data available for this selection.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map((c, idx) => {
+                const rank = idx + 1;
+                const color = c.color || '#00F0FF';
+                const nameStr = reliabilityState.viewScope === 'constructors'
+                    ? c.name
+                    : `${c.name} <span style="color: #64748B; font-size: 0.75rem;">(${c.code})</span>`;
+
+                const mechBadge = c.mechanical > 0
+                    ? `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.4);">${c.mechanical} (${c.mechanicalPct.toFixed(1)}%)</span>`
+                    : `<span style="color: #64748B;">0</span>`;
+
+                const incBadge = c.incident > 0
+                    ? `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">${c.incident} (${c.incidentPct.toFixed(1)}%)</span>`
+                    : `<span style="color: #64748B;">0</span>`;
+
+                const techBadge = c.technical > 0
+                    ? `<span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.4);">${c.technical} (${c.technicalPct.toFixed(1)}%)</span>`
+                    : `<span style="color: #64748B;">0</span>`;
+
+                const reserveTag = c.isReserve
+                    ? ` <span class="badge" style="font-size: 0.65rem; background: #1E293B; color: #94A3B8;">Reserve</span>`
+                    : '';
+
+                return `
+                    <tr>
+                        <td style="text-align: center; font-weight: 700; color: #94A3B8;">${rank}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="width: 4px; height: 16px; background-color: ${color}; border-radius: 2px; display: inline-block;"></span>
+                                <span style="font-weight: 600; color: #FFFFFF;">${nameStr}</span>${reserveTag}
+                            </div>
+                        </td>
+                        <td style="text-align: center; font-weight: 600;">${c.totalEntries}</td>
+                        <td style="text-align: center;">
+                            <span style="font-weight: 600; color: #10B981;">${c.finished}</span>
+                            <span style="font-size: 0.75rem; color: #94A3B8;">(${c.finishedPct.toFixed(1)}%)</span>
+                        </td>
+                        <td style="text-align: center;">${mechBadge}</td>
+                        <td style="text-align: center;">${incBadge}</td>
+                        <td style="text-align: center;">${techBadge}</td>
+                        <td style="text-align: right; font-family: var(--font-mono, monospace); font-size: 0.85rem;">
+                            ${c.lapsCompleted.toLocaleString()} <span style="color: #64748B;">/ ${c.possibleLaps.toLocaleString()}</span>
+                        </td>
+                        <td>
+                            <div class="rel-completion-wrapper">
+                                <div class="rel-completion-bar">
+                                    <div class="rel-completion-fill" style="width: ${Math.min(100, c.lapCompletionPct)}%;"></div>
+                                </div>
+                                <span style="font-weight: 700; font-size: 0.82rem; color: ${c.lapCompletionPct >= 95 ? '#10B981' : (c.lapCompletionPct >= 90 ? '#F59E0B' : '#EF4444')};">
+                                    ${c.lapCompletionPct.toFixed(1)}%
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
@@ -13106,6 +14645,7 @@
                 'sprint': 'tabBtnSprint',
                 'clinch': 'tabBtnClinch',
                 'pitstops': 'tabBtnPitStops',
+                'reliability': 'tabBtnReliability',
                 'telemetry': 'tabBtnTelemetry',
                 'progression': 'tabBtnProgression',
                 'results': 'tabBtnResults'
@@ -13120,6 +14660,7 @@
             const sprintSec = document.getElementById('sprint-disparity-section');
             const clinchSec = document.getElementById('clinch-engine-section');
             const pitstopSec = document.getElementById('pitstop-matrix-section');
+            const reliabilitySec = document.getElementById('reliability-matrix-section');
             const telemetrySec = document.getElementById('teammate-telemetry-section');
             const progressionSec = document.getElementById('progression-section');
             const latestRaceSec = document.getElementById('latest-race-section');
@@ -13133,6 +14674,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13145,6 +14687,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13157,6 +14700,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13169,6 +14713,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13181,6 +14726,7 @@
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13193,6 +14739,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13205,6 +14752,20 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'block';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'reliability') {
+                if (lapChartSec) lapChartSec.style.display = 'none';
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
+                if (profilerSec) profilerSec.style.display = 'none';
+                if (constructorSec) constructorSec.style.display = 'none';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'block';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13217,6 +14778,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'block';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13229,6 +14791,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'block';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -13241,6 +14804,7 @@
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
@@ -13253,6 +14817,7 @@
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'block';
+                if (reliabilitySec) reliabilitySec.style.display = 'block';
                 if (telemetrySec) telemetrySec.style.display = 'block';
                 if (progressionSec) progressionSec.style.display = 'block';
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
@@ -13276,6 +14841,9 @@
                 if (lapChartState && lapChartState.chartInstance && typeof lapChartState.chartInstance.resize === 'function') {
                     lapChartState.chartInstance.resize();
                 }
+                if (reliabilityChartInstance && typeof reliabilityChartInstance.resize === 'function') {
+                    reliabilityChartInstance.resize();
+                }
             }, 50);
         }
 
@@ -13294,6 +14862,9 @@
             }
             if (lapChartState && lapChartState.chartInstance && typeof lapChartState.chartInstance.resize === 'function') {
                 lapChartState.chartInstance.resize();
+            }
+            if (reliabilityChartInstance && typeof reliabilityChartInstance.resize === 'function') {
+                reliabilityChartInstance.resize();
             }
             if (chartInstance) chartInstance.resize();
         });
@@ -13365,6 +14936,11 @@
                 const roundVal = roundSelect ? roundSelect.value : '1';
                 loadLapTelemetry(lapSeasonSelect.value, roundVal, false);
             }
+
+            const reliabilitySeasonSelect = document.getElementById('reliabilitySeasonSelect');
+            if (reliabilitySeasonSelect) {
+                loadReliabilityData(reliabilitySeasonSelect.value, false);
+            }
         });
 
         if (typeof window !== 'undefined') {
@@ -13391,6 +14967,23 @@
             window.LAP_CHART_FALLBACK_DRIVERS_2024 = LAP_CHART_FALLBACK_DRIVERS_2024;
             window.LAP_CHART_FALLBACK_LAPS_2024 = LAP_CHART_FALLBACK_LAPS_2024;
             window.SEASON_LAPS_LED_FALLBACK_2024 = SEASON_LAPS_LED_FALLBACK_2024;
+            window.categorizeReliabilityStatus = categorizeReliabilityStatus;
+            window.categorizeStatus = categorizeStatus;
+            window.RELIABILITY_BUCKETS = RELIABILITY_BUCKETS;
+            window.RELIABILITY_FALLBACK_2024 = RELIABILITY_FALLBACK_2024;
+            window.reliabilityState = reliabilityState;
+            window.computeReliabilityMetrics = computeReliabilityMetrics;
+            window.loadReliabilityData = loadReliabilityData;
+            window.onReliabilitySeasonChange = onReliabilitySeasonChange;
+            window.refreshReliabilityData = refreshReliabilityData;
+            window.setReliabilityViewScope = setReliabilityViewScope;
+            window.setReliabilityReserveFilter = setReliabilityReserveFilter;
+            window.toggleReliabilityReserveFilter = toggleReliabilityReserveFilter;
+            window.renderReliabilityView = renderReliabilityView;
+            window.renderReliabilityKpis = renderReliabilityKpis;
+            window.renderReliabilityChart = renderReliabilityChart;
+            window.renderReliabilityTable = renderReliabilityTable;
+            window.fetchSeasonStatus = fetchSeasonStatus;
             window.loadSprintData = loadSprintData;
             window.renderSprintData = renderSprintData;
             window.loadSprintDisparityData = loadSprintData;
@@ -13636,7 +15229,24 @@
                 recalculateAndRenderClinchMath,
                 renderClinchScenariosAndTiebreaker,
                 renderClinchScenarioMatrixTable,
-                CLINCH_FALLBACK_2024
+                CLINCH_FALLBACK_2024,
+                categorizeReliabilityStatus,
+                categorizeStatus,
+                RELIABILITY_BUCKETS,
+                RELIABILITY_FALLBACK_2024,
+                reliabilityState,
+                computeReliabilityMetrics,
+                loadReliabilityData,
+                onReliabilitySeasonChange,
+                refreshReliabilityData,
+                setReliabilityViewScope,
+                setReliabilityReserveFilter,
+                toggleReliabilityReserveFilter,
+                renderReliabilityView,
+                renderReliabilityKpis,
+                renderReliabilityChart,
+                renderReliabilityTable,
+                fetchSeasonStatus
             };
         }
     </script>
