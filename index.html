@@ -8619,18 +8619,14 @@
                 const data = await resp.json();
                 const mrData = data?.MRData;
                 total = parseInt(mrData?.total || '0', 10);
-                const pageLimit = parseInt(mrData?.limit || '100', 10);
+                const pageLimit = Math.max(1, parseInt(mrData?.limit || '100', 10) || 100);
                 const races = mrData?.RaceTable?.Races || [];
 
                 races.forEach(r => {
                     const rnd = String(r.round);
                     if (!roundMap[rnd]) {
                         roundMap[rnd] = {
-                            season: r.season,
-                            round: rnd,
-                            raceName: r.raceName,
-                            date: r.date,
-                            Circuit: r.Circuit,
+                            ...r,
                             [resultKey]: []
                         };
                     }
@@ -8639,7 +8635,7 @@
                 });
 
                 offset += pageLimit;
-                if (offset >= total) break;
+                if (offset >= total || races.length === 0) break;
             }
 
             return Object.values(roundMap).sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
@@ -12276,15 +12272,44 @@
         }
 
         async function fetchSeasonResults(season = '2024') {
-            const seasonStr = String(season);
-            const url = `${BASE_URL}/${seasonStr}/results.json?limit=1000`;
-            const resp = await fetch(url);
-            if (!resp.ok) {
-                throw new Error(`HTTP ${resp.status} fetching season results for ${seasonStr}`);
+            const seasonStr = String(season || '2024');
+            if (typeof fetchAllJolpicaPages === 'function') {
+                return await fetchAllJolpicaPages(seasonStr, 'results', 'Results');
             }
-            const data = await resp.json();
-            const races = data?.MRData?.RaceTable?.Races || [];
-            return races;
+            const roundMap = {};
+            let offset = 0;
+            let total = null;
+            const limit = 1000;
+
+            while (total === null || offset < total) {
+                const url = `${BASE_URL}/${seasonStr}/results.json?limit=${limit}&offset=${offset}`;
+                const resp = await fetch(url);
+                if (!resp.ok) {
+                    throw new Error(`HTTP ${resp.status} fetching season results for ${seasonStr}`);
+                }
+                const data = await resp.json();
+                const mrData = data?.MRData;
+                total = parseInt(mrData?.total || '0', 10);
+                const pageLimit = Math.max(1, parseInt(mrData?.limit || '100', 10) || 100);
+                const races = mrData?.RaceTable?.Races || [];
+
+                races.forEach(r => {
+                    const rnd = String(r.round);
+                    if (!roundMap[rnd]) {
+                        roundMap[rnd] = {
+                            ...r,
+                            Results: []
+                        };
+                    }
+                    const list = r.Results || [];
+                    roundMap[rnd].Results.push(...list);
+                });
+
+                offset += pageLimit;
+                if (offset >= total || races.length === 0) break;
+            }
+
+            return Object.values(roundMap).sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
         }
 
         async function fetchLapPositions(season = '2024', round = '1') {
@@ -12570,7 +12595,7 @@
             }
 
             try {
-                let races = (lapChartState.season === seasonStr && Array.isArray(lapChartState.seasonResults) && lapChartState.seasonResults.length > 0)
+                let races = (lapChartState.season === seasonStr && Array.isArray(lapChartState.seasonResults) && lapChartState.seasonResults.length > 0 && (!lapChartState.seasonResults[0]?.season || String(lapChartState.seasonResults[0].season) === seasonStr))
                     ? lapChartState.seasonResults
                     : await fetchSeasonResults(seasonStr).catch(() => []);
 
@@ -12879,6 +12904,7 @@
                 opt.textContent = `Round ${r.round} - ${r.raceName || 'Grand Prix'}`;
                 if (String(r.round) === String(selectedRound)) {
                     opt.selected = true;
+                    select.value = String(r.round);
                 }
                 select.appendChild(opt);
             });
@@ -12987,6 +13013,26 @@
                     } catch (e) {}
                 }
 
+                let currentRace = races.find(r => String(r.round) === roundStr);
+                if (!currentRace) {
+                    try {
+                        const roundResp = await fetch(`${BASE_URL}/${seasonStr}/${roundStr}/results.json`);
+                        if (roundResp.ok) {
+                            const roundData = await roundResp.json();
+                            const roundRaces = roundData?.MRData?.RaceTable?.Races;
+                            if (Array.isArray(roundRaces) && roundRaces.length > 0) {
+                                currentRace = roundRaces[0];
+                                if (!races.some(r => String(r.round) === roundStr)) {
+                                    races.push(currentRace);
+                                    races.sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+                                    lapChartState.seasonResults = races;
+                                    lapChartState.resultsData = races;
+                                }
+                            }
+                        }
+                    } catch (e) {}
+                }
+
                 populateLapRoundSelector(races, roundStr);
                 const chartData = processLapChartData(
                     lapChartState.lapsData.length > 0 ? lapChartState.lapsData : null,
@@ -12997,8 +13043,6 @@
                 renderLapDriverFilters(chartData.drivers);
                 renderSeasonLapsLedLeaderboard();
                 renderLapRoundBreakdown(lapChartState.lapsData.length > 0 ? lapChartState.lapsData : LAP_CHART_FALLBACK_LAPS_2024, races);
-
-                const currentRace = races.find(r => String(r.round) === roundStr);
                 if (venueTitleEl) {
                     venueTitleEl.textContent = currentRace
                         ? `${currentRace.raceName} — Lap-by-Lap Position Progression`
