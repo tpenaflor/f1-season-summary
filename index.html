@@ -3077,6 +3077,20 @@
             box-shadow: 0 0 14px rgba(255, 128, 0, 0.5);
         }
 
+        .momentum-section {
+            background: linear-gradient(180deg, var(--atr-surface) 0%, var(--atr-bg) 100%);
+            border: 1px solid var(--atr-border);
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .momentum-header-accent {
+            background: linear-gradient(180deg, #00F0FF 0%, #8B5CF6 50%, #10B981 100%);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+        }
+
         .atr-filter-bar {
             display: flex;
             align-items: center;
@@ -3260,6 +3274,18 @@
             background: rgba(139, 92, 246, 0.16);
             color: #C4B5FD;
             border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .atr-kpi-tag.tag-green {
+            background: rgba(16, 185, 129, 0.14);
+            color: #10B981;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .atr-kpi-tag.tag-red {
+            background: rgba(239, 68, 68, 0.14);
+            color: #EF4444;
+            border-color: rgba(239, 68, 68, 0.35);
         }
 
         .atr-kpi-sub {
@@ -4623,6 +4649,9 @@
             <button type="button" class="tab-btn" id="tabBtnConstructors" onclick="switchMainTab('constructors')">
                 <span class="tab-icon">🏎️</span> Constructor ATR & Standings
             </button>
+            <button type="button" class="tab-btn" id="tabBtnMomentum" onclick="switchMainTab('momentum')">
+                <span class="tab-icon">🚀</span> Constructor Momentum &amp; Trajectory
+            </button>
             <button type="button" class="tab-btn" id="tabBtnSprint" onclick="switchMainTab('sprint')">
                 <span class="tab-icon">⚡</span> Sprint vs GP Disparity
             </button>
@@ -5440,6 +5469,135 @@
                             </tr>
                         </thead>
                         <tbody id="constructorAtrTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Constructor Points Momentum & In-Season Development Trajectory Tracker (Issue #23) -->
+        <section class="card telemetry-section momentum-section" id="constructor-momentum-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent momentum-header-accent"></div>
+                    <div>
+                        <h2>Constructor Points Momentum &amp; In-Season Development Trajectory Tracker</h2>
+                        <p class="section-subtitle">Round-by-round constructor points aggregation across Grand Prix and Sprint sessions with rolling 3-race development trajectory and momentum dynamics</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="momentumSeasonSelect">Season:</label>
+                        <select id="momentumSeasonSelect" class="season-dropdown" onchange="onMomentumSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season (No Sprints)</option>
+                            <option value="2019">2019 Season (No Sprints)</option>
+                            <option value="2018">2018 Season (No Sprints)</option>
+                        </select>
+                    </div>
+                    <span id="momentumCacheBadge" class="cache-badge cached">⚡ Live Telemetry</span>
+                    <button type="button" class="btn-refresh" id="btnMomentumRefresh" onclick="refreshMomentumData()" title="Re-fetch Constructor Momentum Data">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="momentumError" class="error-message" style="display: none;"></div>
+
+            <!-- High-level Momentum KPI Cards -->
+            <div class="atr-kpi-grid">
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>📈 Top Momentum Gainer</span>
+                        <span class="atr-kpi-tag tag-green" id="momentumKpiGainerTag">Surge</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="momentumKpiGainerTeam">—</div>
+                        <div class="atr-kpi-tag tag-green" id="momentumKpiGainerDelta" style="font-weight: 800;">+0.0 PTS/RACE</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="momentumKpiGainerSub">Rolling 3-race momentum gain</div>
+                    <div class="atr-kpi-bar" id="momentumKpiGainerBar" style="background: #10B981;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>📉 Top Momentum Loss</span>
+                        <span class="atr-kpi-tag tag-red" id="momentumKpiLoserTag">Slump</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="momentumKpiLoserTeam">—</div>
+                        <div class="atr-kpi-tag tag-red" id="momentumKpiLoserDelta" style="font-weight: 800;">-0.0 PTS/RACE</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="momentumKpiLoserSub">Rolling 3-race momentum loss</div>
+                    <div class="atr-kpi-bar" id="momentumKpiLoserBar" style="background: #EF4444;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🚀 Current Momentum Leader</span>
+                        <span class="atr-kpi-tag tag-gold" id="momentumKpiLeaderTag">P1 Form</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="momentumKpiLeaderTeam">—</div>
+                        <div class="atr-kpi-tag tag-gold" id="momentumKpiLeaderAvg" style="font-weight: 800;">0.0 PTS/RACE</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="momentumKpiLeaderSub">Peak rolling 3-race scoring rate</div>
+                    <div class="atr-kpi-bar" id="momentumKpiLeaderBar" style="background: #FFB800;"></div>
+                </div>
+
+                <div class="atr-kpi-card">
+                    <div class="atr-kpi-label">
+                        <span>🎯 Tracked Scope &amp; Window</span>
+                        <span class="atr-kpi-tag tag-cyan" id="momentumKpiScopeTag">GP + Sprint</span>
+                    </div>
+                    <div class="atr-kpi-val-container">
+                        <div class="atr-kpi-val" id="momentumKpiRoundsCount" style="font-size: 1.25rem;">24 Rounds</div>
+                    </div>
+                    <div class="atr-kpi-sub" id="momentumKpiScopeSub">Rolling 3-race window (expanding R1–R2)</div>
+                    <div class="atr-kpi-bar" style="background: linear-gradient(90deg, #00F0FF, #8B5CF6);"></div>
+                </div>
+            </div>
+
+            <!-- Chart.js Rolling Average Trajectory Graph -->
+            <div class="atr-chart-panel">
+                <div class="atr-chart-header">
+                    <div class="atr-chart-title-Row">
+                        <h3 class="atr-subheading">📈 Rolling 3-Race Average Constructor Points Momentum</h3>
+                        <span class="atr-chart-hint">Interactive: Click constructor pills below to isolate or toggle team momentum trajectories</span>
+                    </div>
+                    <div class="atr-team-legend-pills" id="momentumTeamLegendPills"></div>
+                </div>
+                <div class="atr-chart-container">
+                    <canvas id="constructorMomentumChart"></canvas>
+                </div>
+            </div>
+
+            <!-- In-Season Development Trajectory Table -->
+            <div class="atr-table-panel">
+                <div class="atr-table-header">
+                    <div>
+                        <h3 class="atr-subheading">🏎️ Constructor Trajectory &amp; In-Season Momentum Breakdown</h3>
+                        <span class="atr-chart-hint">Aggregated GP &amp; Sprint points, rolling average velocity, and development trajectory indicators</span>
+                    </div>
+                </div>
+                <div class="atr-table-wrapper">
+                    <table class="atr-telemetry-table" id="constructorMomentumTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Constructor</th>
+                                <th>Total Points</th>
+                                <th>Latest Rolling 3-Race Avg</th>
+                                <th>Momentum Delta</th>
+                                <th>Session Breakdown (GP / Sprint)</th>
+                                <th>Trajectory Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="constructorMomentumTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -10626,6 +10784,740 @@
             const sel = typeof document !== 'undefined' ? document.getElementById('constructorSeasonSelect') : null;
             const season = sel ? sel.value : constructorAtrState.season;
             loadConstructorAtrData(season, true);
+        }
+
+        // =========================================================
+        // Feature #23: Constructor Points Momentum & In-Season Development Trajectory Tracker
+        // =========================================================
+
+        let constructorMomentumChartInstance = null;
+
+        const constructorMomentumState = {
+            season: '2024',
+            rounds: [],
+            constructors: {},
+            sortedConstructors: [],
+            metrics: null,
+            hiddenTeams: new Set(),
+            isLoading: false,
+            error: null
+        };
+
+        const CONSTRUCTOR_MOMENTUM_FALLBACK_2024 = {
+            rounds: [
+                { round: '1', raceName: 'Bahrain Grand Prix', hasSprint: false },
+                { round: '2', raceName: 'Saudi Arabian Grand Prix', hasSprint: false },
+                { round: '3', raceName: 'Australian Grand Prix', hasSprint: false },
+                { round: '4', raceName: 'Japanese Grand Prix', hasSprint: false },
+                { round: '5', raceName: 'Chinese Grand Prix', hasSprint: true },
+                { round: '6', raceName: 'Miami Grand Prix', hasSprint: true },
+                { round: '7', raceName: 'Emilia Romagna Grand Prix', hasSprint: false },
+                { round: '8', raceName: 'Monaco Grand Prix', hasSprint: false },
+                { round: '9', raceName: 'Canadian Grand Prix', hasSprint: false },
+                { round: '10', raceName: 'Spanish Grand Prix', hasSprint: false },
+                { round: '11', raceName: 'Austrian Grand Prix', hasSprint: true },
+                { round: '12', raceName: 'British Grand Prix', hasSprint: false },
+                { round: '13', raceName: 'Hungarian Grand Prix', hasSprint: false },
+                { round: '14', raceName: 'Belgian Grand Prix', hasSprint: false },
+                { round: '15', raceName: 'Dutch Grand Prix', hasSprint: false },
+                { round: '16', raceName: 'Italian Grand Prix', hasSprint: false },
+                { round: '17', raceName: 'Azerbaijan Grand Prix', hasSprint: false },
+                { round: '18', raceName: 'Singapore Grand Prix', hasSprint: false },
+                { round: '19', raceName: 'United States Grand Prix', hasSprint: true },
+                { round: '20', raceName: 'Mexico City Grand Prix', hasSprint: false },
+                { round: '21', raceName: 'São Paulo Grand Prix', hasSprint: true },
+                { round: '22', raceName: 'Las Vegas Grand Prix', hasSprint: false },
+                { round: '23', raceName: 'Qatar Grand Prix', hasSprint: true },
+                { round: '24', raceName: 'Abu Dhabi Grand Prix', hasSprint: false }
+            ],
+            constructors: {
+                'mclaren': {
+                    id: 'mclaren',
+                    name: 'McLaren',
+                    roundPoints: [12, 16, 27, 14, 18, 38, 27, 30, 28, 25, 27, 27, 43, 34, 38, 28, 38, 40, 27, 22, 28, 18, 37, 24],
+                    roundGpPoints: [12, 16, 27, 14, 12, 29, 27, 30, 28, 25, 17, 27, 43, 34, 38, 28, 38, 40, 16, 22, 16, 18, 25, 24],
+                    roundSprintPoints: [0, 0, 0, 0, 6, 9, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 11, 0, 12, 0, 12, 0],
+                    totalPoints: 666,
+                    gpPoints: 593,
+                    sprintPoints: 73
+                },
+                'ferrari': {
+                    id: 'ferrari',
+                    name: 'Ferrari',
+                    roundPoints: [27, 20, 44, 25, 21, 26, 30, 40, 0, 18, 22, 11, 27, 34, 26, 37, 18, 16, 55, 41, 20, 30, 24, 26],
+                    roundGpPoints: [27, 20, 44, 25, 14, 18, 30, 40, 0, 18, 15, 11, 27, 34, 26, 37, 18, 16, 44, 41, 14, 30, 18, 26],
+                    roundSprintPoints: [0, 0, 0, 0, 7, 8, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 11, 0, 6, 0, 6, 0],
+                    totalPoints: 652,
+                    gpPoints: 594,
+                    sprintPoints: 58
+                },
+                'red_bull': {
+                    id: 'red_bull',
+                    name: 'Red Bull',
+                    roundPoints: [44, 43, 12, 43, 37, 35, 25, 8, 25, 33, 29, 15, 16, 17, 18, 16, 2, 18, 30, 8, 30, 25, 26, 20],
+                    roundGpPoints: [44, 43, 12, 43, 29, 27, 25, 8, 25, 33, 21, 15, 16, 17, 18, 16, 2, 18, 18, 8, 25, 25, 25, 20],
+                    roundSprintPoints: [0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 5, 0, 1, 0],
+                    totalPoints: 589,
+                    gpPoints: 537,
+                    sprintPoints: 52
+                },
+                'mercedes': {
+                    id: 'mercedes',
+                    name: 'Mercedes',
+                    roundPoints: [16, 10, 0, 8, 18, 12, 15, 16, 28, 27, 25, 40, 16, 25, 17, 18, 13, 22, 10, 27, 18, 43, 20, 25],
+                    roundGpPoints: [16, 10, 0, 8, 11, 12, 15, 16, 28, 27, 25, 40, 16, 25, 17, 18, 13, 22, 10, 27, 15, 43, 13, 25],
+                    roundSprintPoints: [0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0],
+                    totalPoints: 468,
+                    gpPoints: 451,
+                    sprintPoints: 17
+                },
+                'aston_martin': {
+                    id: 'aston_martin',
+                    name: 'Aston Martin',
+                    roundPoints: [3, 10, 10, 8, 9, 2, 0, 0, 14, 0, 0, 12, 3, 4, 4, 0, 8, 4, 0, 0, 0, 0, 1, 2],
+                    roundGpPoints: [3, 10, 10, 8, 9, 2, 0, 0, 14, 0, 0, 12, 3, 4, 4, 0, 8, 4, 0, 0, 0, 0, 1, 2],
+                    roundSprintPoints: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    totalPoints: 94,
+                    gpPoints: 94,
+                    sprintPoints: 0
+                },
+                'alpine': {
+                    id: 'alpine',
+                    name: 'Alpine',
+                    roundPoints: [0, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1, 0, 0, 2, 1, 0, 0, 0, 0, 1, 35, 0, 2, 4],
+                    roundGpPoints: [0, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1, 0, 0, 2, 1, 0, 0, 0, 0, 1, 33, 0, 2, 4],
+                    roundSprintPoints: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+                    totalPoints: 53,
+                    gpPoints: 51,
+                    sprintPoints: 2
+                },
+                'haas': {
+                    id: 'haas',
+                    name: 'Haas',
+                    roundPoints: [0, 1, 3, 0, 1, 2, 0, 0, 0, 0, 12, 8, 0, 0, 0, 1, 4, 0, 3, 8, 2, 4, 2, 1],
+                    roundGpPoints: [0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 12, 8, 0, 0, 0, 1, 4, 0, 0, 8, 0, 4, 0, 1],
+                    roundSprintPoints: [0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 2, 0],
+                    totalPoints: 52,
+                    gpPoints: 42,
+                    sprintPoints: 10
+                },
+                'rb': {
+                    id: 'rb',
+                    name: 'RB',
+                    roundPoints: [0, 0, 6, 1, 4, 5, 4, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 1, 2, 0, 10, 2, 1, 0],
+                    roundGpPoints: [0, 0, 6, 1, 0, 0, 4, 4, 4, 0, 0, 0, 1, 1, 0, 0, 0, 1, 2, 0, 9, 2, 1, 0],
+                    roundSprintPoints: [0, 0, 0, 0, 4, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                    totalPoints: 46,
+                    gpPoints: 36,
+                    sprintPoints: 10
+                },
+                'williams': {
+                    id: 'williams',
+                    name: 'Williams',
+                    roundPoints: [0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 10, 2, 1, 0, 0, 0, 0, 0],
+                    roundGpPoints: [0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 10, 2, 1, 0, 0, 0, 0, 0],
+                    roundSprintPoints: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    totalPoints: 17,
+                    gpPoints: 17,
+                    sprintPoints: 0
+                },
+                'sauber': {
+                    id: 'sauber',
+                    name: 'Kick Sauber',
+                    roundPoints: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0],
+                    roundGpPoints: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0],
+                    roundSprintPoints: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    totalPoints: 4,
+                    gpPoints: 4,
+                    sprintPoints: 0
+                }
+            }
+        };
+
+        function computeRollingAverage(pointsArray, windowSize = 3) {
+            if (!Array.isArray(pointsArray) || pointsArray.length === 0) return [];
+            const w = Math.max(1, parseInt(windowSize, 10) || 3);
+            const result = [];
+            for (let i = 0; i < pointsArray.length; i++) {
+                const start = Math.max(0, i - w + 1);
+                const windowSlice = pointsArray.slice(start, i + 1);
+                const sum = windowSlice.reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+                const avg = sum / windowSlice.length;
+                result.push(Number(avg.toFixed(2)));
+            }
+            return result;
+        }
+
+        function aggregateConstructorPoints(raceRounds, sprintRounds) {
+            const sortedRaces = (Array.isArray(raceRounds) ? raceRounds : [])
+                .slice()
+                .sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+
+            const sprintMap = {};
+            (Array.isArray(sprintRounds) ? sprintRounds : []).forEach(s => {
+                if (s && s.round !== undefined) {
+                    sprintMap[String(s.round)] = s.SprintResults || [];
+                }
+            });
+
+            const constructorMeta = {};
+
+            sortedRaces.forEach(race => {
+                const rnd = String(race.round);
+                const raceResults = race.Results || [];
+                const sprintResults = sprintMap[rnd] || [];
+
+                raceResults.forEach(res => {
+                    const c = res.Constructor;
+                    if (!c) return;
+                    const cid = c.constructorId || 'unknown';
+                    if (!constructorMeta[cid]) {
+                        constructorMeta[cid] = {
+                            id: cid,
+                            name: c.name || cid,
+                            Constructor: c
+                        };
+                    }
+                });
+
+                sprintResults.forEach(res => {
+                    const c = res.Constructor;
+                    if (!c) return;
+                    const cid = c.constructorId || 'unknown';
+                    if (!constructorMeta[cid]) {
+                        constructorMeta[cid] = {
+                            id: cid,
+                            name: c.name || cid,
+                            Constructor: c
+                        };
+                    }
+                });
+            });
+
+            const rounds = sortedRaces.map((r, idx) => ({
+                round: String(r.round || (idx + 1)),
+                raceName: r.raceName || `Round ${r.round || (idx + 1)}`,
+                circuitName: r.Circuit?.circuitName || '',
+                hasSprint: Boolean(sprintMap[String(r.round)] && sprintMap[String(r.round)].length > 0)
+            }));
+
+            const constructors = {};
+            Object.keys(constructorMeta).forEach(cid => {
+                constructors[cid] = {
+                    id: cid,
+                    name: constructorMeta[cid].name,
+                    Constructor: constructorMeta[cid].Constructor,
+                    roundPoints: [],
+                    roundGpPoints: [],
+                    roundSprintPoints: [],
+                    totalPoints: 0,
+                    gpPoints: 0,
+                    sprintPoints: 0
+                };
+            });
+
+            sortedRaces.forEach(race => {
+                const rnd = String(race.round);
+                const raceResults = race.Results || [];
+                const sprintResults = sprintMap[rnd] || [];
+
+                const roundGpPts = {};
+                const roundSprintPts = {};
+
+                raceResults.forEach(res => {
+                    const cid = res.Constructor?.constructorId;
+                    if (!cid) return;
+                    const pts = parseFloat(res.points || 0);
+                    roundGpPts[cid] = (roundGpPts[cid] || 0) + pts;
+                });
+
+                sprintResults.forEach(res => {
+                    const cid = res.Constructor?.constructorId;
+                    if (!cid) return;
+                    const pts = parseFloat(res.points || 0);
+                    roundSprintPts[cid] = (roundSprintPts[cid] || 0) + pts;
+                });
+
+                Object.keys(constructors).forEach(cid => {
+                    const gpPts = Number((roundGpPts[cid] || 0).toFixed(2));
+                    const spPts = Number((roundSprintPts[cid] || 0).toFixed(2));
+                    const totalRndPts = Number((gpPts + spPts).toFixed(2));
+
+                    constructors[cid].roundGpPoints.push(gpPts);
+                    constructors[cid].roundSprintPoints.push(spPts);
+                    constructors[cid].roundPoints.push(totalRndPts);
+                    constructors[cid].gpPoints = Number((constructors[cid].gpPoints + gpPts).toFixed(2));
+                    constructors[cid].sprintPoints = Number((constructors[cid].sprintPoints + spPts).toFixed(2));
+                    constructors[cid].totalPoints = Number((constructors[cid].totalPoints + totalRndPts).toFixed(2));
+                });
+            });
+
+            return { rounds, constructors };
+        }
+
+        function computeConstructorMomentumMetrics(aggregatedData, windowSize = 3) {
+            if (!aggregatedData || !aggregatedData.constructors) {
+                return {
+                    rounds: [],
+                    constructors: {},
+                    sortedConstructors: [],
+                    topGainer: null,
+                    topLoser: null,
+                    momentumLeader: null,
+                    sprintRoundsCount: 0,
+                    totalRounds: 0
+                };
+            }
+
+            const rounds = aggregatedData.rounds || [];
+            const constructors = aggregatedData.constructors;
+            const constrList = Object.values(constructors);
+
+            constrList.forEach((c, index) => {
+                c.rollingAverages = computeRollingAverage(c.roundPoints, windowSize);
+                c.color = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[c.id]) ||
+                    (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length] : '#00F0FF');
+
+                const n = c.rollingAverages.length;
+                c.latestAvg = n > 0 ? c.rollingAverages[n - 1] : 0;
+                c.prevAvg = n > 1 ? c.rollingAverages[n - 2] : 0;
+                c.momentumDelta = n > 1 ? Number((c.latestAvg - c.prevAvg).toFixed(2)) : 0;
+                c.windowStartAvg = n >= windowSize ? c.rollingAverages[n - windowSize] : (n > 0 ? c.rollingAverages[0] : 0);
+                c.windowDelta = n > 0 ? Number((c.latestAvg - c.windowStartAvg).toFixed(2)) : 0;
+            });
+
+            const sortedConstructors = constrList.slice().sort((a, b) => b.totalPoints - a.totalPoints);
+            sortedConstructors.forEach((c, idx) => {
+                c.rank = idx + 1;
+            });
+
+            let topGainer = null;
+            let topLoser = null;
+            let momentumLeader = null;
+
+            if (sortedConstructors.length > 0) {
+                momentumLeader = sortedConstructors.slice().sort((a, b) => b.latestAvg - a.latestAvg)[0];
+
+                const byDelta = sortedConstructors.slice().sort((a, b) => b.momentumDelta - a.momentumDelta);
+                topGainer = byDelta[0];
+                topLoser = byDelta[byDelta.length - 1];
+            }
+
+            const sprintRoundsCount = rounds.filter(r => r.hasSprint).length;
+            const totalRounds = rounds.length;
+
+            return {
+                rounds,
+                constructors,
+                sortedConstructors,
+                topGainer,
+                topLoser,
+                momentumLeader,
+                sprintRoundsCount,
+                totalRounds
+            };
+        }
+
+        async function loadConstructorMomentumData(season, forceRefresh = false) {
+            const seasonStr = String(season || constructorMomentumState.season || '2024');
+            constructorMomentumState.season = seasonStr;
+            const seasonNum = parseInt(seasonStr, 10);
+
+            const badge = typeof document !== 'undefined' ? document.getElementById('momentumCacheBadge') : null;
+            const errorEl = typeof document !== 'undefined' ? document.getElementById('momentumError') : null;
+            const seasonDropdown = typeof document !== 'undefined' ? document.getElementById('momentumSeasonSelect') : null;
+            if (seasonDropdown && seasonDropdown.value !== seasonStr) {
+                seasonDropdown.value = seasonStr;
+            }
+
+            if (errorEl) {
+                errorEl.style.display = 'none';
+                errorEl.textContent = '';
+            }
+
+            const cacheKey = `f1_constructor_momentum_${seasonStr}`;
+            const storage = (typeof localStorage !== 'undefined') ? localStorage : null;
+
+            if (!forceRefresh && storage) {
+                try {
+                    const cached = storage.getItem(cacheKey);
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && parsed.constructors && Object.keys(parsed.constructors).length > 0) {
+                            const metrics = computeConstructorMomentumMetrics(parsed);
+                            constructorMomentumState.metrics = metrics;
+                            constructorMomentumState.rounds = metrics.rounds;
+                            constructorMomentumState.constructors = metrics.constructors;
+                            constructorMomentumState.sortedConstructors = metrics.sortedConstructors;
+                            if (badge) {
+                                badge.className = 'cache-badge cached';
+                                badge.textContent = '⚡ Cached Telemetry';
+                            }
+                            renderConstructorMomentumView();
+                            return constructorMomentumState;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge fetching';
+                badge.textContent = '🌐 Syncing Momentum Data...';
+            }
+
+            constructorMomentumState.isLoading = true;
+
+            try {
+                const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(seasonStr, 'results', 'Results')
+                    : Promise.resolve([]);
+
+                const sprintPromise = (seasonNum >= 2021 && typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(seasonStr, 'sprint', 'SprintResults').catch(() => [])
+                    : Promise.resolve([]);
+
+                const [raceRounds, sprintRounds] = await Promise.all([
+                    resultsPromise,
+                    sprintPromise
+                ]);
+
+                let aggregated = null;
+                if (Array.isArray(raceRounds) && raceRounds.length > 0) {
+                    aggregated = aggregateConstructorPoints(raceRounds, sprintRounds);
+                } else if (seasonStr === '2024' || !seasonStr) {
+                    aggregated = CONSTRUCTOR_MOMENTUM_FALLBACK_2024;
+                } else {
+                    aggregated = aggregateConstructorPoints([], []);
+                }
+
+                if (!aggregated || !aggregated.constructors || Object.keys(aggregated.constructors).length === 0) {
+                    if (seasonStr === '2024') {
+                        aggregated = CONSTRUCTOR_MOMENTUM_FALLBACK_2024;
+                    }
+                }
+
+                const metrics = computeConstructorMomentumMetrics(aggregated);
+                constructorMomentumState.metrics = metrics;
+                constructorMomentumState.rounds = metrics.rounds;
+                constructorMomentumState.constructors = metrics.constructors;
+                constructorMomentumState.sortedConstructors = metrics.sortedConstructors;
+                constructorMomentumState.isLoading = false;
+
+                if (storage && metrics.sortedConstructors.length > 0) {
+                    try {
+                        storage.setItem(cacheKey, JSON.stringify({
+                            rounds: metrics.rounds,
+                            constructors: metrics.constructors
+                        }));
+                    } catch (e) {}
+                }
+
+                if (badge) {
+                    if (metrics.sortedConstructors.length === 0) {
+                        badge.className = 'cache-badge no-data';
+                        badge.textContent = '⚠️ Data Unavailable';
+                        if (errorEl) {
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = `No constructor results available for the ${seasonStr} season.`;
+                        }
+                    } else if (!raceRounds || raceRounds.length === 0) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚠️ Offline Fallback (2024)';
+                    } else if (seasonNum < 2021) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚡ GP Only (Pre-Sprint Era)';
+                    } else {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚡ Live Telemetry';
+                    }
+                }
+
+                renderConstructorMomentumView();
+                return constructorMomentumState;
+            } catch (err) {
+                console.warn('Error loading Constructor Momentum data:', err);
+                constructorMomentumState.isLoading = false;
+
+                if (seasonStr === '2024') {
+                    const metrics = computeConstructorMomentumMetrics(CONSTRUCTOR_MOMENTUM_FALLBACK_2024);
+                    constructorMomentumState.metrics = metrics;
+                    constructorMomentumState.rounds = metrics.rounds;
+                    constructorMomentumState.constructors = metrics.constructors;
+                    constructorMomentumState.sortedConstructors = metrics.sortedConstructors;
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚠️ Offline Fallback (2024)';
+                    }
+                    renderConstructorMomentumView();
+                    return constructorMomentumState;
+                }
+
+                if (errorEl) {
+                    errorEl.style.display = 'block';
+                    errorEl.textContent = `Unable to retrieve constructor momentum data for the ${seasonStr} season. Please check your connection and retry.`;
+                }
+                if (badge) {
+                    badge.className = 'cache-badge no-data';
+                    badge.textContent = '⚠️ Data Unavailable';
+                }
+                renderConstructorMomentumView();
+                return constructorMomentumState;
+            }
+        }
+
+        function renderMomentumKpis(metrics) {
+            if (!metrics) return;
+            const { topGainer, topLoser, momentumLeader, sprintRoundsCount, totalRounds } = metrics;
+
+            const gainerTeamEl = document.getElementById('momentumKpiGainerTeam');
+            const gainerDeltaEl = document.getElementById('momentumKpiGainerDelta');
+            const gainerSubEl = document.getElementById('momentumKpiGainerSub');
+            const gainerBarEl = document.getElementById('momentumKpiGainerBar');
+            const gainerTagEl = document.getElementById('momentumKpiGainerTag');
+
+            if (topGainer) {
+                if (gainerTeamEl) gainerTeamEl.textContent = topGainer.name;
+                if (gainerDeltaEl) {
+                    const sign = topGainer.momentumDelta >= 0 ? '+' : '';
+                    gainerDeltaEl.textContent = `${sign}${topGainer.momentumDelta.toFixed(1)} PTS/RACE`;
+                    gainerDeltaEl.className = topGainer.momentumDelta >= 0 ? 'atr-kpi-tag tag-green' : 'atr-kpi-tag tag-red';
+                }
+                if (gainerSubEl) gainerSubEl.textContent = `Rolling avg: ${topGainer.latestAvg.toFixed(1)} (was ${topGainer.prevAvg.toFixed(1)})`;
+                if (gainerBarEl) gainerBarEl.style.background = topGainer.color || '#10B981';
+                if (gainerTagEl) gainerTagEl.textContent = topGainer.momentumDelta >= 0 ? 'Surge' : 'Leader';
+            } else {
+                if (gainerTeamEl) gainerTeamEl.textContent = '—';
+                if (gainerDeltaEl) gainerDeltaEl.textContent = '+0.0 PTS/RACE';
+                if (gainerSubEl) gainerSubEl.textContent = 'Rolling 3-race momentum gain';
+            }
+
+            const loserTeamEl = document.getElementById('momentumKpiLoserTeam');
+            const loserDeltaEl = document.getElementById('momentumKpiLoserDelta');
+            const loserSubEl = document.getElementById('momentumKpiLoserSub');
+            const loserBarEl = document.getElementById('momentumKpiLoserBar');
+
+            if (topLoser) {
+                if (loserTeamEl) loserTeamEl.textContent = topLoser.name;
+                if (loserDeltaEl) {
+                    const sign = topLoser.momentumDelta >= 0 ? '+' : '';
+                    loserDeltaEl.textContent = `${sign}${topLoser.momentumDelta.toFixed(1)} PTS/RACE`;
+                    loserDeltaEl.className = topLoser.momentumDelta <= 0 ? 'atr-kpi-tag tag-red' : 'atr-kpi-tag tag-green';
+                }
+                if (loserSubEl) loserSubEl.textContent = `Rolling avg: ${topLoser.latestAvg.toFixed(1)} (was ${topLoser.prevAvg.toFixed(1)})`;
+                if (loserBarEl) loserBarEl.style.background = topLoser.color || '#EF4444';
+            } else {
+                if (loserTeamEl) loserTeamEl.textContent = '—';
+                if (loserDeltaEl) loserDeltaEl.textContent = '-0.0 PTS/RACE';
+                if (loserSubEl) loserSubEl.textContent = 'Rolling 3-race momentum loss';
+            }
+
+            const leaderTeamEl = document.getElementById('momentumKpiLeaderTeam');
+            const leaderAvgEl = document.getElementById('momentumKpiLeaderAvg');
+            const leaderSubEl = document.getElementById('momentumKpiLeaderSub');
+            const leaderBarEl = document.getElementById('momentumKpiLeaderBar');
+
+            if (momentumLeader) {
+                if (leaderTeamEl) leaderTeamEl.textContent = momentumLeader.name;
+                if (leaderAvgEl) leaderAvgEl.textContent = `${momentumLeader.latestAvg.toFixed(1)} PTS/RACE`;
+                if (leaderSubEl) leaderSubEl.textContent = `Peak rolling 3-race form (${momentumLeader.totalPoints} total pts)`;
+                if (leaderBarEl) leaderBarEl.style.background = momentumLeader.color || '#FFB800';
+            } else {
+                if (leaderTeamEl) leaderTeamEl.textContent = '—';
+                if (leaderAvgEl) leaderAvgEl.textContent = '0.0 PTS/RACE';
+                if (leaderSubEl) leaderSubEl.textContent = 'Peak rolling 3-race scoring rate';
+            }
+
+            const roundsCountEl = document.getElementById('momentumKpiRoundsCount');
+            const scopeSubEl = document.getElementById('momentumKpiScopeSub');
+            const scopeTagEl = document.getElementById('momentumKpiScopeTag');
+
+            if (roundsCountEl) roundsCountEl.textContent = `${totalRounds} Rounds`;
+            if (scopeSubEl) {
+                scopeSubEl.textContent = sprintRoundsCount > 0
+                    ? `Includes ${sprintRoundsCount} Sprints • 3-race window (expanding R1–R2)`
+                    : `Grand Prix points • 3-race window (expanding R1–R2)`;
+            }
+            if (scopeTagEl) {
+                scopeTagEl.textContent = sprintRoundsCount > 0 ? 'GP + Sprint' : 'GP Only';
+            }
+        }
+
+        function renderMomentumChart() {
+            const canvas = typeof document !== 'undefined' ? document.getElementById('constructorMomentumChart') : null;
+            const pillsContainer = typeof document !== 'undefined' ? document.getElementById('momentumTeamLegendPills') : null;
+            const metrics = constructorMomentumState.metrics;
+            if (!metrics) return;
+
+            const { sortedConstructors, rounds } = metrics;
+            const hiddenTeams = constructorMomentumState.hiddenTeams;
+
+            if (pillsContainer && sortedConstructors && Array.isArray(sortedConstructors)) {
+                pillsContainer.innerHTML = sortedConstructors.map((c, index) => {
+                    const isMuted = hiddenTeams.has(c.id);
+                    const color = c.color || '#00F0FF';
+                    const avg = c.latestAvg !== undefined ? c.latestAvg.toFixed(1) : '0.0';
+                    return `
+                        <button type="button" class="atr-team-pill ${isMuted ? 'muted' : ''}" onclick="toggleMomentumConstructor('${c.id}')" title="Toggle ${c.name} trajectory">
+                            <span class="atr-team-pill-swatch" style="background: ${color};"></span>
+                            <span>${c.name}</span>
+                            <span class="atr-team-pill-pts">${avg} avg</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            const labels = (rounds && rounds.length > 0)
+                ? rounds.map((r, i) => r.raceName ? `R${i + 1} ${r.raceName.replace(' Grand Prix', '')}` : `R${i + 1}`)
+                : Array.from({ length: 24 }, (_, i) => `R${i + 1}`);
+
+            const datasets = sortedConstructors.map(c => {
+                const color = c.color || '#00F0FF';
+                const isHidden = hiddenTeams.has(c.id);
+                return {
+                    label: c.name,
+                    data: c.rollingAverages || [],
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: c.rank <= 3 ? 3 : 2,
+                    tension: 0.25,
+                    fill: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    hidden: isHidden
+                };
+            });
+
+            if (constructorMomentumChartInstance) {
+                if (typeof constructorMomentumChartInstance.destroy === 'function') {
+                    constructorMomentumChartInstance.destroy();
+                }
+                constructorMomentumChartInstance = null;
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+            if (!ctx) return;
+
+            constructorMomentumChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13, 17, 23, 0.95)',
+                            titleColor: '#00F0FF',
+                            bodyColor: '#F1F5F9',
+                            borderColor: '#1E2738',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y} pts/race (3-race avg)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94A3B8', maxRotation: 45, minRotation: 45, font: { size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94A3B8' },
+                            title: { display: true, text: 'Rolling 3-Race Average Points (PTS)', color: '#94A3B8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderMomentumTable(metrics) {
+            const tbody = typeof document !== 'undefined' ? document.getElementById('constructorMomentumTableBody') : null;
+            if (!tbody || !metrics || !metrics.sortedConstructors) return;
+
+            const html = metrics.sortedConstructors.map((c, index) => {
+                const rank = c.rank || (index + 1);
+                const color = c.color || '#00F0FF';
+                const delta = c.momentumDelta || 0;
+                const sign = delta >= 0 ? '+' : '';
+                const deltaClass = delta > 0 ? 'color: #10B981; font-weight: 700;' : (delta < 0 ? 'color: #EF4444; font-weight: 700;' : 'color: #94A3B8;');
+
+                let trajectoryBadge = '';
+                if (delta >= 4.0) {
+                    trajectoryBadge = '<span class="atr-pct-badge chip-boosted">🚀 Surging</span>';
+                } else if (delta >= 0.5) {
+                    trajectoryBadge = '<span class="atr-pct-badge chip-neutral">📈 Improving</span>';
+                } else if (delta > -0.5) {
+                    trajectoryBadge = '<span class="atr-pct-badge" style="background: rgba(148, 163, 184, 0.15); color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.3);">➡️ Steady</span>';
+                } else if (delta > -4.0) {
+                    trajectoryBadge = '<span class="atr-pct-badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3);">📉 Cooling</span>';
+                } else {
+                    trajectoryBadge = '<span class="atr-pct-badge chip-restricted">🔻 Slumping</span>';
+                }
+
+                return `
+                    <tr>
+                        <td><span class="atr-rank-badge ${rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : (rank === 3 ? 'rank-3' : ''))}">P${rank}</span></td>
+                        <td>
+                            <div class="atr-team-cell">
+                                <span class="atr-team-bar" style="background: ${color};"></span>
+                                <span>${c.name}</span>
+                            </div>
+                        </td>
+                        <td><span class="atr-pts-cell">${c.totalPoints} PTS</span></td>
+                        <td><span style="font-family: var(--font-mono); font-weight: 700;">${c.latestAvg.toFixed(1)} pts/race</span></td>
+                        <td><span style="font-family: var(--font-mono); ${deltaClass}">${sign}${delta.toFixed(1)}</span></td>
+                        <td>
+                            <span class="atr-metric-pill" title="Grand Prix points">${c.gpPoints || 0} GP</span>
+                            <span class="atr-metric-pill" title="Sprint points">${c.sprintPoints || 0} Sprint</span>
+                        </td>
+                        <td>${trajectoryBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = html;
+        }
+
+        function renderConstructorMomentumView() {
+            const metrics = constructorMomentumState.metrics;
+            if (metrics) {
+                renderMomentumKpis(metrics);
+                renderMomentumTable(metrics);
+            }
+            renderMomentumChart();
+        }
+
+        function toggleMomentumConstructor(cid) {
+            if (constructorMomentumState.hiddenTeams.has(cid)) {
+                constructorMomentumState.hiddenTeams.delete(cid);
+            } else {
+                constructorMomentumState.hiddenTeams.add(cid);
+            }
+            renderMomentumChart();
+        }
+
+        function onMomentumSeasonChange(season) {
+            constructorMomentumState.season = String(season);
+            loadConstructorMomentumData(season, false);
+        }
+
+        function refreshMomentumData() {
+            const sel = typeof document !== 'undefined' ? document.getElementById('momentumSeasonSelect') : null;
+            const season = sel ? sel.value : constructorMomentumState.season;
+            loadConstructorMomentumData(season, true);
         }
 
         // =========================================================
@@ -16257,6 +17149,7 @@
                 'finishing-gap': 'tabBtnFinishingGap',
                 'profiler': 'tabBtnProfiler',
                 'constructors': 'tabBtnConstructors',
+                'momentum': 'tabBtnMomentum',
                 'sprint': 'tabBtnSprint',
                 'clinch': 'tabBtnClinch',
                 'pitstops': 'tabBtnPitStops',
@@ -16273,6 +17166,7 @@
             const finishingGapSec = document.getElementById('finishing-gap-section');
             const profilerSec = document.getElementById('circuit-profiler-section');
             const constructorSec = document.getElementById('constructor-atr-section');
+            const momentumSec = document.getElementById('constructor-momentum-section');
             const sprintSec = document.getElementById('sprint-disparity-section');
             const clinchSec = document.getElementById('clinch-engine-section');
             const pitstopSec = document.getElementById('pitstop-matrix-section');
@@ -16288,6 +17182,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16302,6 +17197,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16316,6 +17212,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'block';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16330,6 +17227,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16344,6 +17242,22 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'block';
+                if (momentumSec) momentumSec.style.display = 'none';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'momentum') {
+                if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
+                if (profilerSec) profilerSec.style.display = 'none';
+                if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16358,6 +17272,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16372,6 +17287,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16386,6 +17302,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'block';
@@ -16400,6 +17317,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16414,6 +17332,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16428,6 +17347,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16442,6 +17362,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
                 if (sprintSec) sprintSec.style.display = 'none';
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
@@ -16456,6 +17377,7 @@
                 if (finishingGapSec) finishingGapSec.style.display = 'block';
                 if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'block';
+                if (momentumSec) momentumSec.style.display = 'block';
                 if (sprintSec) sprintSec.style.display = 'block';
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'block';
@@ -16473,6 +17395,9 @@
                 if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
                 if (constructorTrajectoryChartInstance && typeof constructorTrajectoryChartInstance.resize === 'function') {
                     constructorTrajectoryChartInstance.resize();
+                }
+                if (constructorMomentumChartInstance && typeof constructorMomentumChartInstance.resize === 'function') {
+                    constructorMomentumChartInstance.resize();
                 }
                 if (profilerRadarChartInstance && typeof profilerRadarChartInstance.resize === 'function') {
                     profilerRadarChartInstance.resize();
@@ -16501,6 +17426,9 @@
             if (sprintDisparityChartInstance) sprintDisparityChartInstance.resize();
             if (constructorTrajectoryChartInstance && typeof constructorTrajectoryChartInstance.resize === 'function') {
                 constructorTrajectoryChartInstance.resize();
+            }
+            if (constructorMomentumChartInstance && typeof constructorMomentumChartInstance.resize === 'function') {
+                constructorMomentumChartInstance.resize();
             }
             if (profilerRadarChartInstance && typeof profilerRadarChartInstance.resize === 'function') {
                 profilerRadarChartInstance.resize();
@@ -16567,6 +17495,11 @@
             const constructorSeasonSelect = document.getElementById('constructorSeasonSelect');
             if (constructorSeasonSelect) {
                 loadConstructorAtrData(constructorSeasonSelect.value, false);
+            }
+
+            const momentumSeasonSelect = document.getElementById('momentumSeasonSelect');
+            if (momentumSeasonSelect) {
+                loadConstructorMomentumData(momentumSeasonSelect.value, false);
             }
 
             const pitStopSeasonSelect = document.getElementById('pitStopSeasonSelect');
@@ -16697,6 +17630,19 @@
             window.renderConstructorKpis = renderConstructorKpis;
             window.getAtrTierInfo = getAtrTierInfo;
             window.constructorAtrState = constructorAtrState;
+            window.loadConstructorMomentumData = loadConstructorMomentumData;
+            window.onMomentumSeasonChange = onMomentumSeasonChange;
+            window.refreshMomentumData = refreshMomentumData;
+            window.toggleMomentumConstructor = toggleMomentumConstructor;
+            window.computeRollingAverage = computeRollingAverage;
+            window.aggregateConstructorPoints = aggregateConstructorPoints;
+            window.computeConstructorMomentumMetrics = computeConstructorMomentumMetrics;
+            window.renderConstructorMomentumView = renderConstructorMomentumView;
+            window.renderMomentumKpis = renderMomentumKpis;
+            window.renderMomentumChart = renderMomentumChart;
+            window.renderMomentumTable = renderMomentumTable;
+            window.constructorMomentumState = constructorMomentumState;
+            window.CONSTRUCTOR_MOMENTUM_FALLBACK_2024 = CONSTRUCTOR_MOMENTUM_FALLBACK_2024;
             window.loadProfilerData = loadProfilerData;
             window.loadCircuitProfilerData = loadProfilerData;
             window.onProfilerSeasonChange = onProfilerSeasonChange;
@@ -16829,6 +17775,19 @@
                 renderConstructorKpis,
                 getAtrTierInfo,
                 constructorAtrState,
+                loadConstructorMomentumData,
+                onMomentumSeasonChange,
+                refreshMomentumData,
+                toggleMomentumConstructor,
+                computeRollingAverage,
+                aggregateConstructorPoints,
+                computeConstructorMomentumMetrics,
+                renderConstructorMomentumView,
+                renderMomentumKpis,
+                renderMomentumChart,
+                renderMomentumTable,
+                constructorMomentumState,
+                CONSTRUCTOR_MOMENTUM_FALLBACK_2024,
                 loadProfilerData,
                 loadCircuitProfilerData: loadProfilerData,
                 onProfilerSeasonChange,
