@@ -4610,6 +4610,275 @@
             filter: brightness(1.2);
         }
 
+        /* Issue #13: Qualifying Pace vs Race Finish Correlation & Pole Conversion Telemetry */
+        .qualifying-correlation-section {
+            background: linear-gradient(180deg, #101520 0%, #0B0E14 100%);
+            border: 1px solid #1E2738;
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .qualifying-header-accent {
+            background: linear-gradient(180deg, #8B5CF6 0%, #06B6D4 50%, #10B981 100%);
+            box-shadow: 0 0 14px rgba(139, 92, 246, 0.5);
+        }
+
+        .qualifying-controls-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 16px 0 20px 0;
+            padding: 12px 16px;
+            background: rgba(16, 21, 32, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+        }
+
+        .qualifying-controls-left, .qualifying-controls-right {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .qualifying-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .qual-kpi-card {
+            background: #141A29;
+            border: 1px solid #243048;
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .qual-kpi-card:hover {
+            border-color: #38BDF8;
+            transform: translateY(-2px);
+        }
+
+        .qual-kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94A3B8;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .qual-kpi-val {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #F8FAFC;
+            line-height: 1.2;
+        }
+
+        .qual-kpi-sub {
+            font-size: 0.72rem;
+            color: #64748B;
+            margin-top: 4px;
+        }
+
+        .qualifying-viz-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .qualifying-viz-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .qual-scatter-card, .qual-gauge-card {
+            background: #141A29;
+            border: 1px solid #243048;
+            border-radius: 10px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .qual-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .qual-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qual-parity-legend {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.73rem;
+            color: #94A3B8;
+            margin-bottom: 8px;
+        }
+
+        .qual-legend-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+
+        .qual-chart-box {
+            position: relative;
+            height: 440px;
+            width: 100%;
+        }
+
+        .qual-gauge-box {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .gauge-readout-center {
+            text-align: center;
+            margin-top: -20px;
+            margin-bottom: 12px;
+        }
+
+        .gauge-rate-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #10B981;
+            font-family: var(--font-mono, monospace);
+            letter-spacing: -0.02em;
+        }
+
+        .gauge-rate-label {
+            font-size: 0.78rem;
+            color: #94A3B8;
+        }
+
+        .pole-conversions-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #1E2738;
+            padding-top: 10px;
+        }
+
+        .pole-round-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .pole-round-item.converted {
+            border-left: 3px solid #10B981;
+        }
+
+        .pole-round-item.lost {
+            border-left: 3px solid #EF4444;
+        }
+
+        .qual-table-card {
+            background: #141A29;
+            border: 1px solid #243048;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .qual-table-scroll {
+            max-height: 420px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .qual-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            color: #E2E8F0;
+        }
+
+        .qual-table th {
+            background: #0E131E;
+            color: #94A3B8;
+            font-weight: 600;
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 2px solid #243048;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .qual-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #1E2738;
+            white-space: nowrap;
+        }
+
+        .qual-table tr:hover {
+            background: rgba(56, 189, 248, 0.08);
+            cursor: pointer;
+        }
+
+        .delta-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: var(--font-mono, monospace);
+        }
+
+        .delta-gained {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .delta-lost {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .delta-parity {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94A3B8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -4663,6 +4932,9 @@
             </button>
             <button type="button" class="tab-btn" id="tabBtnReliability" onclick="switchMainTab('reliability')">
                 <span class="tab-icon">🛡️</span> Reliability &amp; DNF Matrix
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnQualifying" onclick="switchMainTab('qualifying')">
+                <span class="tab-icon">🎯</span> Qualifying Pace &amp; Pole Conversion
             </button>
             <button type="button" class="tab-btn" id="tabBtnTelemetry" onclick="switchMainTab('telemetry')">
                 <span class="tab-icon">⚡</span> Teammate Head-to-Head Telemetry
@@ -6283,6 +6555,163 @@
                             </tr>
                         </thead>
                         <tbody id="reliabilityTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Qualifying Pace vs Race Finish Correlation & Pole Conversion Rate Telemetry (Issue #13) -->
+        <section class="card telemetry-section qualifying-correlation-section" id="qualifying-correlation-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent qualifying-header-accent"></div>
+                    <div>
+                        <h2>Qualifying Pace vs Race Finish Correlation &amp; Pole Conversion Telemetry</h2>
+                        <p class="section-subtitle">Scatter correlation analysis with diagonal parity reference (y = x) and dynamic season pole-to-win conversion telemetry gauge</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <span id="qualifyingCacheBadge" class="cache-badge cached">⚡ Instant (Cached)</span>
+                </div>
+            </div>
+
+            <!-- Controls Toolbar: Season Dropdown, Driver Isolation, DNF Filter, Refresh -->
+            <div class="qualifying-controls-toolbar">
+                <div class="qualifying-controls-left">
+                    <div class="dropdown-group">
+                        <label for="qualifyingSeasonSelect" style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">Season:</label>
+                        <select id="qualifyingSeasonSelect" class="season-dropdown" onchange="onQualifyingSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                            <option value="2025">2025 Season</option>
+                            <option value="2026">2026 Season</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="qualifyingDriverSelect" style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">Driver Focus:</label>
+                        <select id="qualifyingDriverSelect" class="season-dropdown" onchange="onQualifyingDriverChange(this.value)">
+                            <option value="all">All Drivers (Grid Overview)</option>
+                        </select>
+                    </div>
+                    <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #94A3B8; cursor: pointer; user-select: none;">
+                        <input type="checkbox" id="qualifyingIncludeDnf" checked onchange="onQualifyingDnfToggle(this.checked)">
+                        <span>Include DNFs / Retirements</span>
+                    </label>
+                </div>
+                <div class="qualifying-controls-right">
+                    <button type="button" class="sprint-switch-btn" style="padding: 6px 14px; margin: 0; font-size: 0.8rem;" onclick="refreshQualifyingData()">
+                        <span>🔄 Refresh Telemetry</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Cards Row -->
+            <div class="qualifying-kpi-grid" id="qualifyingKpiGrid">
+                <div class="qual-kpi-card" id="qualKpiConversion">
+                    <div class="qual-kpi-label"><span>🏆</span> Pole-to-Win Conversion Rate</div>
+                    <div class="qual-kpi-val" id="qualValConversion">--%</div>
+                    <div class="qual-kpi-sub" id="qualSubConversion">0 of 0 Poles Converted</div>
+                </div>
+                <div class="qual-kpi-card" id="qualKpiAvgDelta">
+                    <div class="qual-kpi-label"><span>📊</span> Avg Position Change</div>
+                    <div class="qual-kpi-val" id="qualValAvgDelta">--</div>
+                    <div class="qual-kpi-sub" id="qualSubAvgDelta">Qualifying rank vs race finish delta</div>
+                </div>
+                <div class="qual-kpi-card" id="qualKpiParity">
+                    <div class="qual-kpi-label"><span>⚖️</span> Parity Breakdown</div>
+                    <div class="qual-kpi-val" id="qualValParity">-- / -- / --</div>
+                    <div class="qual-kpi-sub" id="qualSubParity">Gained (below y=x) / Held / Lost (above y=x)</div>
+                </div>
+                <div class="qual-kpi-card" id="qualKpiTopPole">
+                    <div class="qual-kpi-label"><span>⚡</span> Top Pole Converter</div>
+                    <div class="qual-kpi-val" id="qualValTopPole">--</div>
+                    <div class="qual-kpi-sub" id="qualSubTopPole">Most wins converted from pole</div>
+                </div>
+            </div>
+
+            <!-- Main Visualizations Container: Scatter Chart + Donut Gauge -->
+            <div class="qualifying-viz-row">
+                <!-- Scatter Plot Card -->
+                <div class="qual-scatter-card">
+                    <div class="qual-card-header">
+                        <div class="qual-card-title">
+                            <span>🎯 Qualifying Rank vs Final Race Finish</span>
+                        </div>
+                    </div>
+                    <div class="qual-parity-legend">
+                        <span class="qual-legend-pill" style="border-left: 3px solid rgba(255, 255, 255, 0.4);">
+                            <span>─── Parity Line (y = x)</span>
+                        </span>
+                        <span class="qual-legend-pill" style="border-left: 3px solid #10B981;">
+                            <span>🟢 Below Line: Gained Positions</span>
+                        </span>
+                        <span class="qual-legend-pill" style="border-left: 3px solid #EF4444;">
+                            <span>🔴 Above Line: Lost Positions</span>
+                        </span>
+                        <span class="qual-legend-pill" style="border-left: 3px solid #38BDF8;">
+                            <span>⚪ Hover: Highlights Driver Telemetry</span>
+                        </span>
+                    </div>
+                    <div class="qual-chart-box">
+                        <canvas id="qualifyingCorrelationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Donut / Semi-Circle Gauge Card -->
+                <div class="qual-gauge-card">
+                    <div class="qual-card-header">
+                        <div class="qual-card-title">
+                            <span>🧭 Season Pole Conversion Gauge</span>
+                        </div>
+                    </div>
+                    <div class="qual-gauge-box">
+                        <canvas id="poleConversionGaugeChart"></canvas>
+                    </div>
+                    <div class="gauge-readout-center">
+                        <div class="gauge-rate-number" id="gaugeRateDisplay">--%</div>
+                        <div class="gauge-rate-label" id="gaugeSubDisplay">Calculating pole conversion...</div>
+                    </div>
+                    <div class="qual-card-title" style="font-size: 0.8rem; margin-top: 6px; margin-bottom: 6px;">
+                        <span>🏁 Pole Sitters &amp; Race Outcomes</span>
+                    </div>
+                    <div class="pole-conversions-scroll" id="poleWinnersList">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Correlation Leaderboard Table -->
+            <div class="qual-table-card">
+                <div class="qual-card-header">
+                    <div class="qual-card-title">
+                        <span>📋 Driver Qualifying &amp; Race Finish Telemetry Table</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748B;">
+                        Click any driver row to isolate their points on the scatter plot
+                    </div>
+                </div>
+                <div class="qual-table-scroll">
+                    <table class="qual-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Driver</th>
+                                <th style="width: 16%;">Constructor</th>
+                                <th style="width: 8%; text-align: center;">Starts</th>
+                                <th style="width: 8%; text-align: center;">Poles</th>
+                                <th style="width: 9%; text-align: center;">Pole Wins</th>
+                                <th style="width: 9%; text-align: center;">Pole Conv %</th>
+                                <th style="width: 9%; text-align: center;">Avg Qual</th>
+                                <th style="width: 9%; text-align: center;">Avg Finish</th>
+                                <th style="width: 10%; text-align: center;">Net Gain / Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody id="qualifyingDriverTableBody">
                             <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
@@ -17139,6 +17568,1048 @@
             tbody.innerHTML = rowsHtml.join('');
         }
 
+        // ==========================================
+        // Issue #13: Qualifying Pace vs Race Finish Correlation & Pole Conversion Rate Telemetry
+        // ==========================================
+
+        const qualifyingCorrelationState = {
+            season: '2024',
+            loading: false,
+            dataLoaded: false,
+            metrics: null,
+            selectedDriver: 'all',
+            hoveredDriver: null,
+            includeDnf: true,
+            correlationChart: null,
+            gaugeChart: null
+        };
+
+        const QUALIFYING_CORRELATION_FALLBACK_2024 = (function() {
+            const rawRaces = [
+                { r: '1', name: 'Bahrain Grand Prix', pDrv: 'max_verstappen', pTime: '1:29.179', pTeam: 'red_bull', wDrv: 'max_verstappen', wTeam: 'red_bull' },
+                { r: '2', name: 'Saudi Arabian Grand Prix', pDrv: 'max_verstappen', pTime: '1:27.472', pTeam: 'red_bull', wDrv: 'max_verstappen', wTeam: 'red_bull' },
+                { r: '3', name: 'Australian Grand Prix', pDrv: 'max_verstappen', pTime: '1:15.915', pTeam: 'red_bull', wDrv: 'sainz', wTeam: 'ferrari', pStatus: 'Brakes (DNF)', pPos: '19' },
+                { r: '4', name: 'Japanese Grand Prix', pDrv: 'max_verstappen', pTime: '1:28.197', pTeam: 'red_bull', wDrv: 'max_verstappen', wTeam: 'red_bull' },
+                { r: '5', name: 'Chinese Grand Prix', pDrv: 'max_verstappen', pTime: '1:33.660', pTeam: 'red_bull', wDrv: 'max_verstappen', wTeam: 'red_bull' },
+                { r: '6', name: 'Miami Grand Prix', pDrv: 'max_verstappen', pTime: '1:27.241', pTeam: 'red_bull', wDrv: 'norris', wTeam: 'mclaren', pPos: '2' },
+                { r: '7', name: 'Emilia Romagna Grand Prix', pDrv: 'max_verstappen', pTime: '1:14.746', pTeam: 'red_bull', wDrv: 'max_verstappen', wTeam: 'red_bull' },
+                { r: '8', name: 'Monaco Grand Prix', pDrv: 'leclerc', pTime: '1:10.270', pTeam: 'ferrari', wDrv: 'leclerc', wTeam: 'ferrari' },
+                { r: '9', name: 'Canadian Grand Prix', pDrv: 'russell', pTime: '1:12.000', pTeam: 'mercedes', wDrv: 'max_verstappen', wTeam: 'red_bull', pPos: '3' },
+                { r: '10', name: 'Spanish Grand Prix', pDrv: 'norris', pTime: '1:11.383', pTeam: 'mclaren', wDrv: 'max_verstappen', wTeam: 'red_bull', pPos: '2' },
+                { r: '11', name: 'Austrian Grand Prix', pDrv: 'max_verstappen', pTime: '1:04.314', pTeam: 'red_bull', wDrv: 'russell', wTeam: 'mercedes', pPos: '5' },
+                { r: '12', name: 'British Grand Prix', pDrv: 'russell', pTime: '1:25.819', pTeam: 'mercedes', wDrv: 'hamilton', wTeam: 'mercedes', pStatus: 'Water leak (DNF)', pPos: '19' },
+                { r: '13', name: 'Hungarian Grand Prix', pDrv: 'norris', pTime: '1:15.227', pTeam: 'mclaren', wDrv: 'piastri', wTeam: 'mclaren', pPos: '2' },
+                { r: '14', name: 'Belgian Grand Prix', pDrv: 'leclerc', pTime: '1:53.754', pTeam: 'ferrari', wDrv: 'hamilton', wTeam: 'mercedes', pPos: '3' },
+                { r: '15', name: 'Dutch Grand Prix', pDrv: 'norris', pTime: '1:09.673', pTeam: 'mclaren', wDrv: 'norris', wTeam: 'mclaren' },
+                { r: '16', name: 'Italian Grand Prix', pDrv: 'norris', pTime: '1:19.327', pTeam: 'mclaren', wDrv: 'leclerc', wTeam: 'ferrari', pPos: '3' },
+                { r: '17', name: 'Azerbaijan Grand Prix', pDrv: 'leclerc', pTime: '1:41.365', pTeam: 'ferrari', wDrv: 'piastri', wTeam: 'mclaren', pPos: '2' },
+                { r: '18', name: 'Singapore Grand Prix', pDrv: 'norris', pTime: '1:29.525', pTeam: 'mclaren', wDrv: 'norris', wTeam: 'mclaren' },
+                { r: '19', name: 'United States Grand Prix', pDrv: 'norris', pTime: '1:32.330', pTeam: 'mclaren', wDrv: 'leclerc', wTeam: 'ferrari', pPos: '4' },
+                { r: '20', name: 'Mexico City Grand Prix', pDrv: 'sainz', pTime: '1:15.946', pTeam: 'ferrari', wDrv: 'sainz', wTeam: 'ferrari' },
+                { r: '21', name: 'São Paulo Grand Prix', pDrv: 'norris', pTime: '1:23.405', pTeam: 'mclaren', wDrv: 'max_verstappen', wTeam: 'red_bull', pPos: '6' },
+                { r: '22', name: 'Las Vegas Grand Prix', pDrv: 'russell', pTime: '1:32.312', pTeam: 'mercedes', wDrv: 'russell', wTeam: 'mercedes' },
+                { r: '23', name: 'Qatar Grand Prix', pDrv: 'russell', pTime: '1:21.009', pTeam: 'mercedes', wDrv: 'max_verstappen', wTeam: 'red_bull', pPos: '4' },
+                { r: '24', name: 'Abu Dhabi Grand Prix', pDrv: 'norris', pTime: '1:22.595', pTeam: 'mclaren', wDrv: 'norris', wTeam: 'mclaren' }
+            ];
+
+            const driverCatalog = {
+                'max_verstappen': { givenName: 'Max', familyName: 'Verstappen', code: 'VER', team: 'red_bull', teamName: 'Red Bull' },
+                'norris': { givenName: 'Lando', familyName: 'Norris', code: 'NOR', team: 'mclaren', teamName: 'McLaren' },
+                'leclerc': { givenName: 'Charles', familyName: 'Leclerc', code: 'LEC', team: 'ferrari', teamName: 'Ferrari' },
+                'piastri': { givenName: 'Oscar', familyName: 'Piastri', code: 'PIA', team: 'mclaren', teamName: 'McLaren' },
+                'sainz': { givenName: 'Carlos', familyName: 'Sainz', code: 'SAI', team: 'ferrari', teamName: 'Ferrari' },
+                'hamilton': { givenName: 'Lewis', familyName: 'Hamilton', code: 'HAM', team: 'mercedes', teamName: 'Mercedes' },
+                'russell': { givenName: 'George', familyName: 'Russell', code: 'RUS', team: 'mercedes', teamName: 'Mercedes' },
+                'perez': { givenName: 'Sergio', familyName: 'Perez', code: 'PER', team: 'red_bull', teamName: 'Red Bull' },
+                'alonso': { givenName: 'Fernando', familyName: 'Alonso', code: 'ALO', team: 'aston_martin', teamName: 'Aston Martin' },
+                'hulkenberg': { givenName: 'Nico', familyName: 'Hulkenberg', code: 'HUL', team: 'haas', teamName: 'Haas' }
+            };
+
+            const qualRounds = [];
+            const resRounds = [];
+            const driversList = Object.keys(driverCatalog);
+
+            rawRaces.forEach((race, idx) => {
+                const qResults = [];
+                const rResults = [];
+
+                const poleMeta = driverCatalog[race.pDrv];
+                qResults.push({
+                    position: '1',
+                    Driver: { driverId: race.pDrv, code: poleMeta.code, givenName: poleMeta.givenName, familyName: poleMeta.familyName },
+                    Constructor: { constructorId: poleMeta.team, name: poleMeta.teamName },
+                    Q1: '1:30.100',
+                    Q2: '1:29.500',
+                    Q3: race.pTime
+                });
+
+                const winnerMeta = driverCatalog[race.wDrv];
+                const poleWon = race.pDrv === race.wDrv;
+                const poleFinishPos = race.pPos || (poleWon ? '1' : '2');
+                const poleStatus = race.pStatus || 'Finished';
+
+                rResults.push({
+                    position: poleFinishPos,
+                    positionText: poleStatus.includes('DNF') ? 'R' : poleFinishPos,
+                    grid: '1',
+                    status: poleStatus,
+                    Driver: { driverId: race.pDrv, code: poleMeta.code, givenName: poleMeta.givenName, familyName: poleMeta.familyName },
+                    Constructor: { constructorId: poleMeta.team, name: poleMeta.teamName }
+                });
+
+                if (!poleWon) {
+                    const winQualPos = String(2 + (idx % 3));
+                    qResults.push({
+                        position: winQualPos,
+                        Driver: { driverId: race.wDrv, code: winnerMeta.code, givenName: winnerMeta.givenName, familyName: winnerMeta.familyName },
+                        Constructor: { constructorId: winnerMeta.team, name: winnerMeta.teamName },
+                        Q1: '1:30.200',
+                        Q2: '1:29.600',
+                        Q3: '1:29.250'
+                    });
+                    rResults.push({
+                        position: '1',
+                        positionText: '1',
+                        grid: winQualPos,
+                        status: 'Finished',
+                        Driver: { driverId: race.wDrv, code: winnerMeta.code, givenName: winnerMeta.givenName, familyName: winnerMeta.familyName },
+                        Constructor: { constructorId: winnerMeta.team, name: winnerMeta.teamName }
+                    });
+                }
+
+                let qRankCounter = poleWon ? 2 : 3;
+                let rRankCounter = (poleFinishPos === '2') ? 3 : 2;
+
+                driversList.forEach(dId => {
+                    if (dId === race.pDrv || (!poleWon && dId === race.wDrv)) return;
+                    const meta = driverCatalog[dId];
+
+                    const qPos = String(qRankCounter++);
+                    let rPos = String(rRankCounter++);
+                    let status = 'Finished';
+
+                    if (idx === 7 && dId === 'perez') {
+                        status = 'Collision';
+                        rPos = '19';
+                    } else if (idx === 14 && dId === 'alonso') {
+                        status = 'Engine';
+                        rPos = '18';
+                    }
+
+                    qResults.push({
+                        position: qPos,
+                        Driver: { driverId: dId, code: meta.code, givenName: meta.givenName, familyName: meta.familyName },
+                        Constructor: { constructorId: meta.team, name: meta.teamName },
+                        Q1: '1:30.500',
+                        Q2: qRankCounter <= 10 ? '1:29.800' : undefined,
+                        Q3: qRankCounter <= 10 ? '1:29.400' : undefined
+                    });
+
+                    rResults.push({
+                        position: rPos,
+                        positionText: status === 'Finished' ? rPos : 'R',
+                        grid: qPos,
+                        status,
+                        Driver: { driverId: dId, code: meta.code, givenName: meta.givenName, familyName: meta.familyName },
+                        Constructor: { constructorId: meta.team, name: meta.teamName }
+                    });
+                });
+
+                qualRounds.push({
+                    round: race.r,
+                    raceName: race.name,
+                    QualifyingResults: qResults
+                });
+
+                resRounds.push({
+                    round: race.r,
+                    raceName: race.name,
+                    Results: rResults
+                });
+            });
+
+            return {
+                qualifying: qualRounds,
+                results: resRounds
+            };
+        })();
+
+        function computeQualifyingCorrelationMetrics(qualifyingRounds, resultsRounds, options = {}) {
+            const season = String(options.season || '2024');
+            const qualRoundsList = Array.isArray(qualifyingRounds) ? qualifyingRounds : [];
+            const resRoundsList = Array.isArray(resultsRounds) ? resultsRounds : [];
+
+            const roundQualMap = new Map();
+            qualRoundsList.forEach(r => {
+                if (r && r.round != null) {
+                    roundQualMap.set(String(r.round), r);
+                }
+            });
+
+            const roundResMap = new Map();
+            resRoundsList.forEach(r => {
+                if (r && r.round != null) {
+                    roundResMap.set(String(r.round), r);
+                }
+            });
+
+            const allRoundKeys = Array.from(new Set([...roundQualMap.keys(), ...roundResMap.keys()]))
+                .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+
+            let maxGrid = 20;
+            resRoundsList.forEach(r => {
+                const results = r.Results || [];
+                if (results.length > maxGrid) maxGrid = results.length;
+                results.forEach(res => {
+                    const pos = parseInt(res.position, 10);
+                    if (!isNaN(pos) && pos > maxGrid && pos < 50) maxGrid = pos;
+                });
+            });
+            qualRoundsList.forEach(r => {
+                const results = r.QualifyingResults || [];
+                if (results.length > maxGrid) maxGrid = results.length;
+                results.forEach(res => {
+                    const pos = parseInt(res.position, 10);
+                    if (!isNaN(pos) && pos > maxGrid && pos < 50) maxGrid = pos;
+                });
+            });
+
+            let totalPoles = 0;
+            let convertedWins = 0;
+            const poleSitters = [];
+            const points = [];
+            const driverMap = new Map();
+
+            allRoundKeys.forEach(roundNum => {
+                const qualRound = roundQualMap.get(roundNum);
+                const resRound = roundResMap.get(roundNum);
+
+                const qualResults = qualRound?.QualifyingResults || [];
+                const resResults = resRound?.Results || [];
+
+                const raceName = qualRound?.raceName || resRound?.raceName || `Round ${roundNum}`;
+
+                let poleEntry = qualResults.find(q => q.position === '1' || parseInt(q.position, 10) === 1);
+                if (!poleEntry && resResults.length > 0) {
+                    poleEntry = resResults.find(r => r.grid === '1' || parseInt(r.grid, 10) === 1);
+                }
+
+                const winnerEntry = resResults.find(r => r.position === '1' || parseInt(r.position, 10) === 1);
+
+                if (poleEntry) {
+                    totalPoles++;
+                    const poleDriverId = poleEntry.Driver?.driverId || 'unknown';
+                    const winnerDriverId = winnerEntry?.Driver?.driverId || null;
+                    const converted = Boolean(winnerDriverId && poleDriverId === winnerDriverId);
+                    if (converted) convertedWins++;
+
+                    const poleDriverResult = resResults.find(r => r.Driver?.driverId === poleDriverId);
+                    const finishPosNum = poleDriverResult ? parseInt(poleDriverResult.position, 10) : null;
+
+                    poleSitters.push({
+                        round: roundNum,
+                        raceName,
+                        date: resRound?.date || qualRound?.date || '',
+                        poleDriverId,
+                        poleDriverName: `${poleEntry.Driver?.givenName || ''} ${poleEntry.Driver?.familyName || ''}`.trim() || poleEntry.Driver?.code || poleDriverId,
+                        poleCode: poleEntry.Driver?.code || '',
+                        poleConstructorId: (poleEntry.Constructor?.constructorId || '').toLowerCase(),
+                        poleConstructorName: poleEntry.Constructor?.name || '',
+                        poleLapTime: poleEntry.Q3 || poleEntry.Q2 || poleEntry.Q1 || 'N/A',
+                        winnerDriverId,
+                        winnerName: winnerEntry ? `${winnerEntry.Driver?.givenName || ''} ${winnerEntry.Driver?.familyName || ''}`.trim() || winnerEntry.Driver?.code || winnerDriverId : 'Unknown',
+                        winnerConstructorId: (winnerEntry?.Constructor?.constructorId || '').toLowerCase(),
+                        winnerConstructorName: winnerEntry?.Constructor?.name || '',
+                        finishPos: finishPosNum,
+                        converted
+                    });
+                }
+
+                const driversInRound = new Map();
+
+                qualResults.forEach(q => {
+                    const dId = q.Driver?.driverId;
+                    if (dId) {
+                        driversInRound.set(dId, { qual: q, res: null });
+                    }
+                });
+
+                resResults.forEach(r => {
+                    const dId = r.Driver?.driverId;
+                    if (dId) {
+                        if (driversInRound.has(dId)) {
+                            driversInRound.get(dId).res = r;
+                        } else {
+                            driversInRound.set(dId, { qual: null, res: r });
+                        }
+                    }
+                });
+
+                driversInRound.forEach(({ qual: q, res: r }, dId) => {
+                    const driver = q?.Driver || r?.Driver || {};
+                    const constructor = r?.Constructor || q?.Constructor || {};
+                    const constructorId = (constructor.constructorId || '').toLowerCase();
+                    const constructorName = constructor.name || constructorId || 'Unknown Team';
+                    const driverName = `${driver.givenName || ''} ${driver.familyName || ''}`.trim() || driver.code || dId;
+                    const code = driver.code || '';
+
+                    let bestQLap = 'No time';
+                    let bestQSegment = 'N/A';
+                    if (q?.Q3) {
+                        bestQLap = q.Q3;
+                        bestQSegment = 'Q3';
+                    } else if (q?.Q2) {
+                        bestQLap = q.Q2;
+                        bestQSegment = 'Q2';
+                    } else if (q?.Q1) {
+                        bestQLap = q.Q1;
+                        bestQSegment = 'Q1';
+                    }
+
+                    let qualPos = parseInt(q?.position, 10);
+                    if (isNaN(qualPos) || qualPos <= 0) {
+                        qualPos = parseInt(r?.grid, 10);
+                    }
+                    if (isNaN(qualPos) || qualPos <= 0) {
+                        qualPos = maxGrid;
+                    }
+                    qualPos = Math.min(qualPos, maxGrid);
+
+                    let grid = parseInt(r?.grid, 10);
+                    if (isNaN(grid) || grid <= 0) {
+                        grid = qualPos;
+                    }
+
+                    const status = r?.status || (q ? 'Did not start' : 'Unknown');
+                    const positionText = (r?.positionText || '').trim().toUpperCase();
+                    const statusLower = status.toLowerCase();
+
+                    const isDns = statusLower.includes('did not start') ||
+                        statusLower.includes('withdrew') ||
+                        positionText === 'W' ||
+                        positionText === 'F' ||
+                        (r && (r.grid === '0' || r.position === '0') && statusLower !== 'finished');
+
+                    const isFinished = !isDns && (
+                        statusLower === 'finished' ||
+                        /^\+\d+\s+laps?$/i.test(status) ||
+                        /^\+[\d:.]/i.test(status) ||
+                        (statusLower.includes('classified') && !statusLower.includes('not'))
+                    );
+
+                    const isDnf = !isFinished && !isDns;
+
+                    let rawFinish = parseInt(r?.position, 10);
+                    let finishPos;
+                    if (isDns || isNaN(rawFinish) || rawFinish <= 0) {
+                        finishPos = maxGrid;
+                    } else {
+                        finishPos = Math.min(rawFinish, maxGrid);
+                    }
+
+                    let finishDisplay = `P${finishPos}`;
+                    if (isDns) {
+                        finishDisplay = `DNS (P${finishPos})`;
+                    } else if (isDnf) {
+                        finishDisplay = `DNF - ${status} (P${finishPos})`;
+                    }
+
+                    const delta = qualPos - finishPos;
+                    let category;
+                    let deltaStr;
+
+                    if (finishPos > qualPos) {
+                        category = 'lost';
+                        const diff = finishPos - qualPos;
+                        deltaStr = `-${diff} position${diff > 1 ? 's' : ''} lost`;
+                    } else if (finishPos < qualPos) {
+                        category = 'gained';
+                        const diff = qualPos - finishPos;
+                        deltaStr = `+${diff} position${diff > 1 ? 's' : ''} gained`;
+                    } else {
+                        category = 'parity';
+                        deltaStr = 'Held grid position (Parity)';
+                    }
+
+                    const teamColor = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[constructorId]) ||
+                        (typeof getDriverColor === 'function' ? getDriverColor({ driverId: dId, constructorId }, 0) : '#38BDF8');
+
+                    const pointObj = {
+                        x: qualPos,
+                        y: finishPos,
+                        qualPos,
+                        finishPos,
+                        grid,
+                        delta,
+                        deltaStr,
+                        category,
+                        driverId: dId,
+                        driverName,
+                        code,
+                        constructorId,
+                        constructorName,
+                        teamColor,
+                        round: roundNum,
+                        raceName,
+                        bestQLap,
+                        bestQSegment,
+                        status,
+                        isDnf,
+                        isDns,
+                        finishDisplay
+                    };
+
+                    points.push(pointObj);
+
+                    if (!driverMap.has(dId)) {
+                        driverMap.set(dId, {
+                            driverId: dId,
+                            driverName,
+                            code,
+                            constructorId,
+                            constructorName,
+                            teamColor,
+                            starts: 0,
+                            qualSum: 0,
+                            finishSum: 0,
+                            netDelta: 0,
+                            poles: 0,
+                            poleWins: 0,
+                            gainedCount: 0,
+                            lostCount: 0,
+                            parityCount: 0,
+                            dnfCount: 0
+                        });
+                    }
+
+                    const drv = driverMap.get(dId);
+                    drv.starts++;
+                    drv.qualSum += qualPos;
+                    drv.finishSum += finishPos;
+                    drv.netDelta += delta;
+                    if (qualPos === 1) {
+                        drv.poles++;
+                        if (finishPos === 1) drv.poleWins++;
+                    }
+                    if (category === 'gained') drv.gainedCount++;
+                    else if (category === 'lost') drv.lostCount++;
+                    else drv.parityCount++;
+                    if (isDnf || isDns) drv.dnfCount++;
+                });
+            });
+
+            const driversList = Array.from(driverMap.values()).map(d => {
+                const avgQual = d.starts > 0 ? (d.qualSum / d.starts) : 0;
+                const avgFinish = d.starts > 0 ? (d.finishSum / d.starts) : 0;
+                const poleConvRate = d.poles > 0 ? ((d.poleWins / d.poles) * 100) : null;
+                return {
+                    ...d,
+                    avgQual: Number(avgQual.toFixed(1)),
+                    avgFinish: Number(avgFinish.toFixed(1)),
+                    poleConvRate: poleConvRate != null ? Number(poleConvRate.toFixed(1)) : null
+                };
+            }).sort((a, b) => {
+                if (b.poleWins !== a.poleWins) return b.poleWins - a.poleWins;
+                if (b.poles !== a.poles) return b.poles - a.poles;
+                return b.netDelta - a.netDelta;
+            });
+
+            const poleConversionRate = totalPoles > 0 ? Number(((convertedWins / totalPoles) * 100).toFixed(1)) : 0;
+            const unconvertedPoles = totalPoles - convertedWins;
+
+            let gainedCount = 0;
+            let lostCount = 0;
+            let parityCount = 0;
+            let totalDeltaSum = 0;
+
+            points.forEach(pt => {
+                if (pt.category === 'gained') gainedCount++;
+                else if (pt.category === 'lost') lostCount++;
+                else parityCount++;
+                totalDeltaSum += pt.delta;
+            });
+
+            const avgDelta = points.length > 0 ? Number((totalDeltaSum / points.length).toFixed(2)) : 0;
+
+            let topPoleConverter = null;
+            let maxConv = -1;
+            driversList.forEach(d => {
+                if (d.poleWins > maxConv) {
+                    maxConv = d.poleWins;
+                    topPoleConverter = d;
+                }
+            });
+
+            return {
+                season,
+                totalRaces: allRoundKeys.length,
+                totalPoles,
+                convertedWins,
+                unconvertedPoles,
+                poleConversionRate,
+                topPoleConverter,
+                avgDelta,
+                gainedCount,
+                lostCount,
+                parityCount,
+                points,
+                drivers: driversList,
+                poleSitters,
+                maxGrid
+            };
+        }
+
+        async function loadQualifyingCorrelationData(season = '2024', forceRefresh = false) {
+            const seasonStr = String(season || qualifyingCorrelationState.season || '2024');
+            qualifyingCorrelationState.season = seasonStr;
+            qualifyingCorrelationState.loading = true;
+
+            const badge = document.getElementById('qualifyingCacheBadge');
+            const cacheKey = `f1_qualifying_correlation_${seasonStr}`;
+
+            if (!forceRefresh && typeof localStorage !== 'undefined') {
+                try {
+                    const cached = localStorage.getItem(cacheKey);
+                    if (cached) {
+                        const parsed = JSON.parse(cached);
+                        qualifyingCorrelationState.metrics = parsed;
+                        qualifyingCorrelationState.loading = false;
+                        qualifyingCorrelationState.dataLoaded = true;
+                        if (badge) {
+                            badge.className = 'cache-badge cached';
+                            badge.textContent = '⚡ Instant (Cached)';
+                        }
+                        renderQualifyingCorrelationView(parsed);
+                        return parsed;
+                    }
+                } catch (e) {}
+            }
+
+            if (badge) {
+                badge.className = 'cache-badge';
+                badge.textContent = '🔄 Loading Jolpica F1...';
+            }
+
+            try {
+                let qualRounds = [];
+                let resRounds = [];
+
+                const qualPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(seasonStr, 'qualifying', 'QualifyingResults').catch(() => [])
+                    : Promise.resolve([]);
+
+                const resPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(seasonStr, 'results', 'Results').catch(() => [])
+                    : Promise.resolve([]);
+
+                const [qData, rData] = await Promise.all([qualPromise, resPromise]);
+                qualRounds = qData || [];
+                resRounds = rData || [];
+
+                let metrics = null;
+                if ((qualRounds && qualRounds.length > 0) || (resRounds && resRounds.length > 0)) {
+                    metrics = computeQualifyingCorrelationMetrics(qualRounds, resRounds, { season: seasonStr });
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '🌐 Live Jolpica API';
+                    }
+                } else if (seasonStr === '2024' || !seasonStr) {
+                    metrics = computeQualifyingCorrelationMetrics(
+                        QUALIFYING_CORRELATION_FALLBACK_2024.qualifying,
+                        QUALIFYING_CORRELATION_FALLBACK_2024.results,
+                        { season: '2024' }
+                    );
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚠️ Offline Fallback';
+                    }
+                } else {
+                    metrics = computeQualifyingCorrelationMetrics([], [], { season: seasonStr });
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚠️ No Records Found';
+                    }
+                }
+
+                qualifyingCorrelationState.metrics = metrics;
+                qualifyingCorrelationState.dataLoaded = true;
+
+                if (metrics && typeof localStorage !== 'undefined') {
+                    try {
+                        localStorage.setItem(cacheKey, JSON.stringify(metrics));
+                    } catch (e) {}
+                }
+
+                renderQualifyingCorrelationView(metrics);
+                return metrics;
+            } catch (err) {
+                console.warn('Error loading qualifying correlation data:', err);
+                let fallbackMetrics = null;
+                if (seasonStr === '2024' || !seasonStr) {
+                    fallbackMetrics = computeQualifyingCorrelationMetrics(
+                        QUALIFYING_CORRELATION_FALLBACK_2024.qualifying,
+                        QUALIFYING_CORRELATION_FALLBACK_2024.results,
+                        { season: '2024' }
+                    );
+                } else {
+                    fallbackMetrics = computeQualifyingCorrelationMetrics([], [], { season: seasonStr });
+                }
+                qualifyingCorrelationState.metrics = fallbackMetrics;
+                qualifyingCorrelationState.dataLoaded = true;
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = '⚠️ Offline Fallback';
+                }
+                renderQualifyingCorrelationView(fallbackMetrics);
+                return fallbackMetrics;
+            } finally {
+                qualifyingCorrelationState.loading = false;
+            }
+        }
+
+        function renderQualifyingCorrelationView(metrics) {
+            if (!metrics) return;
+            renderQualifyingKpis(metrics);
+            renderQualifyingScatterChart(metrics);
+            renderPoleConversionGauge(metrics);
+            renderPoleWinnersList(metrics);
+            populateQualifyingDriverDropdown(metrics.drivers || []);
+            renderQualifyingDriverTable(metrics);
+        }
+
+        function renderQualifyingScatterChart(metrics) {
+            const canvas = document.getElementById('qualifyingCorrelationChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            if (qualifyingCorrelationState.correlationChart && typeof qualifyingCorrelationState.correlationChart.destroy === 'function') {
+                qualifyingCorrelationState.correlationChart.destroy();
+                qualifyingCorrelationState.correlationChart = null;
+            }
+
+            if (!metrics || !Array.isArray(metrics.points) || metrics.points.length === 0) {
+                return;
+            }
+
+            const maxGrid = Math.max(20, metrics.maxGrid || 20);
+            const selectedDriver = qualifyingCorrelationState.selectedDriver || 'all';
+            const includeDnf = qualifyingCorrelationState.includeDnf !== false;
+
+            let pts = metrics.points;
+            if (!includeDnf) {
+                pts = pts.filter(p => !p.isDnf && !p.isDns);
+            }
+            if (selectedDriver !== 'all') {
+                pts = pts.filter(p => p.driverId === selectedDriver);
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : canvas;
+
+            const scatterDataset = {
+                type: 'scatter',
+                label: selectedDriver !== 'all' ? `Race Finishes (${pts[0]?.driverName || selectedDriver})` : 'Driver Race Finishes',
+                data: pts,
+                backgroundColor: function(context) {
+                    const pt = context.raw;
+                    if (!pt) return '#38BDF8';
+                    const hovered = qualifyingCorrelationState.hoveredDriver;
+                    if (hovered) {
+                        return pt.driverId === hovered ? pt.teamColor : 'rgba(148, 163, 184, 0.15)';
+                    }
+                    return pt.teamColor;
+                },
+                borderColor: function(context) {
+                    const pt = context.raw;
+                    if (!pt) return '#ffffff';
+                    const hovered = qualifyingCorrelationState.hoveredDriver;
+                    if (hovered) {
+                        return pt.driverId === hovered ? '#FFFFFF' : 'transparent';
+                    }
+                    return 'rgba(255, 255, 255, 0.7)';
+                },
+                borderWidth: function(context) {
+                    const pt = context.raw;
+                    const hovered = qualifyingCorrelationState.hoveredDriver;
+                    if (hovered && pt && pt.driverId === hovered) return 2;
+                    return 1;
+                },
+                pointRadius: function(context) {
+                    const pt = context.raw;
+                    const hovered = qualifyingCorrelationState.hoveredDriver;
+                    if (selectedDriver !== 'all') return 7;
+                    if (hovered && pt && pt.driverId === hovered) return 8;
+                    return 5;
+                },
+                pointHoverRadius: 9
+            };
+
+            const parityDataset = {
+                type: 'line',
+                label: 'Parity Line (y = x)',
+                data: [
+                    { x: 1, y: 1 },
+                    { x: maxGrid, y: maxGrid }
+                ],
+                borderColor: 'rgba(255, 255, 255, 0.45)',
+                borderWidth: 2,
+                borderDash: [6, 6],
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                fill: false,
+                tooltip: { enabled: false }
+            };
+
+            const config = {
+                type: 'scatter',
+                data: {
+                    datasets: [scatterDataset, parityDataset]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            min: 1,
+                            max: maxGrid,
+                            title: {
+                                display: true,
+                                text: 'Qualifying Rank (Grid Position)',
+                                color: '#94A3B8',
+                                font: { size: 12, weight: '600' }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            ticks: { color: '#94A3B8', stepSize: 1, precision: 0 }
+                        },
+                        y: {
+                            type: 'linear',
+                            min: 1,
+                            max: maxGrid,
+                            title: {
+                                display: true,
+                                text: 'Final Race Finish Position (Above = Lost, Below = Gained)',
+                                color: '#94A3B8',
+                                font: { size: 12, weight: '600' }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            ticks: { color: '#94A3B8', stepSize: 1, precision: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#E2E8F0',
+                                filter: (item) => item.text !== 'Parity Line (y = x)'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#F8FAFC',
+                            bodyColor: '#E2E8F0',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            callbacks: {
+                                title: function(items) {
+                                    const pt = items[0]?.raw;
+                                    return pt ? `${pt.raceName} (Round ${pt.round})` : '';
+                                },
+                                label: function(item) {
+                                    const pt = item.raw;
+                                    if (!pt || !pt.driverName) return '';
+                                    return [
+                                        `Driver: ${pt.driverName} (${pt.constructorName})`,
+                                        `Qualifying Rank: P${pt.qualPos}`,
+                                        `Best Q Lap: ${pt.bestQLap} (${pt.bestQSegment})`,
+                                        `Starting Grid: P${pt.grid}`,
+                                        `Final Race Position: ${pt.finishDisplay}`,
+                                        `Delta: ${pt.deltaStr}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    onHover: function(evt, elements) {
+                        if (selectedDriver !== 'all') return;
+                        if (elements && elements.length > 0) {
+                            const el = elements[0];
+                            if (el.datasetIndex === 0) {
+                                const pt = this.data.datasets[0].data[el.index];
+                                if (pt && pt.driverId && pt.driverId !== qualifyingCorrelationState.hoveredDriver) {
+                                    qualifyingCorrelationState.hoveredDriver = pt.driverId;
+                                    if (typeof this.update === 'function') this.update('none');
+                                }
+                            }
+                        } else {
+                            if (qualifyingCorrelationState.hoveredDriver !== null) {
+                                qualifyingCorrelationState.hoveredDriver = null;
+                                if (typeof this.update === 'function') this.update('none');
+                            }
+                        }
+                    }
+                }
+            };
+
+            qualifyingCorrelationState.correlationChart = new Chart(ctx, config);
+        }
+
+        function renderPoleConversionGauge(metrics) {
+            const canvas = document.getElementById('poleConversionGaugeChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+
+            if (qualifyingCorrelationState.gaugeChart && typeof qualifyingCorrelationState.gaugeChart.destroy === 'function') {
+                qualifyingCorrelationState.gaugeChart.destroy();
+                qualifyingCorrelationState.gaugeChart = null;
+            }
+
+            const totalPoles = metrics?.totalPoles || 0;
+            const convertedWins = metrics?.convertedWins || 0;
+            const lostPoles = Math.max(0, totalPoles - convertedWins);
+            const conversionRate = metrics?.poleConversionRate || 0;
+
+            const rateDisplay = document.getElementById('gaugeRateDisplay');
+            const subDisplay = document.getElementById('gaugeSubDisplay');
+            if (rateDisplay) {
+                rateDisplay.textContent = `${conversionRate}%`;
+            }
+            if (subDisplay) {
+                subDisplay.textContent = `${convertedWins} of ${totalPoles} Poles Converted to Win`;
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : canvas;
+
+            const config = {
+                type: 'doughnut',
+                data: {
+                    labels: ['Won from Pole', 'Lost from Pole'],
+                    datasets: [{
+                        data: totalPoles > 0 ? [convertedWins, lostPoles] : [0, 1],
+                        backgroundColor: totalPoles > 0 ? ['#10B981', '#334155'] : ['#334155', '#1E293B'],
+                        borderColor: '#0F172A',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    circumference: 180,
+                    rotation: -90,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    if (totalPoles === 0) return ' No pole telemetry';
+                                    const val = ctx.raw || 0;
+                                    const pct = ((val / totalPoles) * 100).toFixed(1);
+                                    return ` ${ctx.label}: ${val} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            qualifyingCorrelationState.gaugeChart = new Chart(ctx, config);
+        }
+
+        function renderPoleWinnersList(metrics) {
+            const container = document.getElementById('poleWinnersList');
+            if (!container) return;
+
+            const poleSitters = metrics?.poleSitters || [];
+            if (poleSitters.length === 0) {
+                container.innerHTML = '<div style="color: #64748B; font-size: 0.75rem; text-align: center; padding: 12px;">No pole telemetry recorded for this season.</div>';
+                return;
+            }
+
+            const html = poleSitters.map(p => {
+                const cls = p.converted ? 'converted' : 'lost';
+                const statusBadge = p.converted
+                    ? '<span style="color: #10B981; font-weight: 700;">WIN</span>'
+                    : `<span style="color: #EF4444; font-weight: 600;">P${p.finishPos != null ? p.finishPos : '?'} (Won by ${p.winnerName})</span>`;
+
+                return `
+                    <div class="pole-round-item ${cls}">
+                        <div>
+                            <strong>R${p.round} ${p.raceName.replace(' Grand Prix', ' GP')}</strong>
+                            <div style="color: #94A3B8; font-size: 0.7rem;">
+                                Pole: ${p.poleDriverName} (${p.poleLapTime})
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            ${statusBadge}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderQualifyingKpis(metrics) {
+            const valConv = document.getElementById('qualValConversion');
+            const subConv = document.getElementById('qualSubConversion');
+            const valDelta = document.getElementById('qualValAvgDelta');
+            const subDelta = document.getElementById('qualSubAvgDelta');
+            const valParity = document.getElementById('qualValParity');
+            const subParity = document.getElementById('qualSubParity');
+            const valTopPole = document.getElementById('qualValTopPole');
+            const subTopPole = document.getElementById('qualSubTopPole');
+
+            if (!metrics) return;
+
+            if (valConv) valConv.textContent = `${metrics.poleConversionRate}%`;
+            if (subConv) subConv.textContent = `${metrics.convertedWins} of ${metrics.totalPoles} Poles Converted to Win`;
+
+            if (valDelta) {
+                const sign = metrics.avgDelta > 0 ? '+' : '';
+                valDelta.textContent = `${sign}${metrics.avgDelta} POS`;
+            }
+            if (subDelta) {
+                subDelta.textContent = metrics.avgDelta >= 0 ? 'Net average gain from qualifying grid' : 'Net average deficit from qualifying grid';
+            }
+
+            if (valParity) {
+                valParity.textContent = `${metrics.gainedCount} / ${metrics.parityCount} / ${metrics.lostCount}`;
+            }
+            if (subParity) {
+                const tot = metrics.points.length || 1;
+                const gPct = ((metrics.gainedCount / tot) * 100).toFixed(0);
+                const pPct = ((metrics.parityCount / tot) * 100).toFixed(0);
+                const lPct = ((metrics.lostCount / tot) * 100).toFixed(0);
+                subParity.textContent = `🟢 ${gPct}% Gained | ⚪ ${pPct}% Parity | 🔴 ${lPct}% Lost`;
+            }
+
+            if (valTopPole) {
+                if (metrics.topPoleConverter && metrics.topPoleConverter.poleWins > 0) {
+                    valTopPole.textContent = `${metrics.topPoleConverter.driverName} (${metrics.topPoleConverter.poleWins})`;
+                } else {
+                    valTopPole.textContent = 'None';
+                }
+            }
+            if (subTopPole) {
+                if (metrics.topPoleConverter && metrics.topPoleConverter.poles > 0) {
+                    subTopPole.textContent = `${metrics.topPoleConverter.poleWins} wins from ${metrics.topPoleConverter.poles} poles (${metrics.topPoleConverter.poleConvRate}%)`;
+                } else {
+                    subTopPole.textContent = 'No pole conversions recorded';
+                }
+            }
+        }
+
+        function renderQualifyingDriverTable(metrics) {
+            const tbody = document.getElementById('qualifyingDriverTableBody');
+            if (!tbody) return;
+
+            const drivers = metrics?.drivers || [];
+            if (drivers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #64748B; padding: 18px;">No driver qualifying correlation data available.</td></tr>';
+                return;
+            }
+
+            const html = drivers.map(d => {
+                const netSign = d.netDelta > 0 ? '+' : '';
+                let deltaBadgeClass = 'delta-parity';
+                if (d.netDelta > 0) deltaBadgeClass = 'delta-gained';
+                else if (d.netDelta < 0) deltaBadgeClass = 'delta-lost';
+
+                const convDisplay = d.poleConvRate != null ? `${d.poleConvRate}%` : '<span style="color: #64748B;">N/A</span>';
+
+                return `
+                    <tr onclick="onQualifyingDriverChange('${d.driverId}')" title="Click to isolate ${d.driverName} on scatter plot">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${d.teamColor}; flex-shrink: 0;"></span>
+                                <div>
+                                    <strong>${d.driverName}</strong>
+                                    <span style="font-size: 0.72rem; color: #64748B; margin-left: 4px;">${d.code}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${d.constructorName}</td>
+                        <td style="text-align: center;">${d.starts}</td>
+                        <td style="text-align: center; font-weight: 600;">${d.poles}</td>
+                        <td style="text-align: center; font-weight: 600; color: #10B981;">${d.poleWins}</td>
+                        <td style="text-align: center; font-family: var(--font-mono, monospace);">${convDisplay}</td>
+                        <td style="text-align: center; font-family: var(--font-mono, monospace);">P${d.avgQual}</td>
+                        <td style="text-align: center; font-family: var(--font-mono, monospace);">P${d.avgFinish}</td>
+                        <td style="text-align: center;">
+                            <span class="delta-badge ${deltaBadgeClass}">${netSign}${d.netDelta}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = html;
+        }
+
+        function populateQualifyingDriverDropdown(drivers = []) {
+            const sel = document.getElementById('qualifyingDriverSelect');
+            if (!sel) return;
+
+            const current = qualifyingCorrelationState.selectedDriver || 'all';
+            let options = '<option value="all">All Drivers (Grid Overview)</option>';
+
+            drivers.forEach(d => {
+                const isSelected = d.driverId === current ? 'selected' : '';
+                options += `<option value="${d.driverId}" ${isSelected}>${d.driverName} (${d.constructorName})</option>`;
+            });
+
+            sel.innerHTML = options;
+            sel.value = current;
+        }
+
+        function populateQualifyingSeasonDropdown(currentYear = 2026, startYear = 1950) {
+            const sel = document.getElementById('qualifyingSeasonSelect');
+            if (!sel) return;
+
+            const existingVal = sel.value || qualifyingCorrelationState.season || '2024';
+            sel.innerHTML = '';
+            for (let year = currentYear; year >= startYear; year--) {
+                const opt = document.createElement('option');
+                opt.value = year.toString();
+                opt.textContent = `${year} Season`;
+                if (year.toString() === existingVal) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            }
+            sel.value = existingVal;
+        }
+
+        function onQualifyingSeasonChange(season) {
+            qualifyingCorrelationState.season = String(season);
+            qualifyingCorrelationState.selectedDriver = 'all';
+            loadQualifyingCorrelationData(season, false);
+        }
+
+        function onQualifyingDriverChange(driverId) {
+            qualifyingCorrelationState.selectedDriver = driverId || 'all';
+            const sel = document.getElementById('qualifyingDriverSelect');
+            if (sel && sel.value !== driverId) {
+                sel.value = driverId;
+            }
+            if (qualifyingCorrelationState.metrics) {
+                renderQualifyingScatterChart(qualifyingCorrelationState.metrics);
+            }
+        }
+
+        function onQualifyingDnfToggle(includeDnf) {
+            qualifyingCorrelationState.includeDnf = Boolean(includeDnf);
+            if (qualifyingCorrelationState.metrics) {
+                renderQualifyingScatterChart(qualifyingCorrelationState.metrics);
+            }
+        }
+
+        function refreshQualifyingData() {
+            loadQualifyingCorrelationData(qualifyingCorrelationState.season, true);
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
@@ -17154,6 +18625,7 @@
                 'clinch': 'tabBtnClinch',
                 'pitstops': 'tabBtnPitStops',
                 'reliability': 'tabBtnReliability',
+                'qualifying': 'tabBtnQualifying',
                 'telemetry': 'tabBtnTelemetry',
                 'progression': 'tabBtnProgression',
                 'results': 'tabBtnResults'
@@ -17171,6 +18643,7 @@
             const clinchSec = document.getElementById('clinch-engine-section');
             const pitstopSec = document.getElementById('pitstop-matrix-section');
             const reliabilitySec = document.getElementById('reliability-matrix-section');
+            const qualifyingSec = document.getElementById('qualifying-correlation-section');
             const telemetrySec = document.getElementById('teammate-telemetry-section');
             const progressionSec = document.getElementById('progression-section');
             const latestRaceSec = document.getElementById('latest-race-section');
@@ -17322,10 +18795,30 @@
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (reliabilitySec) reliabilitySec.style.display = 'block';
+                if (qualifyingSec) qualifyingSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'qualifying') {
+                if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
+                if (profilerSec) profilerSec.style.display = 'none';
+                if (constructorSec) constructorSec.style.display = 'none';
+                if (momentumSec) momentumSec.style.display = 'none';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (qualifyingSec) qualifyingSec.style.display = 'block';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadQualifyingCorrelationData === 'function' && !qualifyingCorrelationState.dataLoaded && !qualifyingCorrelationState.loading) {
+                    loadQualifyingCorrelationData(qualifyingCorrelationState.season);
+                }
             } else if (tabId === 'telemetry') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -17337,6 +18830,7 @@
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (qualifyingSec) qualifyingSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'block';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -17352,6 +18846,7 @@
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (qualifyingSec) qualifyingSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'block';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
@@ -17367,6 +18862,7 @@
                 if (clinchSec) clinchSec.style.display = 'none';
                 if (pitstopSec) pitstopSec.style.display = 'none';
                 if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (qualifyingSec) qualifyingSec.style.display = 'none';
                 if (telemetrySec) telemetrySec.style.display = 'none';
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
@@ -17382,6 +18878,7 @@
                 if (clinchSec) clinchSec.style.display = 'block';
                 if (pitstopSec) pitstopSec.style.display = 'block';
                 if (reliabilitySec) reliabilitySec.style.display = 'block';
+                if (qualifyingSec) qualifyingSec.style.display = 'block';
                 if (telemetrySec) telemetrySec.style.display = 'block';
                 if (progressionSec) progressionSec.style.display = 'block';
                 if (latestRaceSec) latestRaceSec.style.display = 'block';
@@ -17417,6 +18914,12 @@
                 if (stintDegradationState.barsChartInstance && typeof stintDegradationState.barsChartInstance.resize === 'function') {
                     stintDegradationState.barsChartInstance.resize();
                 }
+                if (qualifyingCorrelationState && qualifyingCorrelationState.correlationChart && typeof qualifyingCorrelationState.correlationChart.resize === 'function') {
+                    qualifyingCorrelationState.correlationChart.resize();
+                }
+                if (qualifyingCorrelationState && qualifyingCorrelationState.gaugeChart && typeof qualifyingCorrelationState.gaugeChart.resize === 'function') {
+                    qualifyingCorrelationState.gaugeChart.resize();
+                }
             }, 50);
         }
 
@@ -17441,6 +18944,12 @@
             }
             if (reliabilityChartInstance && typeof reliabilityChartInstance.resize === 'function') {
                 reliabilityChartInstance.resize();
+            }
+            if (qualifyingCorrelationState && qualifyingCorrelationState.correlationChart && typeof qualifyingCorrelationState.correlationChart.resize === 'function') {
+                qualifyingCorrelationState.correlationChart.resize();
+            }
+            if (qualifyingCorrelationState && qualifyingCorrelationState.gaugeChart && typeof qualifyingCorrelationState.gaugeChart.resize === 'function') {
+                qualifyingCorrelationState.gaugeChart.resize();
             }
             if (stintDegradationState.degradationChartInstance && typeof stintDegradationState.degradationChartInstance.resize === 'function') {
                 stintDegradationState.degradationChartInstance.resize();
@@ -17535,9 +19044,31 @@
                 const roundVal = roundSelect ? roundSelect.value : '1';
                 loadStintDegradationData(stintSeasonSelect.value, roundVal, false);
             }
+
+            const qualifyingSeasonSelect = document.getElementById('qualifyingSeasonSelect');
+            if (qualifyingSeasonSelect) {
+                populateQualifyingSeasonDropdown();
+                loadQualifyingCorrelationData(qualifyingSeasonSelect.value || '2024', false);
+            }
         });
 
         if (typeof window !== 'undefined') {
+            window.loadQualifyingCorrelationData = loadQualifyingCorrelationData;
+            window.computeQualifyingCorrelationMetrics = computeQualifyingCorrelationMetrics;
+            window.renderQualifyingCorrelationView = renderQualifyingCorrelationView;
+            window.renderQualifyingScatterChart = renderQualifyingScatterChart;
+            window.renderPoleConversionGauge = renderPoleConversionGauge;
+            window.renderQualifyingKpis = renderQualifyingKpis;
+            window.renderQualifyingDriverTable = renderQualifyingDriverTable;
+            window.renderPoleWinnersList = renderPoleWinnersList;
+            window.populateQualifyingDriverDropdown = populateQualifyingDriverDropdown;
+            window.populateQualifyingSeasonDropdown = populateQualifyingSeasonDropdown;
+            window.onQualifyingSeasonChange = onQualifyingSeasonChange;
+            window.onQualifyingDriverChange = onQualifyingDriverChange;
+            window.onQualifyingDnfToggle = onQualifyingDnfToggle;
+            window.refreshQualifyingData = refreshQualifyingData;
+            window.qualifyingCorrelationState = qualifyingCorrelationState;
+            window.QUALIFYING_CORRELATION_FALLBACK_2024 = QUALIFYING_CORRELATION_FALLBACK_2024;
             window.loadStintDegradationData = loadStintDegradationData;
             window.processStintDegradationData = processStintDegradationData;
             window.calculateOLSLinearRegression = calculateOLSLinearRegression;
@@ -17912,7 +19443,23 @@
                 renderStintLengthBars,
                 renderTeamPaceMatrix,
                 stintDegradationState,
-                STINT_DEGRADATION_FALLBACK_2024
+                STINT_DEGRADATION_FALLBACK_2024,
+                loadQualifyingCorrelationData,
+                computeQualifyingCorrelationMetrics,
+                renderQualifyingCorrelationView,
+                renderQualifyingScatterChart,
+                renderPoleConversionGauge,
+                renderQualifyingKpis,
+                renderQualifyingDriverTable,
+                renderPoleWinnersList,
+                populateQualifyingDriverDropdown,
+                populateQualifyingSeasonDropdown,
+                onQualifyingSeasonChange,
+                onQualifyingDriverChange,
+                onQualifyingDnfToggle,
+                refreshQualifyingData,
+                qualifyingCorrelationState,
+                QUALIFYING_CORRELATION_FALLBACK_2024
             };
         }
     </script>
