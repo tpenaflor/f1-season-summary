@@ -20771,6 +20771,11 @@
                 overtakeSec.style.display = 'none';
             }
 
+            // Hide qualifying correlation by default for every non-qualifying/non-all tab (issue #34)
+            if (qualifyingSec && tabId !== 'all' && tabId !== 'qualifying' && btnMap[tabId]) {
+                qualifyingSec.style.display = 'none';
+            }
+
             if (tabId === 'lap-chart') {
                 if (lapChartSec) lapChartSec.style.display = 'block';
                 if (stintSec) stintSec.style.display = 'none';
