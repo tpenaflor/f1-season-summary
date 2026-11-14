@@ -14226,9 +14226,18 @@
         async function fetchSeasonStatus(season = '2024') {
             try {
                 const url = `${BASE_URL}/${season}/status.json?limit=100`;
-                const resp = await (typeof fetchWithRetry === 'function' ? fetchWithRetry(url) : fetch(url));
-                if (!resp || !resp.ok) return null;
-                const data = await resp.json();
+                let data;
+                if (typeof fetchWithRetry === 'function') {
+                    data = await fetchWithRetry(url);
+                } else {
+                    const resp = await fetch(url);
+                    if (!resp || !resp.ok) return null;
+                    data = await resp.json();
+                }
+                if (data && typeof data.json === 'function') {
+                    if (data.ok === false) return null;
+                    data = await data.json();
+                }
                 return data?.MRData?.StatusTable?.Status || null;
             } catch (e) {
                 return null;
