@@ -10919,8 +10919,21 @@
             round: 'all',
             pitstops: [],
             races: [],
-            isLoading: false
+            excludeOutliers: true,
+            isLoading: false,
+            requestId: 0
         };
+
+        // Issue #33: Post-2012 Pit Stop Telemetry pipeline constants
+        let pitStopDistributionChartInstance = null;
+        const PIT_STOP_CACHE_PREFIX = 'f1_pitstop_telemetry_v1_';
+        const PIT_FLAWLESS_THRESHOLD = 2.5;      // "Flawless Box" stationary threshold (s)
+        const PIT_OUTLIER_THRESHOLD = 5.0;       // Flagged outlier (slow stop / issue) (s)
+        const PIT_CRITICAL_THRESHOLD = 10.0;     // Penalty served / repair / wing change (s)
+        const PIT_REFERENCE_STATIONARY = 2.6;    // Typical modern median stationary time (s)
+        const PIT_MIN_STATIONARY = 1.8;          // Physical floor (fastest stops ever recorded) (s)
+        const PIT_LANE_TIME_MIN = 8.0;           // Durations above this are full pit-lane times
+        const PIT_ROUND_FETCH_DELAY_MS = 250;    // Throttle for per-round fallback requests
 
         function renderPitStopPlaceholder(season) {
             const placeholderEl = document.getElementById('pitStopPlaceholder');
@@ -10973,11 +10986,18 @@
             const progressEl = document.getElementById('pitStopProgressContainer');
             if (errEl) errEl.style.display = 'none';
             if (progressEl) progressEl.style.display = 'none';
+            const requestId = ++pitStopState.requestId;
 
             // Guard against pre-2012 seasons (Issue #7)
             if (seasonNum < 2012) {
                 pitStopState.pitstops = [];
                 pitStopState.races = [];
+                pitStopState.round = 'all';
+                pitStopState.isLoading = false;
+                if (pitStopDistributionChartInstance) {
+                    try { pitStopDistributionChartInstance.destroy(); } catch (e) { /* ignore */ }
+                    pitStopDistributionChartInstance = null;
+                }
                 if (placeholderEl) {
                     placeholderEl.style.display = 'block';
                     renderPitStopPlaceholder(season);
@@ -10994,24 +11014,778 @@
 
             if (placeholderEl) placeholderEl.style.display = 'none';
             if (mainContentEl) mainContentEl.style.display = 'block';
+
+            const toggleEl = document.getElementById('pitStopOutlierToggle');
+            if (toggleEl && typeof toggleEl.checked === 'boolean') {
+                pitStopState.excludeOutliers = toggleEl.checked;
+            }
+
+            const cacheKey = PIT_STOP_CACHE_PREFIX + season;
+            const storage = getPitStopStorage();
+
+            if (!forceRefresh) {
+                const cached = readPitStopCache(storage, cacheKey);
+                if (cached) {
+                    applyPitStopDataset(cached);
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚡ Cached (Instant)';
+                    }
+                    renderPitStopRoundOptions();
+                    renderPitStopTelemetry();
+                    return;
+                }
+            }
+
             if (badge) {
-                badge.className = 'cache-badge cached';
-                badge.textContent = '⚡ Live Telemetry';
+                badge.className = 'cache-badge fetching';
+                badge.textContent = '🌐 Syncing Pit Telemetry...';
+            }
+            pitStopState.isLoading = true;
+            updatePitStopProgress(5, `Fetching ${season} pitstops.json & results.json...`);
+
+            try {
+                const [resultRaces, seasonPitRaces] = await Promise.all([
+                    fetchAllJolpicaPages(season, 'results', 'Results'),
+                    fetchPitStopPagesWithRetry(`${season}/pitstops.json`, 'PitStops').catch(() => [])
+                ]);
+                if (requestId !== pitStopState.requestId) return;
+
+                let pitRaces = seasonPitRaces || [];
+                if (!pitRacesHaveStops(pitRaces) && Array.isArray(resultRaces) && resultRaces.length > 0) {
+                    // Jolpica may require a round for pitstops: fall back to per-round pagination
+                    pitRaces = await fetchPitStopsPerRound(season, resultRaces.map(r => String(r.round)), requestId);
+                    if (requestId !== pitStopState.requestId) return;
+                }
+
+                const dataset = normalizePitStopData(pitRaces, resultRaces || []);
+                applyPitStopDataset(dataset);
+
+                if (dataset.stops.length > 0 && storage) {
+                    try {
+                        storage.setItem(cacheKey, JSON.stringify({
+                            version: 1,
+                            season,
+                            fetchedAt: Date.now(),
+                            races: dataset.races,
+                            stops: dataset.stops
+                        }));
+                    } catch (e) { /* storage quota ignore */ }
+                }
+
+                if (badge) {
+                    badge.className = 'cache-badge cached';
+                    badge.textContent = dataset.stops.length > 0
+                        ? '⚡ Live Telemetry'
+                        : '⚡ Live Telemetry · No Stops Recorded';
+                }
+                renderPitStopRoundOptions();
+                renderPitStopTelemetry();
+            } catch (err) {
+                if (requestId !== pitStopState.requestId) return;
+                console.error('Pit stop telemetry load failed:', err);
+                const stale = readPitStopCache(storage, cacheKey);
+                if (stale) {
+                    applyPitStopDataset(stale);
+                    if (badge) {
+                        badge.className = 'cache-badge no-pitstop';
+                        badge.textContent = '⚠️ Stale Cache (Offline)';
+                    }
+                } else {
+                    applyPitStopDataset({ races: [], stops: [] });
+                    if (badge) {
+                        badge.className = 'cache-badge no-pitstop';
+                        badge.textContent = '⚠️ Sync Failed';
+                    }
+                }
+                if (errEl) {
+                    errEl.style.display = 'block';
+                    errEl.textContent = `Failed to load pit stop telemetry for ${season}: ${err && err.message ? err.message : err}`;
+                }
+                renderPitStopRoundOptions();
+                renderPitStopTelemetry();
+            } finally {
+                if (requestId === pitStopState.requestId) {
+                    pitStopState.isLoading = false;
+                    if (progressEl) progressEl.style.display = 'none';
+                }
             }
         }
 
-        // Safe Pit Stop handlers so all existing controls remain error-free
+        // ---------- Issue #33: Data acquisition helpers ----------
+        function getPitStopStorage() {
+            try {
+                return typeof localStorage !== 'undefined' && localStorage ? localStorage : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function readPitStopCache(storage, cacheKey) {
+            if (!storage) return null;
+            let raw = null;
+            try { raw = storage.getItem(cacheKey); } catch (e) { return null; }
+            if (!raw) return null;
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && Array.isArray(parsed.stops) && parsed.stops.length > 0) {
+                    return { races: Array.isArray(parsed.races) ? parsed.races : [], stops: parsed.stops };
+                }
+            } catch (e) {
+                try { storage.removeItem(cacheKey); } catch (e2) { /* ignore */ }
+            }
+            return null;
+        }
+
+        function applyPitStopDataset(dataset) {
+            const stops = computeStationaryEstimates((dataset && dataset.stops) || []);
+            const roundsWithStops = new Set(stops.map(s => String(s.round)));
+            const races = ((dataset && dataset.races) || [])
+                .filter(r => roundsWithStops.has(String(r.round)))
+                .sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+            pitStopState.pitstops = stops;
+            pitStopState.races = races;
+            if (pitStopState.round !== 'all' && !roundsWithStops.has(String(pitStopState.round))) {
+                pitStopState.round = 'all';
+            }
+        }
+
+        function updatePitStopProgress(pct, text) {
+            const progressEl = document.getElementById('pitStopProgressContainer');
+            const textEl = document.getElementById('pitStopProgressText');
+            const fillEl = document.getElementById('pitStopProgressBarFill');
+            if (progressEl) progressEl.style.display = 'block';
+            if (textEl && text) textEl.textContent = text;
+            if (fillEl) fillEl.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+        }
+
+        function pitRacesHaveStops(races) {
+            return Array.isArray(races) && races.some(r => Array.isArray(r.PitStops) && r.PitStops.length > 0);
+        }
+
+        // Paginated Jolpica fetch using fetchWithRetry (returns parsed JSON, not a Response)
+        async function fetchPitStopPagesWithRetry(path, resultKey = 'PitStops') {
+            const roundMap = {};
+            const limit = 100;
+            let offset = 0;
+            let total = null;
+            let guard = 0;
+
+            while ((total === null || offset < total) && guard < 200) {
+                guard++;
+                const sep = path.includes('?') ? '&' : '?';
+                const data = await fetchWithRetry(`${BASE_URL}/${path}${sep}limit=${limit}&offset=${offset}`);
+                const mrData = data && data.MRData;
+                total = parseInt((mrData && mrData.total) || '0', 10) || 0;
+                const pageLimit = Math.max(1, parseInt((mrData && mrData.limit) || String(limit), 10) || limit);
+                const races = (mrData && mrData.RaceTable && mrData.RaceTable.Races) || [];
+
+                races.forEach(r => {
+                    const rnd = String(r.round);
+                    if (!roundMap[rnd]) roundMap[rnd] = { ...r, [resultKey]: [] };
+                    roundMap[rnd][resultKey].push(...(r[resultKey] || []));
+                });
+
+                offset += pageLimit;
+                if (races.length === 0) break;
+            }
+
+            return Object.values(roundMap).sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+        }
+
+        async function fetchPitStopsPerRound(season, rounds, requestId) {
+            const collected = [];
+            const uniqueRounds = Array.from(new Set((rounds || []).map(String)));
+            let failures = 0;
+            let lastError = null;
+            for (let i = 0; i < uniqueRounds.length; i++) {
+                if (requestId !== undefined && requestId !== pitStopState.requestId) return collected;
+                const rnd = uniqueRounds[i];
+                updatePitStopProgress(10 + Math.round((i / uniqueRounds.length) * 85), `Fetching pit stops: Round ${rnd} (${i + 1}/${uniqueRounds.length})...`);
+                if (i > 0 && PIT_ROUND_FETCH_DELAY_MS > 0) {
+                    await new Promise(resolve => setTimeout(resolve, PIT_ROUND_FETCH_DELAY_MS));
+                }
+                try {
+                    const races = await fetchPitStopPagesWithRetry(`${season}/${rnd}/pitstops.json`, 'PitStops');
+                    collected.push(...races);
+                } catch (e) {
+                    failures++;
+                    lastError = e;
+                }
+            }
+            if (uniqueRounds.length > 0 && failures === uniqueRounds.length && lastError) throw lastError;
+            return collected;
+        }
+
+        // ---------- Issue #33: Pure computation helpers ----------
+        function parsePitDurationSeconds(value) {
+            if (value === null || value === undefined) return null;
+            if (typeof value === 'number') return Number.isFinite(value) && value > 0 ? value : null;
+            const str = String(value).trim();
+            if (!str) return null;
+            const parts = str.split(':');
+            let total = 0;
+            for (const part of parts) {
+                if (!/^\d+(\.\d+)?$/.test(part)) return null;
+                total = total * 60 + parseFloat(part);
+            }
+            return total > 0 ? total : null;
+        }
+
+        function computePitQuantile(sortedValues, q) {
+            if (!Array.isArray(sortedValues) || sortedValues.length === 0) return null;
+            if (sortedValues.length === 1) return sortedValues[0];
+            const pos = (sortedValues.length - 1) * q;
+            const lo = Math.floor(pos);
+            const hi = Math.ceil(pos);
+            if (lo === hi) return sortedValues[lo];
+            return sortedValues[lo] + (sortedValues[hi] - sortedValues[lo]) * (pos - lo);
+        }
+
+        function classifyPitStop(stationary) {
+            if (typeof stationary !== 'number' || !Number.isFinite(stationary)) return 'clean';
+            if (stationary > PIT_CRITICAL_THRESHOLD) return 'critical';
+            if (stationary > PIT_OUTLIER_THRESHOLD) return 'warning';
+            return 'clean';
+        }
+
+        // Jolpica durations are total pit-lane times (entry -> exit). Stationary time is estimated per race:
+        // stationary ≈ laneTime − (raceMedianLaneTime − PIT_REFERENCE_STATIONARY), floored at PIT_MIN_STATIONARY.
+        // Durations already on a stationary scale (race median ≤ PIT_LANE_TIME_MIN) are used as-is.
+        function computeStationaryEstimates(stops) {
+            const byRound = {};
+            (stops || []).forEach(s => {
+                const lane = typeof s.laneSeconds === 'number' ? s.laneSeconds : parsePitDurationSeconds(s.duration);
+                if (lane === null) return;
+                const rnd = String(s.round);
+                (byRound[rnd] = byRound[rnd] || []).push(lane);
+            });
+            const baselineByRound = {};
+            Object.keys(byRound).forEach(rnd => {
+                const sorted = byRound[rnd].slice().sort((a, b) => a - b);
+                const median = computePitQuantile(sorted, 0.5);
+                baselineByRound[rnd] = median > PIT_LANE_TIME_MIN ? median - PIT_REFERENCE_STATIONARY : 0;
+            });
+            return (stops || []).reduce((acc, s) => {
+                const lane = typeof s.laneSeconds === 'number' ? s.laneSeconds : parsePitDurationSeconds(s.duration);
+                if (lane === null) return acc;
+                const baseline = baselineByRound[String(s.round)] || 0;
+                const stationaryRaw = +(lane - baseline).toFixed(3);
+                const stationary = baseline > 0 ? Math.max(PIT_MIN_STATIONARY, stationaryRaw) : stationaryRaw;
+                acc.push({
+                    ...s,
+                    round: String(s.round),
+                    laneSeconds: lane,
+                    laneBaseline: +baseline.toFixed(3),
+                    stationaryRaw,
+                    stationary: +stationary.toFixed(3),
+                    severity: classifyPitStop(stationary)
+                });
+                return acc;
+            }, []);
+        }
+
+        function normalizePitStopData(pitstopRaces, resultRaces) {
+            const driverByRound = {};
+            const driverSeason = {};
+            const raceMeta = {};
+
+            (resultRaces || []).forEach(race => {
+                const rnd = String(race.round);
+                raceMeta[rnd] = { round: rnd, raceName: race.raceName || `Round ${rnd}`, date: race.date || '' };
+                driverByRound[rnd] = driverByRound[rnd] || {};
+                (race.Results || []).forEach(res => {
+                    const d = res.Driver || {};
+                    const c = res.Constructor || {};
+                    if (!d.driverId) return;
+                    const info = {
+                        code: d.code || String(d.familyName || d.driverId).slice(0, 3).toUpperCase(),
+                        driverName: [d.givenName, d.familyName].filter(Boolean).join(' ') || d.driverId,
+                        constructorId: c.constructorId || 'unknown',
+                        constructorName: c.name || c.constructorId || 'Unknown'
+                    };
+                    driverByRound[rnd][d.driverId] = info;
+                    driverSeason[d.driverId] = info;
+                });
+            });
+
+            const stops = [];
+            (pitstopRaces || []).forEach(race => {
+                const rnd = String(race.round);
+                if (!raceMeta[rnd]) {
+                    raceMeta[rnd] = { round: rnd, raceName: race.raceName || `Round ${rnd}`, date: race.date || '' };
+                }
+                (race.PitStops || []).forEach(ps => {
+                    if (!ps || !ps.driverId) return;
+                    const laneSeconds = parsePitDurationSeconds(ps.duration);
+                    if (laneSeconds === null) return;
+                    const info = (driverByRound[rnd] && driverByRound[rnd][ps.driverId]) || driverSeason[ps.driverId] || {
+                        code: String(ps.driverId).slice(0, 3).toUpperCase(),
+                        driverName: ps.driverId,
+                        constructorId: 'unknown',
+                        constructorName: 'Unknown'
+                    };
+                    stops.push({
+                        round: rnd,
+                        raceName: raceMeta[rnd].raceName,
+                        driverId: ps.driverId,
+                        code: info.code,
+                        driverName: info.driverName,
+                        constructorId: info.constructorId,
+                        constructorName: info.constructorName,
+                        lap: parseInt(ps.lap, 10) || null,
+                        stop: parseInt(ps.stop, 10) || null,
+                        duration: String(ps.duration),
+                        laneSeconds
+                    });
+                });
+            });
+
+            const roundsWithStops = new Set(stops.map(s => s.round));
+            const races = Object.values(raceMeta)
+                .filter(r => roundsWithStops.has(r.round))
+                .sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+
+            return { races, stops: computeStationaryEstimates(stops) };
+        }
+
+        function filterPitStopsByRound(stops, round) {
+            if (!round || round === 'all') return (stops || []).slice();
+            return (stops || []).filter(s => String(s.round) === String(round));
+        }
+
+        function getPitTeamColor(constructorId, index) {
+            const id = String(constructorId || '').toLowerCase();
+            if (typeof TEAM_COLORS !== 'undefined') {
+                if (TEAM_COLORS[id]) return TEAM_COLORS[id];
+                const partial = Object.keys(TEAM_COLORS).find(k => id.includes(k));
+                if (partial) return TEAM_COLORS[partial];
+            }
+            const palette = typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE : ['#00D2BE'];
+            return palette[Math.abs(index || 0) % palette.length];
+        }
+
+        function pitHexToRgba(hex, alpha) {
+            const h = String(hex || '').replace('#', '');
+            const full = h.length === 3 ? h.split('').map(ch => ch + ch).join('') : h;
+            const num = parseInt(full, 16);
+            if (full.length !== 6 || Number.isNaN(num)) return `rgba(0, 210, 190, ${alpha})`;
+            return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+        }
+
+        function pitEscape(value) {
+            return String(value === null || value === undefined ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function computeCrewBenchmarks(stops, excludeOutliers = true) {
+            const groups = {};
+            (stops || []).forEach(s => {
+                const key = s.constructorId || 'unknown';
+                if (!groups[key]) groups[key] = { constructorId: key, constructorName: s.constructorName || key, all: [] };
+                groups[key].all.push(s);
+            });
+
+            const byName = Object.values(groups).sort((a, b) => a.constructorName.localeCompare(b.constructorName));
+            const rows = byName.map((g, idx) => {
+                const outliers = g.all.filter(s => s.severity !== 'clean');
+                const included = excludeOutliers ? g.all.filter(s => s.severity === 'clean') : g.all.slice();
+                const times = included.map(s => s.stationary).sort((a, b) => a - b);
+                const fastestStop = included.slice().sort((a, b) => a.stationaryRaw - b.stationaryRaw)[0] || null;
+                const flawless = included.filter(s => s.stationary < PIT_FLAWLESS_THRESHOLD).length;
+                const q1 = computePitQuantile(times, 0.25);
+                const q3 = computePitQuantile(times, 0.75);
+                return {
+                    constructorId: g.constructorId,
+                    constructorName: g.constructorName,
+                    color: getPitTeamColor(g.constructorId, idx),
+                    totalStops: g.all.length,
+                    stopCount: included.length,
+                    fastest: times.length ? times[0] : null,
+                    slowest: times.length ? times[times.length - 1] : null,
+                    median: computePitQuantile(times, 0.5),
+                    q1,
+                    q3,
+                    iqr: q1 !== null && q3 !== null ? q3 - q1 : null,
+                    flawless,
+                    flawlessPct: included.length ? (flawless / included.length) * 100 : 0,
+                    outlierCount: outliers.length,
+                    criticalCount: outliers.filter(s => s.severity === 'critical').length,
+                    fastestStop
+                };
+            });
+
+            rows.sort((a, b) => {
+                const am = a.median === null ? Infinity : a.median;
+                const bm = b.median === null ? Infinity : b.median;
+                return am - bm || a.constructorName.localeCompare(b.constructorName);
+            });
+            return rows;
+        }
+
+        function computePitStopKpis(stops, excludeOutliers = true) {
+            const all = stops || [];
+            const included = excludeOutliers ? all.filter(s => s.severity === 'clean') : all.slice();
+            const times = included.map(s => s.stationary).sort((a, b) => a - b);
+            const clean = all.filter(s => s.severity === 'clean');
+            const fastest = (clean.length ? clean : all).slice().sort((a, b) => a.stationaryRaw - b.stationaryRaw)[0] || null;
+            const flawless = included.filter(s => s.stationary < PIT_FLAWLESS_THRESHOLD).length;
+            const critical = all.filter(s => s.severity === 'critical').length;
+            const warning = all.filter(s => s.severity === 'warning').length;
+            return {
+                totalStops: all.length,
+                includedStops: included.length,
+                fastest,
+                median: computePitQuantile(times, 0.5),
+                flawless,
+                flawlessPct: included.length ? (flawless / included.length) * 100 : 0,
+                outliers: critical + warning,
+                critical,
+                warning
+            };
+        }
+
+        function getPitStopDhlLeaderboard(stops, limit = 10) {
+            return (stops || [])
+                .filter(s => s.severity === 'clean')
+                .sort((a, b) => a.stationaryRaw - b.stationaryRaw || a.laneSeconds - b.laneSeconds)
+                .slice(0, limit);
+        }
+
+        function getPitStopTelemetryState() {
+            return pitStopState;
+        }
+
+        // ---------- Issue #33: Rendering ----------
+        function renderPitStopRoundOptions() {
+            const sel = document.getElementById('pitStopRoundSelect');
+            const races = pitStopState.races || [];
+            if (pitStopState.round !== 'all' && !races.some(r => String(r.round) === String(pitStopState.round))) {
+                pitStopState.round = 'all';
+            }
+            if (!sel) return;
+            sel.innerHTML = [
+                '<option value="all">All Season (Full Season Aggregation)</option>',
+                ...races.map(r => `<option value="${pitEscape(r.round)}">Round ${pitEscape(r.round)}: ${pitEscape(r.raceName)}</option>`)
+            ].join('');
+            sel.value = String(pitStopState.round);
+        }
+
+        function renderPitStopTelemetry() {
+            const stops = filterPitStopsByRound(pitStopState.pitstops, pitStopState.round);
+            const exclude = pitStopState.excludeOutliers !== false;
+            const benchmarks = computeCrewBenchmarks(stops, exclude);
+            const kpis = computePitStopKpis(stops, exclude);
+            renderPitStopKpis(kpis, exclude);
+            renderPitStopQuickStats(kpis, benchmarks);
+            renderPitStopDistributionChart(benchmarks);
+            renderPitStopOdometers(benchmarks);
+            renderPitStopDhlLeaderboard(stops);
+            renderPitStopMatrixTable(benchmarks);
+            renderPitStopOutlierChips(stops, exclude);
+            return { stops, benchmarks, kpis };
+        }
+
+        function setPitText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        function renderPitStopKpis(kpis, exclude) {
+            if (kpis.fastest) {
+                const f = kpis.fastest;
+                setPitText('kpiPitFastest', `${f.stationary.toFixed(2)} s`);
+                setPitText('kpiPitFastestSub', `${f.code} · ${f.constructorName} · R${f.round}${f.lap ? ` Lap ${f.lap}` : ''}`);
+            } else {
+                setPitText('kpiPitFastest', '-- s');
+                setPitText('kpiPitFastestSub', 'No pit stops recorded');
+            }
+            setPitText('kpiPitMedian', kpis.median !== null ? `${kpis.median.toFixed(2)} s` : '-- s');
+            setPitText('kpiPitMedianSub', exclude
+                ? `Clean stops baseline (${kpis.includedStops} stops)`
+                : `All stops incl. outliers (${kpis.includedStops} stops)`);
+            setPitText('kpiPitFlawless', kpis.includedStops ? `${kpis.flawlessPct.toFixed(1)}%` : '--%');
+            setPitText('kpiPitFlawlessSub', `${kpis.flawless} of ${kpis.includedStops} stops`);
+            setPitText('kpiPitOutliers', String(kpis.outliers));
+            setPitText('kpiPitOutliersSub', `${kpis.critical} critical (>10s) · ${kpis.warning} slow (>5s)`);
+        }
+
+        function renderPitStopQuickStats(kpis, benchmarks) {
+            const el = document.getElementById('pitStopQuickStatsPills');
+            if (!el) return;
+            const race = (pitStopState.races || []).find(r => String(r.round) === String(pitStopState.round));
+            const scope = race ? `R${race.round} ${race.raceName}` : `${pitStopState.season} Full Season`;
+            const best = benchmarks.find(b => b.median !== null);
+            el.innerHTML = `
+                <div class="stat-pill">Scope: <span>${pitEscape(scope)}</span></div>
+                <div class="stat-pill">Total Stops: <span>${kpis.totalStops}</span></div>
+                <div class="stat-pill">Best Crew: <span>${best ? `${pitEscape(best.constructorName)} (${best.median.toFixed(2)}s)` : '-'}</span></div>
+            `;
+        }
+
+        function renderPitStopDistributionChart(benchmarks) {
+            if (pitStopDistributionChartInstance) {
+                try { pitStopDistributionChartInstance.destroy(); } catch (e) { /* ignore */ }
+                pitStopDistributionChartInstance = null;
+            }
+            const canvas = document.getElementById('pitStopDistributionChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+            const rows = (benchmarks || []).filter(r => r.stopCount > 0 && r.median !== null);
+            if (!rows.length) return;
+
+            const tick = 0.02;
+            const maxVal = Math.max(...rows.map(r => r.slowest));
+            const minVal = Math.min(...rows.map(r => r.fastest));
+            const xMax = Math.min(Math.max(Math.ceil(maxVal + 0.5), PIT_OUTLIER_THRESHOLD + 1), 15);
+            const xMin = Math.max(0, Math.floor(minVal - 0.5));
+            const ctx = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : canvas;
+
+            pitStopDistributionChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: rows.map(r => r.constructorName),
+                    datasets: [
+                        {
+                            label: 'Range (Min – Max)',
+                            data: rows.map(r => [r.fastest, Math.min(r.slowest, xMax)]),
+                            backgroundColor: 'rgba(148, 163, 184, 0.25)',
+                            borderColor: 'rgba(148, 163, 184, 0.5)',
+                            borderWidth: 1,
+                            barPercentage: 0.15,
+                            grouped: false,
+                            order: 4
+                        },
+                        {
+                            label: 'Interquartile Range (Q1 – Q3)',
+                            data: rows.map(r => [r.q1, Math.max(r.q3, r.q1 + tick)]),
+                            backgroundColor: rows.map(r => pitHexToRgba(r.color, 0.55)),
+                            borderColor: rows.map(r => r.color),
+                            borderWidth: 1.5,
+                            barPercentage: 0.65,
+                            grouped: false,
+                            order: 3
+                        },
+                        {
+                            label: 'Median Stationary Time',
+                            data: rows.map(r => [r.median - tick, r.median + tick]),
+                            backgroundColor: '#FFFFFF',
+                            barPercentage: 0.8,
+                            grouped: false,
+                            order: 1
+                        },
+                        {
+                            label: 'Fastest Stop (Min)',
+                            data: rows.map(r => [r.fastest - tick, r.fastest + tick]),
+                            backgroundColor: '#00FF66',
+                            barPercentage: 0.8,
+                            grouped: false,
+                            order: 2
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 300 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (item) => {
+                                    const r = rows[item.dataIndex];
+                                    if (!r) return '';
+                                    if (item.datasetIndex === 0) return `Range: ${r.fastest.toFixed(2)}s – ${r.slowest.toFixed(2)}s`;
+                                    if (item.datasetIndex === 1) return `Q1 – Q3: ${r.q1.toFixed(2)}s – ${r.q3.toFixed(2)}s (IQR ${r.iqr.toFixed(2)}s)`;
+                                    if (item.datasetIndex === 2) return `Median: ${r.median.toFixed(2)}s (${r.stopCount} stops)`;
+                                    return `Fastest: ${r.fastest.toFixed(2)}s`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            min: xMin,
+                            max: xMax,
+                            title: { display: true, text: 'Estimated Stationary Time (s)', color: '#94A3B8' },
+                            ticks: { color: '#94A3B8', callback: (v) => `${v}s` },
+                            grid: { color: 'rgba(255, 255, 255, 0.06)' }
+                        },
+                        y: {
+                            ticks: { color: '#E2E8F0', font: { weight: 'bold' } },
+                            grid: { display: false }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'pitOutlierDemarcation',
+                    afterDatasetsDraw(chart) {
+                        const xScale = chart && chart.scales && chart.scales.x;
+                        if (!xScale || !chart.chartArea || PIT_OUTLIER_THRESHOLD > xScale.max) return;
+                        const x = xScale.getPixelForValue(PIT_OUTLIER_THRESHOLD);
+                        const c = chart.ctx;
+                        c.save();
+                        c.setLineDash([6, 4]);
+                        c.strokeStyle = '#FFB800';
+                        c.lineWidth = 1.5;
+                        c.beginPath();
+                        c.moveTo(x, chart.chartArea.top);
+                        c.lineTo(x, chart.chartArea.bottom);
+                        c.stroke();
+                        c.restore();
+                    }
+                }]
+            });
+        }
+
+        function renderPitStopOdometers(benchmarks) {
+            const el = document.getElementById('pitStopOdometerGrid');
+            if (!el) return;
+            const rows = (benchmarks || []).slice().sort((a, b) => b.flawlessPct - a.flawlessPct || b.flawless - a.flawless);
+            if (!rows.length) {
+                el.innerHTML = '<div style="color: #94A3B8; font-size: 0.85rem;">No pit stop telemetry recorded for this selection.</div>';
+                return;
+            }
+            el.innerHTML = rows.map(r => {
+                const pct = r.flawlessPct;
+                const badgeCls = pct >= 40 ? '' : (pct >= 15 ? 'amber' : 'muted');
+                return `
+                    <div class="odometer-card" style="--team-color: ${r.color};">
+                        <div class="odometer-team-name">${pitEscape(r.constructorName)}</div>
+                        <div class="odometer-readout-row">
+                            <span class="odometer-digits">${String(r.flawless).padStart(2, '0')}<span class="denom">/${r.stopCount}</span></span>
+                            <span class="odometer-pct-badge ${badgeCls}">${pct.toFixed(1)}%</span>
+                        </div>
+                        <div class="odometer-meter-track">
+                            <div class="odometer-meter-fill" style="width: ${Math.min(100, pct).toFixed(1)}%; background: ${r.color};"></div>
+                        </div>
+                        <div class="odometer-card-footer">
+                            <span>Median <strong>${r.median !== null ? r.median.toFixed(2) + 's' : '--'}</strong></span>
+                            <span>Best <strong>${r.fastest !== null ? r.fastest.toFixed(2) + 's' : '--'}</strong></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPitStopDhlLeaderboard(stops) {
+            const el = document.getElementById('pitStopDhlLeaderboard');
+            if (!el) return;
+            const top = getPitStopDhlLeaderboard(stops, 10);
+            if (!top.length) {
+                el.innerHTML = '<div style="color: #94A3B8; font-size: 0.85rem;">No clean pit stops recorded for this selection.</div>';
+                return;
+            }
+            const constructorIds = Array.from(new Set((pitStopState.pitstops || []).map(s => s.constructorId))).sort();
+            el.innerHTML = top.map((s, i) => {
+                const rank = i + 1;
+                const medal = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+                const color = getPitTeamColor(s.constructorId, constructorIds.indexOf(s.constructorId));
+                return `
+                    <div class="dhl-rank-item ${rank <= 3 ? `rank-${rank}` : ''}">
+                        <div class="dhl-rank-left">
+                            <span class="dhl-pos-badge ${medal}">P${rank}</span>
+                            <div>
+                                <div class="dhl-driver-code">${pitEscape(s.code)}</div>
+                                <div class="dhl-driver-sub"><span class="dhl-team-dot" style="background: ${color};"></span>${pitEscape(s.constructorName)}</div>
+                            </div>
+                        </div>
+                        <div class="dhl-timing-right">
+                            <div class="dhl-stationary-time">${s.stationary.toFixed(2)}s</div>
+                            <div class="dhl-lap-tag">R${pitEscape(s.round)} · Lap ${s.lap || '-'} · Lane ${s.laneSeconds.toFixed(2)}s</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPitStopMatrixTable(benchmarks) {
+            const el = document.getElementById('pitStopMatrixTableBody');
+            if (!el) return;
+            if (!benchmarks || !benchmarks.length) {
+                el.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #94A3B8;">No pit stop telemetry recorded for this selection.</td></tr>';
+                return;
+            }
+            const fmt = (v) => (v === null || v === undefined ? '--' : `${v.toFixed(2)}s`);
+            el.innerHTML = benchmarks.map((r, i) => {
+                const iqrCls = r.iqr === null ? 'wide' : (r.iqr < 0.3 ? 'tight' : (r.iqr < 0.6 ? 'medium' : 'wide'));
+                const outlierTag = r.outlierCount === 0
+                    ? '<span class="outlier-tag clean">0</span>'
+                    : `<span class="outlier-tag ${r.criticalCount > 0 ? 'red' : 'amber'}">⚠ ${r.outlierCount}</span>`;
+                const stopsLabel = r.stopCount === r.totalStops ? `${r.totalStops}` : `${r.stopCount}/${r.totalStops}`;
+                return `
+                    <tr>
+                        <td style="text-align: center;" class="table-mono-num">${i + 1}</td>
+                        <td><div class="pitstop-team-cell"><span class="pitstop-team-pill-bar" style="background: ${r.color};"></span>${pitEscape(r.constructorName)}</div></td>
+                        <td style="text-align: center;" class="table-mono-num">${stopsLabel}</td>
+                        <td style="text-align: right; color: var(--neon-green);" class="table-mono-num">${fmt(r.fastest)}</td>
+                        <td style="text-align: right;" class="table-mono-num">${fmt(r.median)}</td>
+                        <td style="text-align: center;" class="table-mono-num">${r.q1 === null ? '--' : `${r.q1.toFixed(2)} – ${r.q3.toFixed(2)}s`}</td>
+                        <td style="text-align: center;"><span class="iqr-badge ${iqrCls}">${r.iqr === null ? '--' : r.iqr.toFixed(2) + 's'}</span></td>
+                        <td style="text-align: center;" class="table-mono-num">${r.flawless} (${r.flawlessPct.toFixed(0)}%)</td>
+                        <td style="text-align: center;">${outlierTag}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPitStopOutlierChips(stops, exclude) {
+            const el = document.getElementById('pitStopOutliersChips');
+            const statusEl = document.getElementById('pitStopOutlierIsolationStatus');
+            const outliers = (stops || []).filter(s => s.severity !== 'clean').sort((a, b) => b.stationary - a.stationary);
+            if (statusEl) {
+                statusEl.textContent = exclude
+                    ? `Segregated from baseline crew statistics (${outliers.length} stops)`
+                    : `Included in baseline crew statistics (${outliers.length} stops, segregation off)`;
+            }
+            if (!el) return;
+            if (!outliers.length) {
+                el.innerHTML = '<span style="color: #94A3B8; font-size: 0.8rem;">✅ No outlier stops flagged (&gt;5.0s) for this selection.</span>';
+                return;
+            }
+            el.innerHTML = outliers.map(s => `
+                <span class="outlier-chip ${s.severity}">
+                    <strong style="font-family: var(--font-mono);">${pitEscape(s.code)}</strong>
+                    <span style="color: #94A3B8;">${pitEscape(s.constructorName)} · R${pitEscape(s.round)} L${s.lap || '-'}</span>
+                    <span class="outlier-tag ${s.severity === 'critical' ? 'red' : 'amber'}">${s.stationary.toFixed(1)}s</span>
+                </span>
+            `).join('');
+        }
+
+        // ---------- Issue #33: Filter handlers ----------
+        function filterPitStopRound(round) {
+            const target = round === undefined || round === null || round === '' ? 'all' : String(round);
+            const valid = target === 'all' || (pitStopState.races || []).some(r => String(r.round) === target);
+            pitStopState.round = valid ? target : 'all';
+            const sel = document.getElementById('pitStopRoundSelect');
+            if (sel) sel.value = pitStopState.round;
+            return renderPitStopTelemetry();
+        }
+
+        function updatePitStopOutlierFilter(checked) {
+            pitStopState.excludeOutliers = checked !== false;
+            const toggle = document.getElementById('pitStopOutlierToggle');
+            if (toggle) toggle.checked = pitStopState.excludeOutliers;
+            return renderPitStopTelemetry();
+        }
+
+        // Pit Stop control handlers
         function onPitStopSeasonChange(season) {
-            if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(season);
+            pitStopState.round = 'all';
+            return loadPitStopTelemetry(season);
         }
         function onPitStopRoundChange(round) {
-            if (typeof filterPitStopRound === 'function') filterPitStopRound(round);
+            return filterPitStopRound(round);
         }
         function refreshPitStopData() {
-            if (typeof loadPitStopTelemetry === 'function') loadPitStopTelemetry(document.getElementById('pitStopSeasonSelect')?.value || '2024', true);
+            return loadPitStopTelemetry(document.getElementById('pitStopSeasonSelect')?.value || pitStopState.season || '2024', true);
         }
         function onPitStopOutlierToggleChange(checked) {
-            if (typeof updatePitStopOutlierFilter === 'function') updatePitStopOutlierFilter(checked);
+            return updatePitStopOutlierFilter(checked);
         }
 
         // =========================================================
