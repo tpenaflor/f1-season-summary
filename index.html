@@ -4375,6 +4375,215 @@
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
+        /* ==========================================================================
+           Issue #24: Driver Stint Length & Lap Time Degradation Pace Profiler
+           ========================================================================== */
+        .stint-profiler-section {
+            background: linear-gradient(180deg, #101520 0%, #0B0E14 100%);
+            border: 1px solid #1E2738;
+            box-shadow: 0 12px 42px rgba(0, 0, 0, 0.75);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .stint-header-accent {
+            background: linear-gradient(180deg, #00F0FF 0%, #1E41FF 50%, #E80020 100%);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+        }
+
+        .stint-anomaly-banner {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: #FCD34D;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.4;
+        }
+
+        .stint-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            background: #080A0F;
+            border: 1px solid #1E2738;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+        }
+
+        .stint-selectors-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stint-control-btn {
+            font-family: var(--font-family);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94A3B8;
+            background: #101520;
+            border: 1px solid #1E2738;
+            border-radius: 999px;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .stint-control-btn:hover {
+            color: #FFFFFF;
+            border-color: #00F0FF;
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .stint-control-btn.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(30, 65, 255, 0.18) 100%);
+            color: #00F0FF;
+            border-color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+        }
+
+        .stint-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stint-kpi-card {
+            background: #0B0E14;
+            border: 1px solid #1E2738;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stint-kpi-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #94A3B8;
+            font-weight: 600;
+        }
+
+        .stint-kpi-value {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #00F0FF;
+            font-family: var(--font-family);
+        }
+
+        .stint-kpi-sub {
+            font-size: 0.75rem;
+            color: #64748B;
+        }
+
+        .stint-panel {
+            background: #0B0E14;
+            border: 1px solid #1E2738;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stint-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .stint-badge-clean {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .stint-badge-wet {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+        }
+
+        .stint-badge-short {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        .stint-badge-inferred {
+            background: rgba(168, 85, 247, 0.15);
+            color: #C084FC;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+        }
+
+        .stint-length-bars-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .stint-driver-bar-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stint-driver-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #CBD5E1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stint-bar-track {
+            position: relative;
+            height: 28px;
+            background: #101520;
+            border: 1px solid #1E2738;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .stint-bar-segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            position: relative;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            border-right: 2px solid #080A0F;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .stint-bar-segment:hover {
+            opacity: 0.85;
+            filter: brightness(1.2);
+        }
+
     </style>
 </head>
 <body>
@@ -4401,6 +4610,9 @@
             </button>
             <button type="button" class="tab-btn" id="tabBtnLapChart" onclick="switchMainTab('lap-chart')">
                 <span class="tab-icon">🔄</span> Lap-by-Lap &amp; Laps Led
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnStints" onclick="switchMainTab('stints')">
+                <span class="tab-icon">📉</span> Stint &amp; Degradation Profiler
             </button>
             <button type="button" class="tab-btn" id="tabBtnFinishingGap" onclick="switchMainTab('finishing-gap')">
                 <span class="tab-icon">⏱️</span> Finishing Gap &amp; Deficit
@@ -4568,6 +4780,171 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Issue #24: Driver Stint Length & Lap Time Degradation Pace Evolution Profiler -->
+        <section class="card telemetry-section stint-profiler-section" id="stint-profiler-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-title-accent stint-header-accent"></div>
+                    <div>
+                        <h2>Driver Stint Length &amp; Lap Time Degradation Pace Evolution Profiler</h2>
+                        <p class="section-subtitle">Stint extraction partitioned by pit stops, OLS linear degradation rates, fuel burn weight normalization, Safety Car filtering, and team tire life comparison</p>
+                    </div>
+                </div>
+                <div class="telemetry-header-controls">
+                    <div class="dropdown-group">
+                        <label for="stintSeasonSelect">Championship Season:</label>
+                        <select id="stintSeasonSelect" class="season-dropdown" onchange="onStintSeasonChange(this.value)">
+                            <option value="2024" selected>2024 Season</option>
+                            <option value="2023">2023 Season</option>
+                            <option value="2022">2022 Season</option>
+                            <option value="2021">2021 Season</option>
+                            <option value="2020">2020 Season</option>
+                            <option value="2019">2019 Season</option>
+                            <option value="2018">2018 Season</option>
+                            <option value="2015">2015 Season</option>
+                            <option value="2012">2012 Season</option>
+                            <option value="2011">2011 Season (Pre-2012: Inferred Pitstops)</option>
+                            <option value="2010">2010 Season (Pre-2012: Inferred Pitstops)</option>
+                            <option value="2005">2005 Season (Pre-2012: Inferred Pitstops)</option>
+                            <option value="2025">2025 Season</option>
+                            <option value="2026">2026 Season</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-group">
+                        <label for="stintRoundSelect">Race / Round Event:</label>
+                        <select id="stintRoundSelect" class="season-dropdown" onchange="onStintRoundChange(this.value)">
+                            <option value="1" selected>Round 1 - Bahrain Grand Prix</option>
+                        </select>
+                    </div>
+                    <span id="stintCacheBadge" class="cache-badge cached">⚡ Cached (Instant)</span>
+                    <button type="button" class="btn-refresh" id="btnStintRefresh" onclick="refreshStintData()" title="Re-fetch fresh stint degradation data from API">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh Stint Profiler
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pre-2012 / Missing Pitstops Anomaly Detection Banner -->
+            <div id="stintAnomalyBanner" class="stint-anomaly-banner" style="display: none;">
+                <span style="font-size: 1.1rem;">⚠️</span>
+                <span id="stintAnomalyBannerText"><strong>Pre-2012 / Missing Pit Stop Telemetry:</strong> Official pit stop data is unavailable. Pit stops have been partitioned via &gt;18s inter-lap delta anomaly detection.</span>
+            </div>
+
+            <!-- Controls Bar: Driver Selection & Fuel Burn Weight Correction Toggle -->
+            <div class="stint-controls-row">
+                <div class="stint-selectors-group">
+                    <span class="atr-filter-label"><span>🏎️</span> Driver Focus:</span>
+                    <button type="button" class="stint-control-btn active" id="btnStintFilterAll" onclick="setStintDriverFilter('all')">All Drivers</button>
+                    <button type="button" class="stint-control-btn" id="btnStintFilterTop5" onclick="setStintDriverFilter('top5')">Top 5</button>
+                    <button type="button" class="stint-control-btn" id="btnStintFilterWinner" onclick="setStintDriverFilter('winner')">Race Winner</button>
+                    <select id="stintDriverSelect" class="season-dropdown" style="margin-left: 8px;" onchange="onStintDriverFilterChange(this.value)">
+                        <option value="all">All Drivers (Overlay)</option>
+                    </select>
+                </div>
+                <div class="cockpit-toggle-wrap" style="margin: 0;">
+                    <div class="toggle-text-block">
+                        <span class="toggle-title">FUEL BURN WEIGHT CORRECTION</span>
+                        <span class="toggle-desc" id="stintFuelCorrectionDesc">Compensate for fuel burn-off (~0.035 s/lap) to reveal pure tire degradation slope</span>
+                    </div>
+                    <label class="mech-switch" title="Toggle fuel burn normalization (~0.035 s/lap)">
+                        <input type="checkbox" id="stintFuelCorrectionToggle" onchange="toggleStintFuelCorrection(this.checked)">
+                        <span class="mech-slider">
+                            <span class="switch-indicator-led"></span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- KPI Cards Grid -->
+            <div class="stint-kpi-grid" id="stintKpiGrid">
+                <div class="stint-kpi-card">
+                    <span class="stint-kpi-label">Field Avg Degradation</span>
+                    <span class="stint-kpi-value" id="kpiAvgFieldDegradation">+0.000 s/lap</span>
+                    <span class="stint-kpi-sub">Mean clean stint slope</span>
+                </div>
+                <div class="stint-kpi-card">
+                    <span class="stint-kpi-label">Benchmark Lowest Deg</span>
+                    <span class="stint-kpi-value" id="kpiLowestDegDriver">--</span>
+                    <span class="stint-kpi-sub">Best tire conservation</span>
+                </div>
+                <div class="stint-kpi-card">
+                    <span class="stint-kpi-label">Longest Stint</span>
+                    <span class="stint-kpi-value" id="kpiLongestStint">--</span>
+                    <span class="stint-kpi-sub">Maximum continuous laps</span>
+                </div>
+                <div class="stint-kpi-card">
+                    <span class="stint-kpi-label">Avg Stint Length</span>
+                    <span class="stint-kpi-value" id="kpiAvgStintLength">0.0 Laps</span>
+                    <span class="stint-kpi-sub">Field pit stop cadence</span>
+                </div>
+                <div class="stint-kpi-card">
+                    <span class="stint-kpi-label">Neutralized Laps</span>
+                    <span class="stint-kpi-value" id="kpiNeutralizedLaps">0 Laps</span>
+                    <span class="stint-kpi-sub">SC/VSC &amp; &gt;107% excluded</span>
+                </div>
+            </div>
+
+            <!-- Panel 1: Stint Degradation Pace Evolution Chart -->
+            <div class="stint-panel">
+                <div class="panel-header-with-meta">
+                    <div>
+                        <h3 class="panel-title" id="stintChartVenueTitle">Stint Pace Evolution &amp; OLS Degradation Trendlines</h3>
+                        <span class="panel-subtitle" id="stintChartVenueSubtitle">Valid green-flag laps with OLS linear regression slope lines (s/lap) • In/out &amp; neutralized laps excluded</span>
+                    </div>
+                    <div class="lap-chart-legend-stats" id="stintChartMetaPills">
+                        <span class="atr-kpi-tag tag-cyan" id="stintTotalStintsBadge">0 Stints</span>
+                        <span class="atr-kpi-tag tag-green" id="stintAvgSlopeBadge">+0.000 s/lap</span>
+                    </div>
+                </div>
+                <div class="chart-container" style="position: relative; height: 500px; width: 100%;">
+                    <canvas id="stintDegradationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Panel 2: Stint Length Comparison Bars -->
+            <div class="stint-panel">
+                <div class="panel-header-with-meta">
+                    <div>
+                        <h3 class="panel-title">Driver Stint Length &amp; Strategy Progression</h3>
+                        <span class="panel-subtitle">Horizontal stint distribution across race distance (Lap 1 to checkered flag) with pit stop boundaries</span>
+                    </div>
+                </div>
+                <div class="chart-container" style="position: relative; height: 380px; width: 100%;">
+                    <canvas id="stintLengthBarChart"></canvas>
+                </div>
+                <div id="stintLengthBarsContainer" class="stint-length-bars-container"></div>
+            </div>
+
+            <!-- Panel 3: Team Pace Degradation Matrix -->
+            <div class="stint-panel">
+                <div class="panel-header-with-meta">
+                    <div>
+                        <h3 class="panel-title">Constructor &amp; Driver Stint Degradation Performance Matrix</h3>
+                        <span class="panel-subtitle">Stint lap counts, baseline intercept pace, OLS linear slope (s/lap), Pearson r correlation, and anomaly flags</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="telemetry-table" id="teamPaceDegradationTable">
+                        <thead>
+                            <tr>
+                                <th>Driver / Constructor</th>
+                                <th>Stint #</th>
+                                <th>Stint Span</th>
+                                <th>Clean / Total Laps</th>
+                                <th>Base Pace Intercept</th>
+                                <th>Degradation Slope</th>
+                                <th>Correlation (r)</th>
+                                <th>Stint Status &amp; Flags</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamPaceDegradationTableBody">
+                            <!-- Dynamically populated team pace matrix rows -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -14643,11 +15020,1240 @@
             }).join('');
         }
 
+        // ==========================================================================
+        // Issue #24: Driver Stint Length & Lap Time Degradation Pace Profiler
+        // ==========================================================================
+
+        const STINT_DEGRADATION_FALLBACK_2024 = {
+            season: '2024',
+            round: '1',
+            raceName: 'Bahrain Grand Prix',
+            circuitName: 'Bahrain International Circuit',
+            totalLaps: 57,
+            resultsData: [
+                { position: '1', points: '26', Driver: { driverId: 'max_verstappen', code: 'VER', givenName: 'Max', familyName: 'Verstappen' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' }, laps: '57', grid: '1', status: 'Finished' },
+                { position: '2', points: '18', Driver: { driverId: 'perez', code: 'PER', givenName: 'Sergio', familyName: 'Pérez' }, Constructor: { constructorId: 'red_bull', name: 'Red Bull' }, laps: '57', grid: '5', status: 'Finished' },
+                { position: '3', points: '15', Driver: { driverId: 'sainz', code: 'SAI', givenName: 'Carlos', familyName: 'Sainz' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' }, laps: '57', grid: '4', status: 'Finished' },
+                { position: '4', points: '12', Driver: { driverId: 'leclerc', code: 'LEC', givenName: 'Charles', familyName: 'Leclerc' }, Constructor: { constructorId: 'ferrari', name: 'Ferrari' }, laps: '57', grid: '2', status: 'Finished' },
+                { position: '5', points: '10', Driver: { driverId: 'russell', code: 'RUS', givenName: 'George', familyName: 'Russell' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' }, laps: '57', grid: '3', status: 'Finished' },
+                { position: '6', points: '8', Driver: { driverId: 'norris', code: 'NOR', givenName: 'Lando', familyName: 'Norris' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' }, laps: '57', grid: '7', status: 'Finished' },
+                { position: '7', points: '6', Driver: { driverId: 'hamilton', code: 'HAM', givenName: 'Lewis', familyName: 'Hamilton' }, Constructor: { constructorId: 'mercedes', name: 'Mercedes' }, laps: '57', grid: '9', status: 'Finished' },
+                { position: '8', points: '4', Driver: { driverId: 'piastri', code: 'PIA', givenName: 'Oscar', familyName: 'Piastri' }, Constructor: { constructorId: 'mclaren', name: 'McLaren' }, laps: '57', grid: '8', status: 'Finished' },
+                { position: '9', points: '2', Driver: { driverId: 'alonso', code: 'ALO', givenName: 'Fernando', familyName: 'Alonso' }, Constructor: { constructorId: 'aston_martin', name: 'Aston Martin' }, laps: '57', grid: '6', status: 'Finished' },
+                { position: '10', points: '1', Driver: { driverId: 'stroll', code: 'STR', givenName: 'Lance', familyName: 'Stroll' }, Constructor: { constructorId: 'aston_martin', name: 'Aston Martin' }, laps: '57', grid: '12', status: 'Finished' }
+            ],
+            pitStopsData: [
+                { driverId: 'max_verstappen', lap: '17', stop: '1', duration: '23.8' },
+                { driverId: 'max_verstappen', lap: '36', stop: '2', duration: '24.1' },
+                { driverId: 'perez', lap: '12', stop: '1', duration: '24.0' },
+                { driverId: 'perez', lap: '36', stop: '2', duration: '23.9' },
+                { driverId: 'sainz', lap: '14', stop: '1', duration: '24.5' },
+                { driverId: 'sainz', lap: '35', stop: '2', duration: '24.2' },
+                { driverId: 'leclerc', lap: '11', stop: '1', duration: '24.8' },
+                { driverId: 'leclerc', lap: '34', stop: '2', duration: '24.6' },
+                { driverId: 'russell', lap: '11', stop: '1', duration: '24.1' },
+                { driverId: 'russell', lap: '31', stop: '2', duration: '24.3' },
+                { driverId: 'norris', lap: '13', stop: '1', duration: '24.4' },
+                { driverId: 'norris', lap: '33', stop: '2', duration: '24.2' },
+                { driverId: 'hamilton', lap: '12', stop: '1', duration: '24.5' },
+                { driverId: 'hamilton', lap: '33', stop: '2', duration: '24.3' },
+                { driverId: 'piastri', lap: '12', stop: '1', duration: '24.6' },
+                { driverId: 'piastri', lap: '34', stop: '2', duration: '24.4' },
+                { driverId: 'alonso', lap: '15', stop: '1', duration: '24.2' },
+                { driverId: 'alonso', lap: '41', stop: '2', duration: '24.0' },
+                { driverId: 'stroll', lap: '1', stop: '1', duration: '31.2' },
+                { driverId: 'stroll', lap: '27', stop: '2', duration: '24.3' }
+            ],
+            lapsData: []
+        };
+
+        (function generateFallbackLaps() {
+            const drivers = STINT_DEGRADATION_FALLBACK_2024.resultsData.map(r => r.Driver.driverId);
+            const pitMap = {};
+            STINT_DEGRADATION_FALLBACK_2024.pitStopsData.forEach(p => {
+                if (!pitMap[p.driverId]) pitMap[p.driverId] = new Set();
+                pitMap[p.driverId].add(parseInt(p.lap, 10));
+            });
+
+            const laps = [];
+            for (let lapNum = 1; lapNum <= 57; lapNum++) {
+                const timings = [];
+                drivers.forEach((dId, idx) => {
+                    const isPitIn = pitMap[dId] && pitMap[dId].has(lapNum);
+                    const isPitOut = pitMap[dId] && pitMap[dId].has(lapNum - 1);
+                    let baseSec = 95.5 + idx * 0.35;
+                    if (lapNum === 1) {
+                        baseSec += 5.5; // Standing start
+                    } else if (isPitIn) {
+                        baseSec += 21.5; // In-lap box
+                    } else if (isPitOut) {
+                        baseSec += 12.0; // Out-lap box exit
+                    } else {
+                        const lastPit = Math.max(0, ...Array.from(pitMap[dId] || []).filter(l => l < lapNum));
+                        const stintLap = lapNum - lastPit;
+                        baseSec += (stintLap * 0.042) - (lapNum * 0.025);
+                    }
+                    const mins = Math.floor(baseSec / 60);
+                    const secs = (baseSec % 60).toFixed(3);
+                    const timeStr = `${mins}:${parseFloat(secs) < 10 ? '0' : ''}${secs}`;
+                    timings.push({
+                        driverId: dId,
+                        position: String(idx + 1),
+                        time: timeStr
+                    });
+                });
+                laps.push({ number: String(lapNum), Timings: timings });
+            }
+            STINT_DEGRADATION_FALLBACK_2024.lapsData = laps;
+        })();
+
+        const stintDegradationState = {
+            season: '2024',
+            round: '1',
+            fuelCorrection: false,
+            fuelBurnRate: 0.035,
+            selectedDriver: 'all',
+            cache: {},
+            inferredPitStops: false,
+            resultsData: null,
+            pitStopsData: null,
+            lapsData: null,
+            processedMetrics: null,
+            degradationChartInstance: null,
+            barsChartInstance: null
+        };
+
+        function parseLapTimeToSeconds(timeStr) {
+            if (typeof timeStr === 'number') return isNaN(timeStr) ? null : timeStr;
+            if (!timeStr || typeof timeStr !== 'string') return null;
+            const trimmed = timeStr.trim();
+            if (!trimmed) return null;
+            if (trimmed.includes(':')) {
+                const parts = trimmed.split(':');
+                if (parts.length === 2) {
+                    const mins = parseFloat(parts[0]);
+                    const secs = parseFloat(parts[1]);
+                    if (!isNaN(mins) && !isNaN(secs)) {
+                        return parseFloat((mins * 60 + secs).toFixed(3));
+                    }
+                } else if (parts.length === 3) {
+                    const hrs = parseFloat(parts[0]);
+                    const mins = parseFloat(parts[1]);
+                    const secs = parseFloat(parts[2]);
+                    if (!isNaN(hrs) && !isNaN(mins) && !isNaN(secs)) {
+                        return parseFloat((hrs * 3600 + mins * 60 + secs).toFixed(3));
+                    }
+                }
+            }
+            const val = parseFloat(trimmed);
+            return isNaN(val) ? null : parseFloat(val.toFixed(3));
+        }
+
+        function formatLapTime(seconds) {
+            if (seconds === null || seconds === undefined || isNaN(seconds)) return 'N/A';
+            const s = parseFloat(seconds);
+            if (s <= 0) return '0.000';
+            const mins = Math.floor(s / 60);
+            const remSecs = (s % 60).toFixed(3);
+            if (mins > 0) {
+                const paddedSecs = parseFloat(remSecs) < 10 ? `0${remSecs}` : remSecs;
+                return `${mins}:${paddedSecs}`;
+            }
+            return remSecs;
+        }
+
+        function calculateMedian(values) {
+            if (!values || !Array.isArray(values) || values.length === 0) return 0;
+            const sorted = values.slice().filter(v => typeof v === 'number' && !isNaN(v)).sort((a, b) => a - b);
+            if (sorted.length === 0) return 0;
+            const mid = Math.floor(sorted.length / 2);
+            if (sorted.length % 2 === 0) {
+                return (sorted[mid - 1] + sorted[mid]) / 2;
+            }
+            return sorted[mid];
+        }
+
+        function calculateOLSLinearRegression(xVals, yVals) {
+            if (!xVals || !yVals || xVals.length !== yVals.length || xVals.length < 2) {
+                return { slope: null, intercept: null, r: null, r2: null, count: xVals ? xVals.length : 0 };
+            }
+            const n = xVals.length;
+            let sumX = 0;
+            let sumY = 0;
+            for (let i = 0; i < n; i++) {
+                sumX += xVals[i];
+                sumY += yVals[i];
+            }
+            const meanX = sumX / n;
+            const meanY = sumY / n;
+
+            let ssXX = 0;
+            let ssXY = 0;
+            let ssYY = 0;
+
+            for (let i = 0; i < n; i++) {
+                const dx = xVals[i] - meanX;
+                const dy = yVals[i] - meanY;
+                ssXX += dx * dx;
+                ssXY += dx * dy;
+                ssYY += dy * dy;
+            }
+
+            if (ssXX <= 0.0000001) {
+                return { slope: 0, intercept: meanY, r: 0, r2: 0, count: n };
+            }
+
+            const slope = ssXY / ssXX;
+            const intercept = meanY - slope * meanX;
+            let r = 0;
+            if (ssYY > 0.0000001) {
+                r = ssXY / Math.sqrt(ssXX * ssYY);
+                if (r > 1) r = 1;
+                if (r < -1) r = -1;
+            }
+            const r2 = r * r;
+
+            return {
+                slope: parseFloat(slope.toFixed(4)),
+                intercept: parseFloat(intercept.toFixed(3)),
+                r: parseFloat(r.toFixed(3)),
+                r2: parseFloat(r2.toFixed(3)),
+                count: n
+            };
+        }
+
+        function detectAnomalousPitStops(driverLaps, fieldMedianNeutralized = {}) {
+            if (!driverLaps || !Array.isArray(driverLaps) || driverLaps.length < 2) return [];
+            const sortedLaps = driverLaps.slice().sort((a, b) => a.lapNumber - b.lapNumber);
+            const pitStops = [];
+            let stopCount = 1;
+
+            for (let i = 1; i < sortedLaps.length; i++) {
+                const cur = sortedLaps[i];
+                const prev = sortedLaps[i - 1];
+                if (!cur.rawTimeSec || !prev.rawTimeSec) continue;
+
+                const delta = cur.rawTimeSec - prev.rawTimeSec;
+                // Pre-2012 missing pitstops via >18s inter-lap delta anomaly detection
+                if (delta > 18.0 && !fieldMedianNeutralized[cur.lapNumber] && cur.lapNumber > 1) {
+                    pitStops.push({
+                        driverId: cur.driverId,
+                        lap: String(cur.lapNumber),
+                        stop: String(stopCount++),
+                        duration: null,
+                        inferred: true
+                    });
+                }
+            }
+            return pitStops;
+        }
+
+        function filterOutlierLaps(driverLaps, fieldLapsByLap = {}) {
+            if (!driverLaps || !Array.isArray(driverLaps)) return [];
+            const sortedLaps = driverLaps.slice().sort((a, b) => a.lapNumber - b.lapNumber);
+
+            const fieldMedians = {};
+            const fieldMedianNeutralized = {};
+            const allLapNumbers = Object.keys(fieldLapsByLap).map(n => parseInt(n, 10)).sort((a, b) => a - b);
+
+            allLapNumbers.forEach(lapNum => {
+                const times = fieldLapsByLap[lapNum] || [];
+                fieldMedians[lapNum] = calculateMedian(times);
+            });
+
+            // Flag field median surge > 10%
+            allLapNumbers.forEach(lapNum => {
+                if (lapNum > 1 && fieldMedians[lapNum] && fieldMedians[lapNum - 1]) {
+                    const surge = (fieldMedians[lapNum] - fieldMedians[lapNum - 1]) / fieldMedians[lapNum - 1];
+                    if (surge > 0.10) {
+                        fieldMedianNeutralized[lapNum] = true;
+                    }
+                }
+                if (fieldMedians[lapNum] > 180) {
+                    fieldMedianNeutralized[lapNum] = true;
+                }
+            });
+
+            // Annotate driver laps with flags and rolling median
+            sortedLaps.forEach((lap, idx) => {
+                lap.flags = lap.flags || [];
+                lap.isValidForDegradation = true;
+
+                // Standing start: Lap 1
+                if (lap.lapNumber === 1) {
+                    if (!lap.flags.includes('STANDING_START')) lap.flags.push('STANDING_START');
+                    lap.isValidForDegradation = false;
+                }
+
+                // Red-flagged race / lap > 200s
+                if (lap.rawTimeSec && lap.rawTimeSec > 200) {
+                    if (!lap.flags.includes('RED_FLAG')) lap.flags.push('RED_FLAG');
+                    if (!lap.flags.includes('NEUTRALIZED_LAP')) lap.flags.push('NEUTRALIZED_LAP');
+                    lap.isValidForDegradation = false;
+                }
+
+                // Field median surge > 10%
+                if (fieldMedianNeutralized[lap.lapNumber]) {
+                    if (!lap.flags.includes('NEUTRALIZED_LAP')) lap.flags.push('NEUTRALIZED_LAP');
+                    lap.isValidForDegradation = false;
+                }
+
+                // Rolling median lap time: window of 5 laps
+                const windowRadius = 2;
+                const startIdx = Math.max(0, idx - windowRadius);
+                const endIdx = Math.min(sortedLaps.length - 1, idx + windowRadius);
+                const windowTimes = [];
+                for (let w = startIdx; w <= endIdx; w++) {
+                    if (sortedLaps[w].rawTimeSec && sortedLaps[w].rawTimeSec > 0) {
+                        windowTimes.push(sortedLaps[w].rawTimeSec);
+                    }
+                }
+
+                const rollingMedian = calculateMedian(windowTimes);
+                lap.rollingMedian = rollingMedian;
+
+                // Flag > 107% of rolling median as NEUTRALIZED_LAP
+                if (lap.rawTimeSec && rollingMedian > 0 && lap.rawTimeSec > rollingMedian * 1.07) {
+                    if (!lap.flags.includes('NEUTRALIZED_LAP')) lap.flags.push('NEUTRALIZED_LAP');
+                    lap.isValidForDegradation = false;
+                }
+            });
+
+            return {
+                laps: sortedLaps,
+                fieldMedians,
+                fieldMedianNeutralized
+            };
+        }
+
+        function extractDriverStints(driverLaps, pitStops = [], options = {}) {
+            if (!driverLaps || !Array.isArray(driverLaps) || driverLaps.length === 0) return [];
+            const fuelCorrection = Boolean(options.fuelCorrection);
+            const fuelBurnRate = typeof options.fuelBurnRate === 'number' ? options.fuelBurnRate : 0.035;
+
+            const sortedLaps = driverLaps.slice().sort((a, b) => a.lapNumber - b.lapNumber);
+            const pitLapsSet = new Set();
+            pitStops.forEach(p => {
+                const l = parseInt(p.lap, 10);
+                if (!isNaN(l)) pitLapsSet.add(l);
+            });
+
+            // Tag in-laps and out-laps
+            sortedLaps.forEach(lap => {
+                if (pitLapsSet.has(lap.lapNumber)) {
+                    if (!lap.flags.includes('IN_LAP')) lap.flags.push('IN_LAP');
+                    lap.isInLap = true;
+                    lap.isValidForDegradation = false;
+                }
+                if (pitLapsSet.has(lap.lapNumber - 1)) {
+                    if (!lap.flags.includes('OUT_LAP')) lap.flags.push('OUT_LAP');
+                    lap.isOutLap = true;
+                    lap.isValidForDegradation = false;
+                }
+            });
+
+            // Partition into stints
+            const stints = [];
+            let currentStintLaps = [];
+            let stintNumber = 1;
+
+            sortedLaps.forEach((lap, idx) => {
+                currentStintLaps.push(lap);
+                if (pitLapsSet.has(lap.lapNumber) || idx === sortedLaps.length - 1) {
+                    const startLap = currentStintLaps[0].lapNumber;
+                    const endLap = currentStintLaps[currentStintLaps.length - 1].lapNumber;
+
+                    // Pace normalization: fuel burn weight correction (~0.035 s/lap)
+                    currentStintLaps.forEach(l => {
+                        if (fuelCorrection && l.rawTimeSec) {
+                            l.normalizedTimeSec = parseFloat((l.rawTimeSec + (l.lapNumber - 1) * fuelBurnRate).toFixed(3));
+                        } else {
+                            l.normalizedTimeSec = l.rawTimeSec;
+                        }
+                    });
+
+                    // Valid laps for OLS linear degradation slope
+                    const validLaps = currentStintLaps.filter(l => l.isValidForDegradation && l.normalizedTimeSec !== null);
+                    const isShortStint = validLaps.length < 4;
+
+                    let regression = { slope: null, intercept: null, r: null, r2: null, count: validLaps.length };
+                    let statusTag = 'CLEAN';
+
+                    if (isShortStint) {
+                        statusTag = 'SHORT_STINT';
+                    } else {
+                        const xVals = validLaps.map(l => l.lapNumber - startLap);
+                        const yVals = validLaps.map(l => l.normalizedTimeSec);
+                        regression = calculateOLSLinearRegression(xVals, yVals);
+
+                        // Wet/negative degradation (r < -0.4)
+                        if (regression.r !== null && regression.r < -0.4) {
+                            statusTag = 'WET_DEGRADATION';
+                        }
+                    }
+
+                    stints.push({
+                        stintNumber,
+                        startLap,
+                        endLap,
+                        totalLaps: currentStintLaps.length,
+                        validLapsCount: validLaps.length,
+                        isShortStint,
+                        statusTag,
+                        regression,
+                        slope: regression.slope,
+                        intercept: regression.intercept,
+                        r: regression.r,
+                        r2: regression.r2,
+                        laps: currentStintLaps,
+                        validLaps
+                    });
+
+                    currentStintLaps = [];
+                    stintNumber++;
+                }
+            });
+
+            return stints;
+        }
+
+        function processStintDegradationData(resultsData, pitStopsData, lapsData, options = {}) {
+            const seasonStr = String(options.season || '2024');
+            const roundStr = String(options.round || '1');
+            const fuelCorrection = Boolean(options.fuelCorrection);
+            const fuelBurnRate = typeof options.fuelBurnRate === 'number' ? options.fuelBurnRate : 0.035;
+
+            const results = Array.isArray(resultsData) ? resultsData : [];
+            let pitStops = Array.isArray(pitStopsData) ? pitStopsData.slice() : [];
+            const laps = Array.isArray(lapsData) ? lapsData : [];
+
+            const driverLapsMap = {};
+            const fieldLapsByLap = {};
+
+            laps.forEach(lapObj => {
+                const lapNum = parseInt(lapObj.number, 10);
+                if (isNaN(lapNum)) return;
+                if (!fieldLapsByLap[lapNum]) fieldLapsByLap[lapNum] = [];
+
+                const timings = lapObj.Timings || [];
+                timings.forEach(timing => {
+                    const dId = timing.driverId;
+                    if (!dId) return;
+                    const sec = parseLapTimeToSeconds(timing.time);
+                    if (sec !== null && sec > 0) {
+                        fieldLapsByLap[lapNum].push(sec);
+                        if (!driverLapsMap[dId]) driverLapsMap[dId] = [];
+                        driverLapsMap[dId].push({
+                            driverId: dId,
+                            lapNumber: lapNum,
+                            position: parseInt(timing.position || '0', 10),
+                            rawTimeSec: sec,
+                            rawTimeStr: timing.time,
+                            flags: []
+                        });
+                    }
+                });
+            });
+
+            let allDriversInferred = false;
+            const processedDrivers = [];
+            const fieldMedianNeutralizedMap = {};
+
+            Object.keys(driverLapsMap).forEach(dId => {
+                const { fieldMedianNeutralized } = filterOutlierLaps(driverLapsMap[dId], fieldLapsByLap);
+                Object.assign(fieldMedianNeutralizedMap, fieldMedianNeutralized);
+            });
+
+            // Handle pre-2012 missing pitstops via >18s inter-lap delta anomaly detection
+            const hasOfficialPitStops = pitStops.length > 0;
+            if (!hasOfficialPitStops) {
+                allDriversInferred = true;
+                Object.keys(driverLapsMap).forEach(dId => {
+                    const syntheticStops = detectAnomalousPitStops(driverLapsMap[dId], fieldMedianNeutralizedMap);
+                    pitStops.push(...syntheticStops);
+                });
+            }
+
+            results.forEach((res, idx) => {
+                const dId = res.Driver?.driverId || `driver_${idx}`;
+                const rawDriverLaps = driverLapsMap[dId] || [];
+                if (rawDriverLaps.length === 0) return;
+
+                filterOutlierLaps(rawDriverLaps, fieldLapsByLap);
+
+                const driverPitStops = pitStops.filter(p => p.driverId === dId);
+                const stints = extractDriverStints(rawDriverLaps, driverPitStops, { fuelCorrection, fuelBurnRate });
+
+                const constructorId = res.Constructor?.constructorId || 'generic';
+                const constructorName = res.Constructor?.name || 'Constructor';
+                const color = TEAM_COLORS[constructorId] || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+
+                const validCleanStints = stints.filter(s => !s.isShortStint && s.slope !== null);
+                const avgSlope = validCleanStints.length > 0
+                    ? parseFloat((validCleanStints.reduce((sum, s) => sum + s.slope, 0) / validCleanStints.length).toFixed(4))
+                    : null;
+
+                const longestStintLaps = Math.max(0, ...stints.map(s => s.totalLaps));
+
+                processedDrivers.push({
+                    driverId: dId,
+                    driverCode: res.Driver?.code || res.Driver?.familyName?.slice(0, 3)?.toUpperCase() || 'DRV',
+                    driverName: res.Driver ? `${res.Driver.givenName || ''} ${res.Driver.familyName || ''}`.trim() : dId,
+                    constructorId,
+                    constructorName,
+                    color,
+                    position: parseInt(res.position || String(idx + 1), 10),
+                    grid: parseInt(res.grid || '0', 10),
+                    status: res.status || 'Finished',
+                    lapsCompleted: rawDriverLaps.length,
+                    stints,
+                    avgSlope,
+                    longestStintLaps
+                });
+            });
+
+            const teamMap = {};
+            processedDrivers.forEach(drv => {
+                if (!teamMap[drv.constructorId]) {
+                    teamMap[drv.constructorId] = {
+                        constructorId: drv.constructorId,
+                        constructorName: drv.constructorName,
+                        color: drv.color,
+                        drivers: [],
+                        stints: [],
+                        totalStints: 0,
+                        avgSlope: null,
+                        avgStintLength: 0
+                    };
+                }
+                teamMap[drv.constructorId].drivers.push(drv);
+                teamMap[drv.constructorId].stints.push(...drv.stints);
+            });
+
+            const teamMatrix = Object.values(teamMap).map(team => {
+                team.totalStints = team.stints.length;
+                const validSlopes = team.stints.filter(s => !s.isShortStint && s.slope !== null).map(s => s.slope);
+                team.avgSlope = validSlopes.length > 0
+                    ? parseFloat((validSlopes.reduce((a, b) => a + b, 0) / validSlopes.length).toFixed(4))
+                    : null;
+                const totalLaps = team.stints.reduce((a, s) => a + s.totalLaps, 0);
+                team.avgStintLength = team.totalStints > 0
+                    ? parseFloat((totalLaps / team.totalStints).toFixed(1))
+                    : 0;
+                return team;
+            }).sort((a, b) => {
+                if (a.avgSlope !== null && b.avgSlope !== null) return a.avgSlope - b.avgSlope;
+                if (a.avgSlope !== null) return -1;
+                return 1;
+            });
+
+            const allValidStints = processedDrivers.flatMap(d => d.stints).filter(s => !s.isShortStint && s.slope !== null);
+            const avgFieldDegradation = allValidStints.length > 0
+                ? parseFloat((allValidStints.reduce((sum, s) => sum + s.slope, 0) / allValidStints.length).toFixed(4))
+                : 0.040;
+
+            const driversWithSlope = processedDrivers.filter(d => d.avgSlope !== null).sort((a, b) => a.avgSlope - b.avgSlope);
+            const bestDegDriver = driversWithSlope.length > 0 ? driversWithSlope[0] : null;
+
+            let longestStint = { driverCode: '--', laps: 0, stintNumber: 1 };
+            processedDrivers.forEach(d => {
+                d.stints.forEach(s => {
+                    if (s.totalLaps > longestStint.laps) {
+                        longestStint = { driverCode: d.driverCode, laps: s.totalLaps, stintNumber: s.stintNumber };
+                    }
+                });
+            });
+
+            const totalFieldStints = processedDrivers.reduce((sum, d) => sum + d.stints.length, 0);
+            const totalFieldStintLaps = processedDrivers.reduce((sum, d) => sum + d.stints.reduce((sSum, s) => sSum + s.totalLaps, 0), 0);
+            const avgStintLength = totalFieldStints > 0
+                ? parseFloat((totalFieldStintLaps / totalFieldStints).toFixed(1))
+                : 0;
+
+            const neutralizedLapNumbers = new Set();
+            processedDrivers.forEach(d => {
+                d.stints.forEach(s => {
+                    s.laps.forEach(l => {
+                        if (l.flags.includes('NEUTRALIZED_LAP')) {
+                            neutralizedLapNumbers.add(l.lapNumber);
+                        }
+                    });
+                });
+            });
+
+            return {
+                season: seasonStr,
+                round: roundStr,
+                fuelCorrection,
+                inferredPitStops: allDriversInferred,
+                totalLaps: laps.length,
+                drivers: processedDrivers,
+                teamMatrix,
+                kpis: {
+                    avgDegradation: avgFieldDegradation,
+                    bestDegDriver: bestDegDriver ? `${bestDegDriver.driverCode} (${bestDegDriver.avgSlope > 0 ? '+' : ''}${bestDegDriver.avgSlope} s/lap)` : '--',
+                    longestStint: longestStint.laps > 0 ? `${longestStint.laps} Laps (${longestStint.driverCode} S${longestStint.stintNumber})` : '--',
+                    avgStintLength: `${avgStintLength} Laps`,
+                    totalNeutralizedLaps: `${neutralizedLapNumbers.size} Laps`
+                }
+            };
+        }
+
+        async function loadStintDegradationData(season = '2024', round = '1', forceRefresh = false) {
+            const seasonStr = String(season);
+            const roundStr = String(round);
+            const cacheKey = `${seasonStr}_${roundStr}`;
+
+            const cacheBadge = document.getElementById('stintCacheBadge');
+            const anomalyBanner = document.getElementById('stintAnomalyBanner');
+
+            stintDegradationState.season = seasonStr;
+            stintDegradationState.round = roundStr;
+
+            // Request memoization check
+            if (!forceRefresh && stintDegradationState.cache[cacheKey]) {
+                if (cacheBadge) {
+                    cacheBadge.className = 'cache-badge cached';
+                    cacheBadge.textContent = '⚡ Cached (Instant)';
+                }
+                const cached = stintDegradationState.cache[cacheKey];
+                stintDegradationState.resultsData = cached.resultsData;
+                stintDegradationState.pitStopsData = cached.pitStopsData;
+                stintDegradationState.lapsData = cached.lapsData;
+                stintDegradationState.processedMetrics = processStintDegradationData(
+                    cached.resultsData,
+                    cached.pitStopsData,
+                    cached.lapsData,
+                    {
+                        season: seasonStr,
+                        round: roundStr,
+                        fuelCorrection: stintDegradationState.fuelCorrection,
+                        fuelBurnRate: stintDegradationState.fuelBurnRate
+                    }
+                );
+                stintDegradationState.inferredPitStops = stintDegradationState.processedMetrics.inferredPitStops;
+                renderStintDegradationView(stintDegradationState.processedMetrics);
+                return stintDegradationState.processedMetrics;
+            }
+
+            if (cacheBadge) {
+                cacheBadge.className = 'cache-badge live';
+                cacheBadge.textContent = '🔄 Querying Jolpica API...';
+            }
+
+            try {
+                // Concurrent fetch: results.json, pitstops.json, laps.json
+                const resultsUrl = `${BASE_URL}/${seasonStr}/${roundStr}/results.json`;
+                const pitStopsUrl = `${BASE_URL}/${seasonStr}/${roundStr}/pitstops.json?limit=1000`;
+                const lapsUrl = `${BASE_URL}/${seasonStr}/${roundStr}/laps.json?limit=2000`;
+
+                const resultsPromise = fetchWithRetry(resultsUrl).catch(() => null);
+                const pitStopsPromise = fetchWithRetry(pitStopsUrl).catch(() => null);
+
+                // Paginated laps fetch
+                const lapsPromise = (async () => {
+                    const firstPage = await fetchWithRetry(lapsUrl).catch(() => null);
+                    if (!firstPage) return [];
+                    const mrData = firstPage?.MRData;
+                    let laps = mrData?.RaceTable?.Races?.[0]?.Laps || [];
+                    const total = parseInt(mrData?.total || '0', 10);
+                    const limit = parseInt(mrData?.limit || '2000', 10);
+                    let offset = limit;
+
+                    while (offset < total) {
+                        const nextUrl = `${BASE_URL}/${seasonStr}/${roundStr}/laps.json?limit=2000&offset=${offset}`;
+                        const nextPage = await fetchWithRetry(nextUrl).catch(() => null);
+                        if (!nextPage) break;
+                        const nextLaps = nextPage?.MRData?.RaceTable?.Races?.[0]?.Laps || [];
+                        nextLaps.forEach(nl => {
+                            const existing = laps.find(l => String(l.number) === String(nl.number));
+                            if (existing) {
+                                if (Array.isArray(nl.Timings)) {
+                                    nl.Timings.forEach(t => {
+                                        if (!existing.Timings.some(et => et.driverId === t.driverId)) {
+                                            existing.Timings.push(t);
+                                        }
+                                    });
+                                }
+                            } else {
+                                laps.push(nl);
+                            }
+                        });
+                        const pageLimit = parseInt(nextPage?.MRData?.limit || '100', 10);
+                        if (pageLimit <= 0) break;
+                        offset += pageLimit;
+                    }
+                    laps.sort((a, b) => parseInt(a.number, 10) - parseInt(b.number, 10));
+                    return laps;
+                })();
+
+                const [resultsDataResp, pitStopsDataResp, lapsList] = await Promise.all([
+                    resultsPromise,
+                    pitStopsPromise,
+                    lapsPromise
+                ]);
+
+                const resultsList = resultsDataResp?.MRData?.RaceTable?.Races?.[0]?.Results || [];
+                const pitStopsList = pitStopsDataResp?.MRData?.RaceTable?.Races?.[0]?.PitStops || [];
+
+                let finalResults = resultsList;
+                let finalPitStops = pitStopsList;
+                let finalLaps = lapsList;
+
+                if ((!finalResults || finalResults.length === 0) && seasonStr === '2024' && roundStr === '1') {
+                    finalResults = STINT_DEGRADATION_FALLBACK_2024.resultsData;
+                    finalPitStops = STINT_DEGRADATION_FALLBACK_2024.pitStopsData;
+                    finalLaps = STINT_DEGRADATION_FALLBACK_2024.lapsData;
+                }
+
+                stintDegradationState.cache[cacheKey] = {
+                    resultsData: finalResults,
+                    pitStopsData: finalPitStops,
+                    lapsData: finalLaps
+                };
+
+                stintDegradationState.resultsData = finalResults;
+                stintDegradationState.pitStopsData = finalPitStops;
+                stintDegradationState.lapsData = finalLaps;
+
+                if (cacheBadge) {
+                    cacheBadge.className = 'cache-badge cached';
+                    cacheBadge.textContent = '⚡ Live Jolpica F1 Telemetry';
+                }
+
+                const metrics = processStintDegradationData(
+                    finalResults,
+                    finalPitStops,
+                    finalLaps,
+                    {
+                        season: seasonStr,
+                        round: roundStr,
+                        fuelCorrection: stintDegradationState.fuelCorrection,
+                        fuelBurnRate: stintDegradationState.fuelBurnRate
+                    }
+                );
+
+                stintDegradationState.processedMetrics = metrics;
+                stintDegradationState.inferredPitStops = metrics.inferredPitStops;
+
+                renderStintDegradationView(metrics);
+                return metrics;
+            } catch (err) {
+                console.warn('Error loading stint degradation data:', err);
+                if (seasonStr === '2024' && roundStr === '1') {
+                    const fallbackMetrics = processStintDegradationData(
+                        STINT_DEGRADATION_FALLBACK_2024.resultsData,
+                        STINT_DEGRADATION_FALLBACK_2024.pitStopsData,
+                        STINT_DEGRADATION_FALLBACK_2024.lapsData,
+                        {
+                            season: '2024',
+                            round: '1',
+                            fuelCorrection: stintDegradationState.fuelCorrection,
+                            fuelBurnRate: stintDegradationState.fuelBurnRate
+                        }
+                    );
+                    stintDegradationState.processedMetrics = fallbackMetrics;
+                    renderStintDegradationView(fallbackMetrics);
+                    return fallbackMetrics;
+                }
+                return null;
+            }
+        }
+
+        function populateStintRoundSelector(rounds, selectedRound = '1') {
+            const select = document.getElementById('stintRoundSelect');
+            if (!select) return;
+            select.innerHTML = '';
+            if (!Array.isArray(rounds) || rounds.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '1';
+                opt.textContent = 'Round 1 - Bahrain Grand Prix';
+                select.appendChild(opt);
+                return;
+            }
+            rounds.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = String(r.round);
+                opt.textContent = `Round ${r.round} - ${r.raceName || 'Grand Prix'}`;
+                if (String(r.round) === String(selectedRound)) {
+                    opt.selected = true;
+                    select.value = String(r.round);
+                }
+                select.appendChild(opt);
+            });
+        }
+
+        function onStintSeasonChange(season) {
+            stintDegradationState.season = String(season);
+            loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, false);
+        }
+
+        function onStintRoundChange(round) {
+            stintDegradationState.round = String(round);
+            loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, false);
+        }
+
+        function refreshStintData() {
+            loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, true);
+        }
+
+        function toggleStintFuelCorrection(enabled) {
+            stintDegradationState.fuelCorrection = Boolean(enabled);
+            const desc = document.getElementById('stintFuelCorrectionDesc');
+            if (desc) {
+                desc.textContent = stintDegradationState.fuelCorrection
+                    ? 'Fuel burn normalization ACTIVE (+0.035 s/lap added to compensate fuel burn-off)'
+                    : 'Compensate for fuel burn-off (~0.035 s/lap) to reveal pure tire degradation slope';
+            }
+            if (stintDegradationState.resultsData && stintDegradationState.lapsData) {
+                const metrics = processStintDegradationData(
+                    stintDegradationState.resultsData,
+                    stintDegradationState.pitStopsData,
+                    stintDegradationState.lapsData,
+                    {
+                        season: stintDegradationState.season,
+                        round: stintDegradationState.round,
+                        fuelCorrection: stintDegradationState.fuelCorrection,
+                        fuelBurnRate: stintDegradationState.fuelBurnRate
+                    }
+                );
+                stintDegradationState.processedMetrics = metrics;
+                renderStintDegradationView(metrics);
+            }
+        }
+
+        function onStintDriverFilterChange(driverId) {
+            stintDegradationState.selectedDriver = driverId || 'all';
+            const buttons = ['btnStintFilterAll', 'btnStintFilterTop5', 'btnStintFilterWinner'];
+            buttons.forEach(bId => {
+                const el = document.getElementById(bId);
+                if (el) el.classList.remove('active');
+            });
+            if (driverId === 'all') {
+                const btn = document.getElementById('btnStintFilterAll');
+                if (btn) btn.classList.add('active');
+            }
+            if (stintDegradationState.processedMetrics) {
+                renderStintDegradationChart(stintDegradationState.processedMetrics, stintDegradationState.selectedDriver);
+                renderStintLengthBars(stintDegradationState.processedMetrics, stintDegradationState.selectedDriver);
+                renderTeamPaceMatrix(stintDegradationState.processedMetrics);
+            }
+        }
+
+        function setStintDriverFilter(filterType) {
+            const select = document.getElementById('stintDriverSelect');
+            const buttons = {
+                'all': 'btnStintFilterAll',
+                'top5': 'btnStintFilterTop5',
+                'winner': 'btnStintFilterWinner'
+            };
+            Object.values(buttons).forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(buttons[filterType]);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (filterType === 'all') {
+                stintDegradationState.selectedDriver = 'all';
+                if (select) select.value = 'all';
+            } else if (filterType === 'top5') {
+                stintDegradationState.selectedDriver = 'top5';
+                if (select) select.value = 'all';
+            } else if (filterType === 'winner') {
+                const winner = stintDegradationState.processedMetrics?.drivers?.find(d => d.position === 1);
+                stintDegradationState.selectedDriver = winner ? winner.driverId : 'all';
+                if (select && winner) select.value = winner.driverId;
+            }
+
+            if (stintDegradationState.processedMetrics) {
+                renderStintDegradationChart(stintDegradationState.processedMetrics, stintDegradationState.selectedDriver);
+                renderStintLengthBars(stintDegradationState.processedMetrics, stintDegradationState.selectedDriver);
+                renderTeamPaceMatrix(stintDegradationState.processedMetrics);
+            }
+        }
+
+        function renderStintDegradationView(metrics) {
+            if (!metrics) return;
+            const banner = document.getElementById('stintAnomalyBanner');
+            if (banner) {
+                banner.style.display = metrics.inferredPitStops ? 'flex' : 'none';
+            }
+
+            const driverSelect = document.getElementById('stintDriverSelect');
+            if (driverSelect && metrics.drivers && driverSelect.options.length <= 1) {
+                driverSelect.innerHTML = '<option value="all">All Drivers (Overlay)</option>';
+                metrics.drivers.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.driverId;
+                    opt.textContent = `P${d.position} • ${d.driverName} (${d.driverCode} - ${d.constructorName})`;
+                    driverSelect.appendChild(opt);
+                });
+            }
+
+            renderStintKpis(metrics.kpis);
+            renderStintDegradationChart(metrics, stintDegradationState.selectedDriver);
+            renderStintLengthBars(metrics, stintDegradationState.selectedDriver);
+            renderTeamPaceMatrix(metrics);
+        }
+
+        function renderStintKpis(kpis) {
+            if (!kpis) return;
+            const avgDegEl = document.getElementById('kpiAvgFieldDegradation');
+            const lowestDegEl = document.getElementById('kpiLowestDegDriver');
+            const longestStintEl = document.getElementById('kpiLongestStint');
+            const avgStintLenEl = document.getElementById('kpiAvgStintLength');
+            const neutLapsEl = document.getElementById('kpiNeutralizedLaps');
+
+            if (avgDegEl) avgDegEl.textContent = `${kpis.avgDegradation > 0 ? '+' : ''}${kpis.avgDegradation.toFixed(3)} s/lap`;
+            if (lowestDegEl) lowestDegEl.textContent = kpis.bestDegDriver || '--';
+            if (longestStintEl) longestStintEl.textContent = kpis.longestStint || '--';
+            if (avgStintLenEl) avgStintLenEl.textContent = kpis.avgStintLength || '0.0 Laps';
+            if (neutLapsEl) neutLapsEl.textContent = kpis.totalNeutralizedLaps || '0 Laps';
+
+            const metaAvg = document.getElementById('stintAvgSlopeBadge');
+            if (metaAvg) metaAvg.textContent = `${kpis.avgDegradation > 0 ? '+' : ''}${kpis.avgDegradation.toFixed(3)} s/lap`;
+        }
+
+        function renderStintDegradationChart(metrics, selectedDriverId = 'all') {
+            const canvas = document.getElementById('stintDegradationChart');
+            if (!canvas || typeof canvas.getContext !== 'function') return null;
+
+            if (stintDegradationState.degradationChartInstance && typeof stintDegradationState.degradationChartInstance.destroy === 'function') {
+                stintDegradationState.degradationChartInstance.destroy();
+                stintDegradationState.degradationChartInstance = null;
+            }
+
+            let driversToDisplay = metrics.drivers || [];
+            if (selectedDriverId === 'top5') {
+                driversToDisplay = driversToDisplay.filter(d => d.position <= 5);
+            } else if (selectedDriverId && selectedDriverId !== 'all') {
+                driversToDisplay = driversToDisplay.filter(d => d.driverId === selectedDriverId);
+            }
+
+            const totalStintsCount = driversToDisplay.reduce((sum, d) => sum + d.stints.length, 0);
+            const totalStintsBadge = document.getElementById('stintTotalStintsBadge');
+            if (totalStintsBadge) totalStintsBadge.textContent = `${totalStintsCount} Stints`;
+
+            const datasets = [];
+
+            driversToDisplay.forEach(driver => {
+                driver.stints.forEach(stint => {
+                    const scatterData = [];
+                    stint.laps.forEach(l => {
+                        if (l.normalizedTimeSec) {
+                            scatterData.push({
+                                x: l.lapNumber,
+                                y: l.normalizedTimeSec,
+                                isClean: l.isValidForDegradation,
+                                flags: l.flags,
+                                rawTimeStr: l.rawTimeStr,
+                                rawTimeSec: l.rawTimeSec
+                            });
+                        }
+                    });
+
+                    datasets.push({
+                        type: 'scatter',
+                        label: `${driver.driverCode} Stint ${stint.stintNumber} Laps`,
+                        data: scatterData,
+                        borderColor: driver.color,
+                        backgroundColor: (ctx) => {
+                            const raw = ctx.raw;
+                            if (raw && !raw.isClean) return 'rgba(100, 116, 139, 0.45)';
+                            return driver.color;
+                        },
+                        pointRadius: (ctx) => {
+                            const raw = ctx.raw;
+                            if (raw && !raw.isClean) return 3;
+                            return 4.5;
+                        },
+                        pointHoverRadius: 6,
+                        showLine: false
+                    });
+
+                    // OLS Regression Trendline
+                    if (!stint.isShortStint && stint.slope !== null && stint.intercept !== null) {
+                        const trendData = [];
+                        const validStartLap = stint.validLaps[0]?.lapNumber || stint.startLap;
+                        const validEndLap = stint.validLaps[stint.validLaps.length - 1]?.lapNumber || stint.endLap;
+
+                        for (let lapNum = validStartLap; lapNum <= validEndLap; lapNum++) {
+                            const x = lapNum - stint.startLap;
+                            const y = stint.intercept + stint.slope * x;
+                            trendData.push({ x: lapNum, y: parseFloat(y.toFixed(3)) });
+                        }
+
+                        datasets.push({
+                            type: 'line',
+                            label: `${driver.driverCode} S${stint.stintNumber} Slope: ${stint.slope > 0 ? '+' : ''}${stint.slope} s/lap`,
+                            data: trendData,
+                            borderColor: driver.color,
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.2,
+                            borderDash: [5, 4],
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0
+                        });
+                    }
+                });
+            });
+
+            const ctx = canvas.getContext('2d');
+            stintDegradationState.degradationChartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: driversToDisplay.length <= 3,
+                            labels: {
+                                color: '#94A3B8',
+                                boxWidth: 12
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (item) => {
+                                    const raw = item.raw;
+                                    const timeStr = formatLapTime(item.parsed.y);
+                                    const flags = raw?.flags?.length ? ` [${raw.flags.join(', ')}]` : '';
+                                    return `${item.dataset.label}: Lap ${item.parsed.x} — ${timeStr}${flags}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Race Lap Number',
+                                color: '#94A3B8'
+                            },
+                            grid: { color: 'rgba(30, 39, 56, 0.4)' },
+                            ticks: { color: '#64748B' }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: stintDegradationState.fuelCorrection ? 'Normalized Lap Time (s) [Fuel-Corrected]' : 'Raw Lap Time (s)',
+                                color: '#94A3B8'
+                            },
+                            grid: { color: 'rgba(30, 39, 56, 0.4)' },
+                            ticks: {
+                                color: '#64748B',
+                                callback: (val) => formatLapTime(val)
+                            }
+                        }
+                    }
+                }
+            });
+
+            return stintDegradationState.degradationChartInstance;
+        }
+
+        function renderStintLengthBars(metrics, selectedDriverId = 'all') {
+            const canvas = document.getElementById('stintLengthBarChart');
+            const barsContainer = document.getElementById('stintLengthBarsContainer');
+
+            let driversToDisplay = metrics.drivers || [];
+            if (selectedDriverId === 'top5') {
+                driversToDisplay = driversToDisplay.filter(d => d.position <= 5);
+            } else if (selectedDriverId && selectedDriverId !== 'all') {
+                driversToDisplay = driversToDisplay.filter(d => d.driverId === selectedDriverId);
+            }
+
+            if (canvas && typeof canvas.getContext === 'function') {
+                if (stintDegradationState.barsChartInstance && typeof stintDegradationState.barsChartInstance.destroy === 'function') {
+                    stintDegradationState.barsChartInstance.destroy();
+                    stintDegradationState.barsChartInstance = null;
+                }
+
+                const maxStintCount = Math.max(1, ...driversToDisplay.map(d => d.stints.length));
+                const barDatasets = [];
+
+                for (let sIdx = 0; sIdx < maxStintCount; sIdx++) {
+                    const data = [];
+                    const backgroundColors = [];
+                    driversToDisplay.forEach(d => {
+                        const stint = d.stints[sIdx];
+                        if (stint) {
+                            data.push([stint.startLap, stint.endLap]);
+                            backgroundColors.push(d.color);
+                        } else {
+                            data.push([0, 0]);
+                            backgroundColors.push('transparent');
+                        }
+                    });
+
+                    barDatasets.push({
+                        label: `Stint ${sIdx + 1}`,
+                        data,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#0B0E14',
+                        borderWidth: 1.5,
+                        borderRadius: 4
+                    });
+                }
+
+                const ctx = canvas.getContext('2d');
+                stintDegradationState.barsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: driversToDisplay.map(d => `P${d.position} ${d.driverCode}`),
+                        datasets: barDatasets
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (item) => {
+                                        const drv = driversToDisplay[item.dataIndex];
+                                        const stint = drv?.stints[item.datasetIndex];
+                                        if (!stint) return '';
+                                        const slopeStr = stint.slope !== null ? `${stint.slope > 0 ? '+' : ''}${stint.slope} s/lap` : 'N/A';
+                                        return `Stint ${stint.stintNumber}: Laps ${stint.startLap}-${stint.endLap} (${stint.totalLaps} laps) • Deg: ${slopeStr}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                min: 1,
+                                max: metrics.totalLaps || 57,
+                                title: {
+                                    display: true,
+                                    text: 'Race Lap Progression',
+                                    color: '#94A3B8'
+                                },
+                                grid: { color: 'rgba(30, 39, 56, 0.4)' },
+                                ticks: { color: '#64748B' }
+                            },
+                            y: {
+                                grid: { color: 'rgba(30, 39, 56, 0.2)' },
+                                ticks: { color: '#CBD5E1', font: { weight: 'bold' } }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (barsContainer) {
+                const totalRaceLaps = Math.max(1, metrics.totalLaps || 57);
+                barsContainer.innerHTML = driversToDisplay.map(drv => {
+                    const segmentsHtml = drv.stints.map(stint => {
+                        const widthPct = ((stint.totalLaps / totalRaceLaps) * 100).toFixed(1);
+                        const slopeStr = stint.slope !== null ? `${stint.slope > 0 ? '+' : ''}${stint.slope}s` : 'N/A';
+                        const opacity = 0.55 + (stint.stintNumber % 3) * 0.18;
+                        return `
+                            <div class="stint-bar-segment" style="width: ${widthPct}%; background-color: ${drv.color}; opacity: ${opacity};" title="${drv.driverCode} Stint ${stint.stintNumber}: Laps ${stint.startLap}-${stint.endLap} (${stint.totalLaps} laps, ${slopeStr}/lap)">
+                                S${stint.stintNumber} (${stint.totalLaps}L)
+                            </div>
+                        `;
+                    }).join('');
+
+                    return `
+                        <div class="stint-driver-bar-row">
+                            <div class="stint-driver-label">
+                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${drv.color};"></span>
+                                P${drv.position} ${drv.driverCode}
+                            </div>
+                            <div class="stint-bar-track">
+                                ${segmentsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderTeamPaceMatrix(metrics) {
+            const tbody = document.getElementById('teamPaceDegradationTableBody');
+            if (!tbody) return;
+
+            let driversToDisplay = metrics.drivers || [];
+            if (stintDegradationState.selectedDriver === 'top5') {
+                driversToDisplay = driversToDisplay.filter(d => d.position <= 5);
+            } else if (stintDegradationState.selectedDriver && stintDegradationState.selectedDriver !== 'all') {
+                driversToDisplay = driversToDisplay.filter(d => d.driverId === stintDegradationState.selectedDriver);
+            }
+
+            const rowsHtml = [];
+
+            driversToDisplay.forEach(drv => {
+                drv.stints.forEach(stint => {
+                    let badgeClass = 'stint-badge-clean';
+                    let badgeLabel = 'Clean Pace';
+
+                    if (stint.isShortStint) {
+                        badgeClass = 'stint-badge-short';
+                        badgeLabel = 'Short Stint (<4 laps)';
+                    } else if (stint.statusTag === 'WET_DEGRADATION') {
+                        badgeClass = 'stint-badge-wet';
+                        badgeLabel = 'Wet / Negative Deg (r < -0.4)';
+                    }
+
+                    if (metrics.inferredPitStops) {
+                        badgeLabel += ' • Inferred Pit';
+                    }
+
+                    const slopeDisplay = stint.slope !== null
+                        ? `<span style="font-weight: 700; color: ${stint.slope <= 0.030 ? '#10B981' : (stint.slope <= 0.055 ? '#F59E0B' : '#EF4444')};">${stint.slope > 0 ? '+' : ''}${stint.slope.toFixed(4)} s/lap</span>`
+                        : '<span style="color: #64748B;">N/A (&lt;4 laps)</span>';
+
+                    const basePace = stint.intercept !== null
+                        ? formatLapTime(stint.intercept)
+                        : (stint.laps[0]?.rawTimeStr || 'N/A');
+
+                    const rDisplay = stint.r !== null ? stint.r.toFixed(3) : 'N/A';
+
+                    rowsHtml.push(`
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${drv.color};"></span>
+                                    <div>
+                                        <strong>P${drv.position} ${drv.driverName}</strong>
+                                        <div style="font-size: 0.75rem; color: #64748B;">${drv.constructorName}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong>Stint ${stint.stintNumber}</strong></td>
+                            <td>Laps ${stint.startLap} – ${stint.endLap}</td>
+                            <td>${stint.validLapsCount} clean / ${stint.totalLaps} laps</td>
+                            <td style="font-family: var(--font-mono, monospace); font-weight: 600;">${basePace}</td>
+                            <td>${slopeDisplay}</td>
+                            <td style="font-family: var(--font-mono, monospace);">${rDisplay}</td>
+                            <td><span class="stint-badge ${badgeClass}">${badgeLabel}</span></td>
+                        </tr>
+                    `);
+                });
+            });
+
+            tbody.innerHTML = rowsHtml.join('');
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
                 'all': 'tabBtnAll',
                 'lap-chart': 'tabBtnLapChart',
+                'stints': 'tabBtnStints',
+                'degradation': 'tabBtnStints',
                 'finishing-gap': 'tabBtnFinishingGap',
                 'profiler': 'tabBtnProfiler',
                 'constructors': 'tabBtnConstructors',
@@ -14663,6 +16269,7 @@
             if (activeBtn) activeBtn.classList.add('active');
 
             const lapChartSec = document.getElementById('lap-chart-section');
+            const stintSec = document.getElementById('stint-profiler-section');
             const finishingGapSec = document.getElementById('finishing-gap-section');
             const profilerSec = document.getElementById('circuit-profiler-section');
             const constructorSec = document.getElementById('constructor-atr-section');
@@ -14677,6 +16284,21 @@
 
             if (tabId === 'lap-chart') {
                 if (lapChartSec) lapChartSec.style.display = 'block';
+                if (stintSec) stintSec.style.display = 'none';
+                if (finishingGapSec) finishingGapSec.style.display = 'none';
+                if (profilerSec) profilerSec.style.display = 'none';
+                if (constructorSec) constructorSec.style.display = 'none';
+                if (sprintSec) sprintSec.style.display = 'none';
+                if (clinchSec) clinchSec.style.display = 'none';
+                if (pitstopSec) pitstopSec.style.display = 'none';
+                if (reliabilitySec) reliabilitySec.style.display = 'none';
+                if (telemetrySec) telemetrySec.style.display = 'none';
+                if (progressionSec) progressionSec.style.display = 'none';
+                if (latestRaceSec) latestRaceSec.style.display = 'none';
+                if (standingsTableSec) standingsTableSec.style.display = 'none';
+            } else if (tabId === 'stints' || tabId === 'degradation') {
+                if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'block';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14690,6 +16312,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'finishing-gap') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'block';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14703,6 +16326,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'profiler') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14716,6 +16340,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'constructors') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'block';
@@ -14729,6 +16354,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'sprint') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14742,6 +16368,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'clinch') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14755,6 +16382,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'pitstops') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14768,6 +16396,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'reliability') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14781,6 +16410,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'telemetry') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14794,6 +16424,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'progression') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14807,6 +16438,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
             } else if (tabId === 'results') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
+                if (stintSec) stintSec.style.display = 'none';
                 if (finishingGapSec) finishingGapSec.style.display = 'none';
                 if (profilerSec) profilerSec.style.display = 'none';
                 if (constructorSec) constructorSec.style.display = 'none';
@@ -14820,6 +16452,7 @@
                 if (standingsTableSec) standingsTableSec.style.display = 'block';
             } else {
                 if (lapChartSec) lapChartSec.style.display = 'block';
+                if (stintSec) stintSec.style.display = 'block';
                 if (finishingGapSec) finishingGapSec.style.display = 'block';
                 if (profilerSec) profilerSec.style.display = 'block';
                 if (constructorSec) constructorSec.style.display = 'block';
@@ -14853,6 +16486,12 @@
                 if (reliabilityChartInstance && typeof reliabilityChartInstance.resize === 'function') {
                     reliabilityChartInstance.resize();
                 }
+                if (stintDegradationState.degradationChartInstance && typeof stintDegradationState.degradationChartInstance.resize === 'function') {
+                    stintDegradationState.degradationChartInstance.resize();
+                }
+                if (stintDegradationState.barsChartInstance && typeof stintDegradationState.barsChartInstance.resize === 'function') {
+                    stintDegradationState.barsChartInstance.resize();
+                }
             }, 50);
         }
 
@@ -14874,6 +16513,12 @@
             }
             if (reliabilityChartInstance && typeof reliabilityChartInstance.resize === 'function') {
                 reliabilityChartInstance.resize();
+            }
+            if (stintDegradationState.degradationChartInstance && typeof stintDegradationState.degradationChartInstance.resize === 'function') {
+                stintDegradationState.degradationChartInstance.resize();
+            }
+            if (stintDegradationState.barsChartInstance && typeof stintDegradationState.barsChartInstance.resize === 'function') {
+                stintDegradationState.barsChartInstance.resize();
             }
             if (chartInstance) chartInstance.resize();
         });
@@ -14950,9 +16595,39 @@
             if (reliabilitySeasonSelect) {
                 loadReliabilityData(reliabilitySeasonSelect.value, false);
             }
+
+            const stintSeasonSelect = document.getElementById('stintSeasonSelect');
+            if (stintSeasonSelect) {
+                const roundSelect = document.getElementById('stintRoundSelect');
+                const roundVal = roundSelect ? roundSelect.value : '1';
+                loadStintDegradationData(stintSeasonSelect.value, roundVal, false);
+            }
         });
 
         if (typeof window !== 'undefined') {
+            window.loadStintDegradationData = loadStintDegradationData;
+            window.processStintDegradationData = processStintDegradationData;
+            window.calculateOLSLinearRegression = calculateOLSLinearRegression;
+            window.detectAnomalousPitStops = detectAnomalousPitStops;
+            window.filterOutlierLaps = filterOutlierLaps;
+            window.extractDriverStints = extractDriverStints;
+            window.parseLapTimeToSeconds = parseLapTimeToSeconds;
+            window.formatLapTime = formatLapTime;
+            window.calculateMedian = calculateMedian;
+            window.onStintSeasonChange = onStintSeasonChange;
+            window.onStintRoundChange = onStintRoundChange;
+            window.refreshStintData = refreshStintData;
+            window.toggleStintFuelCorrection = toggleStintFuelCorrection;
+            window.onStintDriverFilterChange = onStintDriverFilterChange;
+            window.setStintDriverFilter = setStintDriverFilter;
+            window.populateStintRoundSelector = populateStintRoundSelector;
+            window.renderStintDegradationView = renderStintDegradationView;
+            window.renderStintKpis = renderStintKpis;
+            window.renderStintDegradationChart = renderStintDegradationChart;
+            window.renderStintLengthBars = renderStintLengthBars;
+            window.renderTeamPaceMatrix = renderTeamPaceMatrix;
+            window.stintDegradationState = stintDegradationState;
+            window.STINT_DEGRADATION_FALLBACK_2024 = STINT_DEGRADATION_FALLBACK_2024;
             window.loadLapTelemetry = loadLapTelemetry;
             window.onLapSeasonChange = onLapSeasonChange;
             window.onLapRoundChange = onLapRoundChange;
@@ -15255,7 +16930,30 @@
                 renderReliabilityKpis,
                 renderReliabilityChart,
                 renderReliabilityTable,
-                fetchSeasonStatus
+                fetchSeasonStatus,
+                loadStintDegradationData,
+                processStintDegradationData,
+                calculateOLSLinearRegression,
+                detectAnomalousPitStops,
+                filterOutlierLaps,
+                extractDriverStints,
+                parseLapTimeToSeconds,
+                formatLapTime,
+                calculateMedian,
+                onStintSeasonChange,
+                onStintRoundChange,
+                refreshStintData,
+                toggleStintFuelCorrection,
+                onStintDriverFilterChange,
+                setStintDriverFilter,
+                populateStintRoundSelector,
+                renderStintDegradationView,
+                renderStintKpis,
+                renderStintDegradationChart,
+                renderStintLengthBars,
+                renderTeamPaceMatrix,
+                stintDegradationState,
+                STINT_DEGRADATION_FALLBACK_2024
             };
         }
     </script>
