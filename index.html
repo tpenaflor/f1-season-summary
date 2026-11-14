@@ -8400,6 +8400,8 @@
         let telemetryRadarChartInstance = null;
         let telemetryDeltaChartInstance = null;
         let telemetryFetchId = 0;
+        let telemetryIsLoading = false;
+        let telemetryDataLoaded = false;
 
         /**
          * Parse Q1, Q2, Q3 lap times (e.g. "1:29.179" or "89.179") to milliseconds
@@ -8545,6 +8547,8 @@
                             }
                             if (mainContent) mainContent.style.display = 'block';
                             currentTelemetryData = parsed;
+                            telemetryIsLoading = false;
+                            telemetryDataLoaded = true;
                             initializeConstructorSelection(parsed);
                             return;
                         }
@@ -8555,6 +8559,7 @@
             }
 
             const fetchId = ++telemetryFetchId;
+            telemetryIsLoading = true;
             if (progressContainer) progressContainer.style.display = 'block';
             if (cacheBadge) {
                 cacheBadge.className = 'cache-badge fetching';
@@ -8615,10 +8620,14 @@
                 if (progressContainer) progressContainer.style.display = 'none';
                 if (mainContent) mainContent.style.display = 'block';
                 currentTelemetryData = processed;
+                telemetryIsLoading = false;
+                telemetryDataLoaded = true;
                 initializeConstructorSelection(processed);
 
             } catch (err) {
                 if (fetchId === telemetryFetchId) {
+                    telemetryIsLoading = false;
+                    telemetryDataLoaded = true;
                     if (progressContainer) progressContainer.style.display = 'none';
                     if (errorContainer) {
                         errorContainer.innerHTML = `${err.message} <button type="button" class="btn-filter" style="margin-left:10px;" onclick="switchTelemetryToSeason('2024')">Load 2024 Season</button>`;
@@ -9701,7 +9710,9 @@
             nextRace: null,
             standings: [],
             simPositions: {}, // id -> '0' | '1'..'10' | 'DNF'
-            simFastestLapId: null
+            simFastestLapId: null,
+            isLoading: false,
+            dataLoaded: false
         };
 
         // Fallback data in case API is offline or rate-limited
@@ -9793,7 +9804,27 @@
                 }
 
                 if (attempt < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, currentDelay));
+                    let waitMs = currentDelay;
+                    if (lastError && lastError.status === 429 && lastError.response && lastError.response.headers && typeof lastError.response.headers.get === 'function') {
+                        const retryAfterHeader = lastError.response.headers.get('Retry-After');
+                        if (retryAfterHeader != null && String(retryAfterHeader).trim() !== '') {
+                            const trimmed = String(retryAfterHeader).trim();
+                            const retryAfterSeconds = Number(trimmed);
+                            let retryAfterMs = NaN;
+                            if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
+                                retryAfterMs = Math.round(retryAfterSeconds * 1000);
+                            } else {
+                                const parsedDate = Date.parse(trimmed);
+                                if (Number.isFinite(parsedDate)) {
+                                    retryAfterMs = Math.max(0, parsedDate - Date.now());
+                                }
+                            }
+                            if (Number.isFinite(retryAfterMs)) {
+                                waitMs = Math.min(Math.max(waitMs, retryAfterMs), 10000);
+                            }
+                        }
+                    }
+                    await new Promise(resolve => setTimeout(resolve, waitMs));
                     currentDelay *= 2;
                 }
             }
@@ -9802,6 +9833,7 @@
 
         async function loadClinchEngineData(season, round = 'latest', forceRefresh = false) {
             const mode = clinchState.mode;
+            clinchState.season = String(season || clinchState.season || '2024');
             const cacheKey = `f1_clinch_v1_${season}_${mode}_${round}`;
             const badge = document.getElementById('clinchCacheBadge');
             const errEl = document.getElementById('clinchError');
@@ -9817,6 +9849,8 @@
                                 badge.className = 'cache-badge cached';
                                 badge.textContent = '⚡ Cached (Instant)';
                             }
+                            clinchState.isLoading = false;
+                            clinchState.dataLoaded = true;
                             applyClinchPayload(parsed);
                             return;
                         }
@@ -9826,6 +9860,7 @@
                 }
             }
 
+            clinchState.isLoading = true;
             if (badge) {
                 badge.className = 'cache-badge live';
                 badge.textContent = '🌐 Syncing Jolpica API...';
@@ -9900,6 +9935,8 @@
                 }
 
                 populateClinchRoundDropdown(races, completedRound, round);
+                clinchState.isLoading = false;
+                clinchState.dataLoaded = true;
                 applyClinchPayload(payload);
             } catch (err) {
                 console.warn('Clinch API fallback activated:', err);
@@ -9917,6 +9954,8 @@
                     badge.className = 'cache-badge cached';
                     badge.textContent = '⚡ Offline Telemetry';
                 }
+                clinchState.isLoading = false;
+                clinchState.dataLoaded = true;
                 applyClinchPayload({
                     season,
                     mode,
@@ -10420,7 +10459,9 @@
             scope: 'season',   // 'season' (Full Season GP) | 'weekends' (Sprint Weekends Only)
             sprints: [],
             results: [],
-            standings: []
+            standings: [],
+            isLoading: false,
+            dataLoaded: false
         };
 
         const SPRINT_VENUE_LABELS = {
@@ -10591,10 +10632,18 @@
             const limit = 1000;
 
             while (total === null || offset < total) {
+                if (offset > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
                 const url = `${BASE_URL}/${season}/${endpoint}.json?limit=${limit}&offset=${offset}`;
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status} fetching ${endpoint}`);
-                const data = await resp.json();
+                let data;
+                if (typeof fetchWithRetry === 'function') {
+                    data = await fetchWithRetry(url);
+                } else {
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status} fetching ${endpoint}`);
+                    data = typeof resp.json === 'function' ? await resp.json() : resp;
+                }
                 const mrData = data?.MRData;
                 total = parseInt(mrData?.total || '0', 10);
                 const pageLimit = Math.max(1, parseInt(mrData?.limit || '100', 10) || 100);
@@ -10690,6 +10739,8 @@
                     badge.className = 'cache-badge no-sprint';
                     badge.textContent = 'Sprint format introduced in 2021 — no sprint events for this season';
                 }
+                sprintState.isLoading = false;
+                sprintState.dataLoaded = true;
                 return;
             }
 
@@ -10708,6 +10759,8 @@
                             }
                             if (placeholderEl) placeholderEl.style.display = 'none';
                             if (mainContentEl) mainContentEl.style.display = 'block';
+                            sprintState.isLoading = false;
+                            sprintState.dataLoaded = true;
                             renderSprintVenuePills();
                             renderSprintData();
                             return;
@@ -10718,17 +10771,21 @@
                 }
             }
 
+            sprintState.isLoading = true;
             if (badge) {
                 badge.className = 'cache-badge fetching';
                 badge.textContent = '🌐 Syncing Sprint Telemetry...';
             }
 
             try {
-                const [sprints, results, standingsResp] = await Promise.all([
-                    fetchAllJolpicaPages(season, 'sprint', 'SprintResults'),
-                    fetchAllJolpicaPages(season, 'results', 'Results'),
-                    fetch(`${BASE_URL}/${season}/driverStandings.json`).then(r => r.ok ? r.json() : null)
-                ]);
+                const standingsUrl = `${BASE_URL}/${season}/driverStandings.json`;
+                const sprints = await fetchAllJolpicaPages(season, 'sprint', 'SprintResults');
+                await new Promise(resolve => setTimeout(resolve, 50));
+                const results = await fetchAllJolpicaPages(season, 'results', 'Results');
+                await new Promise(resolve => setTimeout(resolve, 50));
+                const standingsResp = typeof fetchWithRetry === 'function'
+                    ? await fetchWithRetry(standingsUrl).catch(() => null)
+                    : await fetch(standingsUrl).then(r => r.ok ? r.json() : null);
 
                 const standings = standingsResp?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings || [];
 
@@ -10753,6 +10810,8 @@
                             ? 'Sprint format introduced in 2021 — no sprint events for this season'
                             : 'ℹ️ No Sprint Events';
                     }
+                    sprintState.isLoading = false;
+                    sprintState.dataLoaded = true;
                     return;
                 }
 
@@ -10772,10 +10831,14 @@
                     badge.textContent = '⚡ Live Verified';
                 }
 
+                sprintState.isLoading = false;
+                sprintState.dataLoaded = true;
                 renderSprintVenuePills();
                 renderSprintData();
             } catch (err) {
                 console.warn('Sprint API fallback activated:', err);
+                sprintState.isLoading = false;
+                sprintState.dataLoaded = true;
                 if (sprintDisparityChartInstance) {
                     sprintDisparityChartInstance.destroy();
                     sprintDisparityChartInstance = null;
@@ -11366,6 +11429,7 @@
             races: [],
             excludeOutliers: true,
             isLoading: false,
+            dataLoaded: false,
             requestId: 0
         };
 
@@ -11454,6 +11518,7 @@
                     badge.className = 'cache-badge no-pitstop';
                     badge.textContent = 'ℹ️ No Timing (Pre-2012)';
                 }
+                pitStopState.dataLoaded = true;
                 return;
             }
 
@@ -11476,6 +11541,8 @@
                         badge.className = 'cache-badge cached';
                         badge.textContent = '⚡ Cached (Instant)';
                     }
+                    pitStopState.isLoading = false;
+                    pitStopState.dataLoaded = true;
                     renderPitStopRoundOptions();
                     renderPitStopTelemetry();
                     return;
@@ -11526,6 +11593,7 @@
                 }
                 renderPitStopRoundOptions();
                 renderPitStopTelemetry();
+                pitStopState.dataLoaded = true;
             } catch (err) {
                 if (requestId !== pitStopState.requestId) return;
                 console.error('Pit stop telemetry load failed:', err);
@@ -11549,6 +11617,7 @@
                 }
                 renderPitStopRoundOptions();
                 renderPitStopTelemetry();
+                pitStopState.dataLoaded = true;
             } finally {
                 if (requestId === pitStopState.requestId) {
                     pitStopState.isLoading = false;
@@ -12246,7 +12315,8 @@
             trajectories: {},
             rounds: [],
             hiddenTeams: new Set(),
-            isLoading: false
+            isLoading: false,
+            dataLoaded: false
         };
 
         function getAtrTierInfo(rank) {
@@ -12625,6 +12695,8 @@
                                 badge.className = 'cache-badge cached';
                                 badge.textContent = '⚡ Cached (Instant)';
                             }
+                            constructorAtrState.isLoading = false;
+                            constructorAtrState.dataLoaded = true;
                             renderConstructorAtrView();
                             return constructorAtrState;
                         }
@@ -12643,9 +12715,11 @@
 
             try {
                 const seasonNum = parseInt(season, 10);
-                const standingsPromise = fetch(`${BASE_URL}/${season}/constructorStandings.json`)
-                    .then(r => r.ok ? r.json() : null)
-                    .catch(() => null);
+                const standingsUrl = `${BASE_URL}/${season}/constructorStandings.json`;
+                const standingsPromise = (typeof fetchWithRetry === 'function'
+                    ? fetchWithRetry(standingsUrl)
+                    : fetch(standingsUrl).then(r => r.ok ? r.json() : null)
+                ).catch(() => null);
 
                 const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
                     ? fetchAllJolpicaPages(season, 'results', 'Results').catch(() => [])
@@ -12733,6 +12807,7 @@
                 constructorAtrState.trajectories = trajectories;
                 constructorAtrState.rounds = rounds;
                 constructorAtrState.isLoading = false;
+                constructorAtrState.dataLoaded = true;
 
                 if (storage && standings.length > 0) {
                     try {
@@ -12754,6 +12829,7 @@
             } catch (err) {
                 console.warn('Error loading Constructor ATR data:', err);
                 constructorAtrState.isLoading = false;
+                constructorAtrState.dataLoaded = true;
                 if (badge) {
                     badge.className = 'cache-badge no-data';
                     badge.textContent = '⚠️ Data Unavailable';
@@ -12788,6 +12864,7 @@
             metrics: null,
             hiddenTeams: new Set(),
             isLoading: false,
+            dataLoaded: false,
             error: null
         };
 
@@ -13141,6 +13218,8 @@
                                 badge.className = 'cache-badge cached';
                                 badge.textContent = '⚡ Cached Telemetry';
                             }
+                            constructorMomentumState.isLoading = false;
+                            constructorMomentumState.dataLoaded = true;
                             renderConstructorMomentumView();
                             return constructorMomentumState;
                         }
@@ -13220,11 +13299,14 @@
                     }
                 }
 
+                constructorMomentumState.isLoading = false;
+                constructorMomentumState.dataLoaded = true;
                 renderConstructorMomentumView();
                 return constructorMomentumState;
             } catch (err) {
                 console.warn('Error loading Constructor Momentum data:', err);
                 constructorMomentumState.isLoading = false;
+                constructorMomentumState.dataLoaded = true;
 
                 if (seasonStr === '2024') {
                     const metrics = computeConstructorMomentumMetrics(CONSTRUCTOR_MOMENTUM_FALLBACK_2024);
@@ -13731,7 +13813,8 @@
             circuits: [],
             metrics: null,
             hiddenTeams: new Set(),
-            isLoading: false
+            isLoading: false,
+            dataLoaded: false
         };
 
         function getCircuitArchetype(circuitId, raceName = '') {
@@ -14393,6 +14476,8 @@
                                 badge.className = 'cache-badge cached';
                                 badge.textContent = '⚡ Cached (Instant)';
                             }
+                            circuitProfilerState.isLoading = false;
+                            circuitProfilerState.dataLoaded = true;
                             renderProfilerView();
                             return circuitProfilerState;
                         }
@@ -14410,9 +14495,11 @@
             circuitProfilerState.isLoading = true;
 
             try {
-                const standingsPromise = fetch(`${BASE_URL}/${season}/constructorStandings.json`)
-                    .then(r => r.ok ? r.json() : null)
-                    .catch(() => null);
+                const standingsUrl = `${BASE_URL}/${season}/constructorStandings.json`;
+                const standingsPromise = (typeof fetchWithRetry === 'function'
+                    ? fetchWithRetry(standingsUrl)
+                    : fetch(standingsUrl).then(r => r.ok ? r.json() : null)
+                ).catch(() => null);
 
                 const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
                     ? fetchAllJolpicaPages(season, 'results', 'Results').catch(() => [])
@@ -14435,6 +14522,7 @@
                 circuitProfilerState.metrics = metrics;
                 circuitProfilerState.circuits = metrics.circuits || [];
                 circuitProfilerState.isLoading = false;
+                circuitProfilerState.dataLoaded = true;
 
                 if (storage && metrics && metrics.teams && metrics.teams.length > 0) {
                     try {
@@ -14452,6 +14540,7 @@
             } catch (err) {
                 console.warn('Error loading Circuit Profiler data:', err);
                 circuitProfilerState.isLoading = false;
+                circuitProfilerState.dataLoaded = true;
                 circuitProfilerState.metrics = CIRCUIT_PROFILER_FALLBACK_2024;
                 circuitProfilerState.circuits = CIRCUIT_PROFILER_FALLBACK_2024.circuits;
 
@@ -14583,7 +14672,8 @@
             venueRound: 'all',
             results: [],
             metrics: null,
-            isLoading: false
+            isLoading: false,
+            dataLoaded: false
         };
 
         function parseFinishingTimeToSeconds(timeStr, millis, winnerMillis) {
@@ -14905,6 +14995,7 @@
                         finishingGapState.results = parsed.results || [];
                         finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope);
                         finishingGapState.isLoading = false;
+                        finishingGapState.dataLoaded = true;
 
                         if (badge) {
                             badge.className = 'cache-badge cached';
@@ -14938,6 +15029,7 @@
                 finishingGapState.results = results;
                 finishingGapState.metrics = computeFinishingGapMetrics(results, finishingGapState.scope);
                 finishingGapState.isLoading = false;
+                finishingGapState.dataLoaded = true;
 
                 if (typeof localStorage !== 'undefined') {
                     try {
@@ -14955,6 +15047,7 @@
             } catch (err) {
                 console.warn('Error loading Finishing Gap data from Jolpica:', err);
                 finishingGapState.isLoading = false;
+                finishingGapState.dataLoaded = true;
                 finishingGapState.results = [];
                 finishingGapState.metrics = computeFinishingGapMetrics([], finishingGapState.scope);
 
@@ -15415,7 +15508,8 @@
             seasonLapsLed: null,
             driverVisibility: {},
             chartInstance: null,
-            isLoading: false
+            isLoading: false,
+            dataLoaded: false
         };
 
         function cleanRetirementTruncation(positions, retirementLap) {
@@ -15768,12 +15862,20 @@
             const limit = 1000;
 
             while (total === null || offset < total) {
-                const url = `${BASE_URL}/${seasonStr}/results.json?limit=${limit}&offset=${offset}`;
-                const resp = await fetch(url);
-                if (!resp.ok) {
-                    throw new Error(`HTTP ${resp.status} fetching season results for ${seasonStr}`);
+                if (offset > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
                 }
-                const data = await resp.json();
+                const url = `${BASE_URL}/${seasonStr}/results.json?limit=${limit}&offset=${offset}`;
+                let data;
+                if (typeof fetchWithRetry === 'function') {
+                    data = await fetchWithRetry(url);
+                } else {
+                    const resp = await fetch(url);
+                    if (!resp.ok) {
+                        throw new Error(`HTTP ${resp.status} fetching season results for ${seasonStr}`);
+                    }
+                    data = typeof resp.json === 'function' ? await resp.json() : resp;
+                }
                 const mrData = data?.MRData;
                 total = parseInt(mrData?.total || '0', 10);
                 const pageLimit = Math.max(1, parseInt(mrData?.limit || '100', 10) || 100);
@@ -15802,11 +15904,16 @@
             const seasonStr = String(season);
             const roundStr = String(round);
             const url = `${BASE_URL}/${seasonStr}/${roundStr}/laps.json?limit=2000`;
-            const resp = await fetch(url);
-            if (!resp.ok) {
-                throw new Error(`HTTP ${resp.status} fetching laps for season ${seasonStr} round ${roundStr}`);
+            let data;
+            if (typeof fetchWithRetry === 'function') {
+                data = await fetchWithRetry(url);
+            } else {
+                const resp = await fetch(url);
+                if (!resp.ok) {
+                    throw new Error(`HTTP ${resp.status} fetching laps for season ${seasonStr} round ${roundStr}`);
+                }
+                data = typeof resp.json === 'function' ? await resp.json() : resp;
             }
-            const data = await resp.json();
             const mrData = data?.MRData;
             let laps = mrData?.RaceTable?.Races?.[0]?.Laps || [];
             const total = parseInt(mrData?.total || '0', 10);
@@ -15814,10 +15921,20 @@
             let offset = limit;
 
             while (offset < total) {
+                await new Promise(resolve => setTimeout(resolve, 100));
                 const nextUrl = `${BASE_URL}/${seasonStr}/${roundStr}/laps.json?limit=2000&offset=${offset}`;
-                const nextResp = await fetch(nextUrl);
-                if (!nextResp.ok) break;
-                const nextData = await nextResp.json();
+                let nextData;
+                try {
+                    if (typeof fetchWithRetry === 'function') {
+                        nextData = await fetchWithRetry(nextUrl);
+                    } else {
+                        const nextResp = await fetch(nextUrl);
+                        if (!nextResp.ok) break;
+                        nextData = typeof nextResp.json === 'function' ? await nextResp.json() : nextResp;
+                    }
+                } catch (e) {
+                    break;
+                }
                 const nextLaps = nextData?.MRData?.RaceTable?.Races?.[0]?.Laps || [];
                 nextLaps.forEach(nl => {
                     const existing = laps.find(l => String(l.number) === String(nl.number));
@@ -15835,7 +15952,7 @@
                 });
                 const pageLimit = parseInt(nextData?.MRData?.limit || '100', 10);
                 offset += pageLimit;
-                if (pageLimit <= 0) break;
+                if (pageLimit <= 0 || nextLaps.length === 0) break;
             }
 
             laps.sort((a, b) => parseInt(a.number, 10) - parseInt(b.number, 10));
@@ -16106,24 +16223,36 @@
                     return emptyData;
                 }
 
-                // Query laps for each round in parallel
-                const roundPromises = races.map(async (race) => {
+                // Query laps sequentially with pacing to avoid Jolpica rate-limit bursts
+                const roundResults = [];
+                let networkFetchCount = 0;
+                for (const race of races) {
                     const rnd = String(race.round);
                     const cacheKeyLaps = `f1_laps_${seasonStr}_${rnd}`;
                     if (lapChartState.seasonLapsByRound && lapChartState.seasonLapsByRound[rnd] && lapChartState.seasonLapsByRound[rnd].length > 0) {
-                        return { round: rnd, laps: lapChartState.seasonLapsByRound[rnd] };
+                        roundResults.push({ round: rnd, laps: lapChartState.seasonLapsByRound[rnd] });
+                        continue;
                     }
+                    let cachedLaps = null;
                     if (typeof localStorage !== 'undefined') {
                         try {
                             const cached = localStorage.getItem(cacheKeyLaps);
                             if (cached) {
                                 const parsed = JSON.parse(cached);
                                 if (Array.isArray(parsed) && parsed.length > 0) {
-                                    return { round: rnd, laps: parsed };
+                                    cachedLaps = parsed;
                                 }
                             }
                         } catch (e) {}
                     }
+                    if (cachedLaps) {
+                        roundResults.push({ round: rnd, laps: cachedLaps });
+                        continue;
+                    }
+                    if (networkFetchCount > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 60));
+                    }
+                    networkFetchCount++;
                     try {
                         const laps = await fetchLapPositions(seasonStr, rnd);
                         if (Array.isArray(laps) && laps.length > 0) {
@@ -16132,15 +16261,15 @@
                                     localStorage.setItem(cacheKeyLaps, JSON.stringify(laps));
                                 } catch (e) {}
                             }
-                            return { round: rnd, laps };
+                            roundResults.push({ round: rnd, laps });
+                            continue;
                         }
                     } catch (err) {
                         console.warn(`Error fetching laps for ${seasonStr} round ${rnd}:`, err);
                     }
-                    return { round: rnd, laps: [] };
-                });
+                    roundResults.push({ round: rnd, laps: [] });
+                }
 
-                const roundResults = await Promise.all(roundPromises);
                 roundResults.forEach(res => {
                     if (res.laps && res.laps.length > 0) {
                         lapChartState.seasonLapsByRound[res.round] = res.laps;
@@ -16465,6 +16594,8 @@
                             badge.className = 'cache-badge cached';
                             badge.textContent = '⚡ Cached Telemetry';
                         }
+                        lapChartState.isLoading = false;
+                        lapChartState.dataLoaded = true;
                         return lapChartState;
                     }
                 } catch (e) {
@@ -16502,18 +16633,18 @@
                 let currentRace = races.find(r => String(r.round) === roundStr);
                 if (!currentRace) {
                     try {
-                        const roundResp = await fetch(`${BASE_URL}/${seasonStr}/${roundStr}/results.json`);
-                        if (roundResp.ok) {
-                            const roundData = await roundResp.json();
-                            const roundRaces = roundData?.MRData?.RaceTable?.Races;
-                            if (Array.isArray(roundRaces) && roundRaces.length > 0) {
-                                currentRace = roundRaces[0];
-                                if (!races.some(r => String(r.round) === roundStr)) {
-                                    races.push(currentRace);
-                                    races.sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
-                                    lapChartState.seasonResults = races;
-                                    lapChartState.resultsData = races;
-                                }
+                        const roundUrl = `${BASE_URL}/${seasonStr}/${roundStr}/results.json`;
+                        const roundData = (typeof fetchWithRetry === 'function')
+                            ? await fetchWithRetry(roundUrl)
+                            : await fetch(roundUrl).then(r => r.ok ? r.json() : null);
+                        const roundRaces = roundData?.MRData?.RaceTable?.Races;
+                        if (Array.isArray(roundRaces) && roundRaces.length > 0) {
+                            currentRace = roundRaces[0];
+                            if (!races.some(r => String(r.round) === roundStr)) {
+                                races.push(currentRace);
+                                races.sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+                                lapChartState.seasonResults = races;
+                                lapChartState.resultsData = races;
                             }
                         }
                     } catch (e) {}
@@ -16556,6 +16687,7 @@
                     badge.className = 'cache-badge cached';
                     badge.textContent = '⚡ Live Telemetry';
                 }
+                lapChartState.dataLoaded = true;
                 return lapChartState;
             } catch (err) {
                 console.warn('Error loading lap telemetry:', err);
@@ -16577,6 +16709,7 @@
                     badge.className = 'cache-badge no-data';
                     badge.textContent = '⚠️ Live Telemetry Offline';
                 }
+                lapChartState.dataLoaded = true;
                 return lapChartState;
             }
         }
@@ -17282,7 +17415,8 @@
             viewScope: 'constructors',
             excludeReserves: false,
             metrics: null,
-            loading: false
+            loading: false,
+            dataLoaded: false
         };
 
         let reliabilityChartInstance = null;
@@ -17514,6 +17648,7 @@
                         const parsed = JSON.parse(cached);
                         reliabilityState.metrics = parsed;
                         reliabilityState.loading = false;
+                        reliabilityState.dataLoaded = true;
                         renderReliabilityView(parsed);
                         return parsed;
                     }
@@ -17552,9 +17687,11 @@
                 }
 
                 renderReliabilityView(metrics);
+                reliabilityState.dataLoaded = true;
                 return metrics;
             } catch (err) {
                 console.warn('Error loading reliability data:', err);
+                reliabilityState.dataLoaded = true;
                 if (seasonStr === '2024') {
                     reliabilityState.metrics = RELIABILITY_FALLBACK_2024;
                     renderReliabilityView(RELIABILITY_FALLBACK_2024);
@@ -17996,6 +18133,8 @@
             cache: {},
             scheduleCache: {},
             loadRequestId: 0,
+            isLoading: false,
+            dataLoaded: false,
             inferredPitStops: false,
             resultsData: null,
             pitStopsData: null,
@@ -18518,6 +18657,7 @@
 
             stintDegradationState.season = seasonStr;
             stintDegradationState.round = roundStr;
+            stintDegradationState.isLoading = true;
 
             // Populate the round selector from the season schedule (/{season}/races.json)
             const schedule = await fetchStintSeasonSchedule(seasonStr, forceRefresh);
@@ -18552,6 +18692,8 @@
                     }
                 );
                 stintDegradationState.inferredPitStops = stintDegradationState.processedMetrics.inferredPitStops;
+                stintDegradationState.isLoading = false;
+                stintDegradationState.dataLoaded = true;
                 renderStintDegradationView(stintDegradationState.processedMetrics);
                 return stintDegradationState.processedMetrics;
             }
@@ -18581,6 +18723,7 @@
                     let offset = limit;
 
                     while (offset < total) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
                         const nextUrl = `${BASE_URL}/${seasonStr}/${roundStr}/laps.json?limit=2000&offset=${offset}`;
                         const nextPage = await fetchWithRetry(nextUrl).catch(() => null);
                         if (!nextPage) break;
@@ -18658,12 +18801,16 @@
 
                 stintDegradationState.processedMetrics = metrics;
                 stintDegradationState.inferredPitStops = metrics.inferredPitStops;
+                stintDegradationState.isLoading = false;
+                stintDegradationState.dataLoaded = true;
 
                 renderStintDegradationView(metrics);
                 return metrics;
             } catch (err) {
                 console.warn('Error loading stint degradation data:', err);
                 if (isStale()) return null;
+                stintDegradationState.isLoading = false;
+                stintDegradationState.dataLoaded = true;
                 if (seasonStr === '2024' && roundStr === '1') {
                     const fallbackMetrics = processStintDegradationData(
                         STINT_DEGRADATION_FALLBACK_2024.resultsData,
@@ -21328,6 +21475,11 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadLapTelemetry === 'function' && typeof lapChartState !== 'undefined' && !lapChartState.dataLoaded && !lapChartState.isLoading && !lapChartState.chartInstance) {
+                    const lapSeason = (typeof document !== 'undefined' && document.getElementById('lapSeasonSelect')?.value) || lapChartState.season || '2024';
+                    const lapRound = (typeof document !== 'undefined' && document.getElementById('lapRoundSelect')?.value) || lapChartState.round || '1';
+                    loadLapTelemetry(lapSeason, lapRound, false);
+                }
             } else if (tabId === 'stints' || tabId === 'degradation') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'block';
@@ -21343,6 +21495,11 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadStintDegradationData === 'function' && typeof stintDegradationState !== 'undefined' && !stintDegradationState.dataLoaded && !stintDegradationState.isLoading && !stintDegradationState.degradationChartInstance) {
+                    const stintSeason = (typeof document !== 'undefined' && document.getElementById('stintSeasonSelect')?.value) || stintDegradationState.season || '2024';
+                    const stintRound = (typeof document !== 'undefined' && document.getElementById('stintRoundSelect')?.value) || stintDegradationState.round || '1';
+                    loadStintDegradationData(stintSeason, stintRound, false);
+                }
             } else if (tabId === 'finishing-gap') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21358,6 +21515,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadFinishingGapData === 'function' && typeof finishingGapState !== 'undefined' && !finishingGapState.dataLoaded && !finishingGapState.isLoading && !finishingGapState.metrics) {
+                    const gapSeason = (typeof document !== 'undefined' && document.getElementById('finishingGapSeasonSelect')?.value) || finishingGapState.season || '2024';
+                    loadFinishingGapData(gapSeason, false);
+                }
             } else if (tabId === 'profiler') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21373,6 +21534,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadProfilerData === 'function' && typeof circuitProfilerState !== 'undefined' && !circuitProfilerState.dataLoaded && !circuitProfilerState.isLoading && !circuitProfilerState.metrics) {
+                    const profilerSeason = (typeof document !== 'undefined' && document.getElementById('profilerSeasonSelect')?.value) || circuitProfilerState.season || '2024';
+                    loadProfilerData(profilerSeason, false);
+                }
             } else if (tabId === 'constructors') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21388,6 +21553,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadConstructorAtrData === 'function' && typeof constructorAtrState !== 'undefined' && !constructorAtrState.dataLoaded && !constructorAtrState.isLoading && (!constructorAtrState.standings || constructorAtrState.standings.length === 0)) {
+                    const constructorSeason = (typeof document !== 'undefined' && document.getElementById('constructorSeasonSelect')?.value) || constructorAtrState.season || '2024';
+                    loadConstructorAtrData(constructorSeason, false);
+                }
             } else if (tabId === 'momentum') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21403,6 +21572,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadConstructorMomentumData === 'function' && typeof constructorMomentumState !== 'undefined' && !constructorMomentumState.dataLoaded && !constructorMomentumState.isLoading && !constructorMomentumState.metrics) {
+                    const momentumSeason = (typeof document !== 'undefined' && document.getElementById('momentumSeasonSelect')?.value) || constructorMomentumState.season || '2024';
+                    loadConstructorMomentumData(momentumSeason, false);
+                }
             } else if (tabId === 'sprint') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21418,6 +21591,13 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                const sprintLoader = typeof loadSprintDisparityData === 'function'
+                    ? loadSprintDisparityData
+                    : (typeof loadSprintData === 'function' ? loadSprintData : null);
+                if (sprintLoader && typeof sprintState !== 'undefined' && !sprintState.dataLoaded && !sprintState.isLoading && (!sprintState.sprints || sprintState.sprints.length === 0)) {
+                    const sprintSeason = (typeof document !== 'undefined' && document.getElementById('sprintSeasonSelect')?.value) || sprintState.season || '2024';
+                    sprintLoader(sprintSeason, false);
+                }
             } else if (tabId === 'clinch') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21433,6 +21613,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadClinchEngineData === 'function' && typeof clinchState !== 'undefined' && !clinchState.dataLoaded && !clinchState.isLoading && (!clinchState.standings || clinchState.standings.length === 0)) {
+                    const clinchSeason = (typeof document !== 'undefined' && document.getElementById('clinchSeasonSelect')?.value) || clinchState.season || '2024';
+                    loadClinchEngineData(clinchSeason, clinchState.round || 'latest', false);
+                }
             } else if (tabId === 'pitstops') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21448,6 +21632,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadPitStopTelemetry === 'function' && typeof pitStopState !== 'undefined' && !pitStopState.dataLoaded && !pitStopState.isLoading && (!pitStopState.pitstops || pitStopState.pitstops.length === 0)) {
+                    const pitSeason = (typeof document !== 'undefined' && document.getElementById('pitStopSeasonSelect')?.value) || pitStopState.season || '2024';
+                    loadPitStopTelemetry(pitSeason, false);
+                }
             } else if (tabId === 'reliability') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21464,6 +21652,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadReliabilityData === 'function' && typeof reliabilityState !== 'undefined' && !reliabilityState.dataLoaded && !reliabilityState.loading && !reliabilityState.metrics) {
+                    const relSeason = (typeof document !== 'undefined' && document.getElementById('reliabilitySeasonSelect')?.value) || reliabilityState.season || '2024';
+                    loadReliabilityData(relSeason, false);
+                }
             } else if (tabId === 'qualifying') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21480,7 +21672,7 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
-                if (typeof loadQualifyingCorrelationData === 'function' && !qualifyingCorrelationState.dataLoaded && !qualifyingCorrelationState.loading) {
+                if (typeof loadQualifyingCorrelationData === 'function' && typeof qualifyingCorrelationState !== 'undefined' && !qualifyingCorrelationState.dataLoaded && !qualifyingCorrelationState.loading) {
                     loadQualifyingCorrelationData(qualifyingCorrelationState.season);
                 }
             } else if (tabId === 'overtake' || tabId === 'overtake-index' || tabId === 'grid-delta') {
@@ -21500,7 +21692,7 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
-                if (typeof loadOvertakeIndexData === 'function' && !overtakeIndexState.dataLoaded && !overtakeIndexState.loading) {
+                if (typeof loadOvertakeIndexData === 'function' && typeof overtakeIndexState !== 'undefined' && !overtakeIndexState.dataLoaded && !overtakeIndexState.loading) {
                     loadOvertakeIndexData(overtakeIndexState.season);
                 }
             } else if (tabId === 'telemetry') {
@@ -21519,6 +21711,10 @@
                 if (progressionSec) progressionSec.style.display = 'none';
                 if (latestRaceSec) latestRaceSec.style.display = 'none';
                 if (standingsTableSec) standingsTableSec.style.display = 'none';
+                if (typeof loadTelemetrySeason === 'function' && (typeof telemetryDataLoaded === 'undefined' || !telemetryDataLoaded) && (typeof telemetryIsLoading === 'undefined' || !telemetryIsLoading) && (typeof currentTelemetryData === 'undefined' || !currentTelemetryData)) {
+                    const telSeason = (typeof document !== 'undefined' && document.getElementById('telemetrySeasonSelect')?.value) || (typeof currentTelemetrySeason !== 'undefined' ? currentTelemetrySeason : '2024') || '2024';
+                    loadTelemetrySeason(telSeason, false);
+                }
             } else if (tabId === 'progression') {
                 if (lapChartSec) lapChartSec.style.display = 'none';
                 if (stintSec) stintSec.style.display = 'none';
@@ -21683,75 +21879,89 @@
                 });
             }
 
+            // Defer inactive tab API fetches until switchMainTab activates each tab;
+            // only populate static dropdowns and sync any pre-selected non-empty values.
             const telemetrySeasonSelect = document.getElementById('telemetrySeasonSelect');
-            if (telemetrySeasonSelect) {
-                loadTelemetrySeason(telemetrySeasonSelect.value);
+            if (telemetrySeasonSelect && telemetrySeasonSelect.value && typeof currentTelemetrySeason !== 'undefined') {
+                currentTelemetrySeason = String(telemetrySeasonSelect.value);
             }
 
             const clinchSeasonSelect = document.getElementById('clinchSeasonSelect');
-            if (clinchSeasonSelect) {
-                loadClinchEngineData(clinchSeasonSelect.value, 'latest', false);
+            if (clinchSeasonSelect && clinchSeasonSelect.value && typeof clinchState !== 'undefined') {
+                clinchState.season = String(clinchSeasonSelect.value);
             }
 
             const sprintSeasonSelect = document.getElementById('sprintSeasonSelect');
-            if (sprintSeasonSelect) {
-                loadSprintDisparityData(sprintSeasonSelect.value, false);
+            if (sprintSeasonSelect && sprintSeasonSelect.value && typeof sprintState !== 'undefined') {
+                sprintState.season = String(sprintSeasonSelect.value);
             }
 
             const constructorSeasonSelect = document.getElementById('constructorSeasonSelect');
-            if (constructorSeasonSelect) {
-                loadConstructorAtrData(constructorSeasonSelect.value, false);
+            if (constructorSeasonSelect && constructorSeasonSelect.value && typeof constructorAtrState !== 'undefined') {
+                constructorAtrState.season = String(constructorSeasonSelect.value);
             }
 
             const momentumSeasonSelect = document.getElementById('momentumSeasonSelect');
-            if (momentumSeasonSelect) {
-                loadConstructorMomentumData(momentumSeasonSelect.value, false);
+            if (momentumSeasonSelect && momentumSeasonSelect.value && typeof constructorMomentumState !== 'undefined') {
+                constructorMomentumState.season = String(momentumSeasonSelect.value);
             }
 
             const pitStopSeasonSelect = document.getElementById('pitStopSeasonSelect');
-            if (pitStopSeasonSelect) {
-                loadPitStopTelemetry(pitStopSeasonSelect.value, false);
+            if (pitStopSeasonSelect && pitStopSeasonSelect.value && typeof pitStopState !== 'undefined') {
+                pitStopState.season = String(pitStopSeasonSelect.value);
             }
 
             const finishingGapSeasonSelect = document.getElementById('finishingGapSeasonSelect');
-            if (finishingGapSeasonSelect) {
-                loadFinishingGapData(finishingGapSeasonSelect.value, false);
+            if (finishingGapSeasonSelect && finishingGapSeasonSelect.value && typeof finishingGapState !== 'undefined') {
+                finishingGapState.season = String(finishingGapSeasonSelect.value);
             }
 
             const profilerSeasonSelect = document.getElementById('profilerSeasonSelect');
-            if (profilerSeasonSelect) {
-                loadProfilerData(profilerSeasonSelect.value, false);
+            if (profilerSeasonSelect && profilerSeasonSelect.value && typeof circuitProfilerState !== 'undefined') {
+                circuitProfilerState.season = String(profilerSeasonSelect.value);
             }
 
             const lapSeasonSelect = document.getElementById('lapSeasonSelect');
-            if (lapSeasonSelect) {
+            if (lapSeasonSelect && typeof lapChartState !== 'undefined') {
+                if (lapSeasonSelect.value) {
+                    lapChartState.season = String(lapSeasonSelect.value);
+                }
                 const roundSelect = document.getElementById('lapRoundSelect');
-                const roundVal = roundSelect ? roundSelect.value : '1';
-                loadLapTelemetry(lapSeasonSelect.value, roundVal, false);
+                if (roundSelect && roundSelect.value) {
+                    lapChartState.round = String(roundSelect.value);
+                }
             }
 
             const reliabilitySeasonSelect = document.getElementById('reliabilitySeasonSelect');
-            if (reliabilitySeasonSelect) {
-                loadReliabilityData(reliabilitySeasonSelect.value, false);
+            if (reliabilitySeasonSelect && reliabilitySeasonSelect.value && typeof reliabilityState !== 'undefined') {
+                reliabilityState.season = String(reliabilitySeasonSelect.value);
             }
 
             const stintSeasonSelect = document.getElementById('stintSeasonSelect');
-            if (stintSeasonSelect) {
+            if (stintSeasonSelect && typeof stintDegradationState !== 'undefined') {
+                if (stintSeasonSelect.value) {
+                    stintDegradationState.season = String(stintSeasonSelect.value);
+                }
                 const roundSelect = document.getElementById('stintRoundSelect');
-                const roundVal = roundSelect ? roundSelect.value : '1';
-                loadStintDegradationData(stintSeasonSelect.value, roundVal, false);
+                if (roundSelect && roundSelect.value) {
+                    stintDegradationState.round = String(roundSelect.value);
+                }
             }
 
             const qualifyingSeasonSelect = document.getElementById('qualifyingSeasonSelect');
             if (qualifyingSeasonSelect) {
                 populateQualifyingSeasonDropdown();
-                loadQualifyingCorrelationData(qualifyingSeasonSelect.value || '2024', false);
+                if (qualifyingSeasonSelect.value && typeof qualifyingCorrelationState !== 'undefined') {
+                    qualifyingCorrelationState.season = String(qualifyingSeasonSelect.value);
+                }
             }
 
             const overtakeSeasonSelect = document.getElementById('overtakeSeasonSelect');
             if (overtakeSeasonSelect) {
                 populateOvertakeSeasonDropdown();
-                loadOvertakeIndexData(overtakeSeasonSelect.value || '2024', false);
+                if (overtakeSeasonSelect.value && typeof overtakeIndexState !== 'undefined') {
+                    overtakeIndexState.season = String(overtakeSeasonSelect.value);
+                }
             }
         });
 
