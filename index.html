@@ -1347,6 +1347,169 @@
             margin-top: 2px;
         }
 
+        .teammate-h2h-overview-block {
+            margin-top: 24px;
+            background: rgba(13, 17, 23, 0.72);
+            border: 1px solid #232738;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .teammate-h2h-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 14px;
+        }
+
+        .teammate-h2h-card {
+            background: linear-gradient(180deg, #131926 0%, #0d1117 100%);
+            border: 1px solid #232738;
+            border-left: 3px solid var(--team-color, #00D2BE);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .teammate-h2h-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 8px;
+        }
+
+        .teammate-h2h-team {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .teammate-h2h-team-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--team-color, #00D2BE);
+            box-shadow: 0 0 8px var(--team-color, #00D2BE);
+            flex-shrink: 0;
+        }
+
+        .teammate-h2h-rounds-badge {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 2px 8px;
+            white-space: nowrap;
+        }
+
+        .teammate-h2h-drivers {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teammate-h2h-driver-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .teammate-h2h-driver-col.right {
+            text-align: right;
+            align-items: flex-end;
+        }
+
+        .teammate-h2h-driver-code {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .teammate-h2h-driver-name {
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .teammate-h2h-driver-pts {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: #94a3b8;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .teammate-h2h-vs {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .teammate-h2h-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .teammate-h2h-stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .teammate-h2h-stat-label {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 2px;
+        }
+
+        .teammate-h2h-stat-val {
+            font-family: var(--font-mono);
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: #f8fafc;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .teammate-h2h-stat-sub {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .teammate-h2h-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 28px 16px;
+            border: 1px dashed #2e3446;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            background: rgba(15, 20, 30, 0.5);
+        }
+
         @media (max-width: 900px) {
             .driver-duo-hero {
                 grid-template-columns: 1fr;
@@ -1358,6 +1521,9 @@
                 text-align: left !important;
             }
             .telemetry-charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .teammate-h2h-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -7150,6 +7316,15 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- All-Constructor Teammate Head-to-Head Summary Cards (Issue #31) -->
+                <div class="teammate-h2h-overview-block">
+                    <div class="bilateral-header-bar" style="margin-bottom: 14px;">
+                        <h3>Season Teammate Head-to-Head Summary (All Active Constructor Pairings)</h3>
+                        <span class="chart-subtitle-tag">Round-by-Round Active Pairings • Includes Mid-Season Swaps &amp; Reserve Substitutions</span>
+                    </div>
+                    <div id="teammateH2HContainer" class="teammate-h2h-grid"></div>
+                </div>
             </div>
         </section>
 
@@ -8318,8 +8493,10 @@
 
         function mergeRacesByRound(raceList, resultKey) {
             const roundMap = {};
-            raceList.forEach(race => {
-                const rnd = parseInt(race.round, 10);
+            (Array.isArray(raceList) ? raceList : []).forEach((race, idx) => {
+                if (!race) return;
+                const parsedRnd = parseInt(race.round, 10);
+                const rnd = Number.isFinite(parsedRnd) ? parsedRnd : (idx + 1);
                 if (!roundMap[rnd]) {
                     let shortName = (race.raceName || '')
                         .replace(/Grand Prix/i, '')
@@ -8328,14 +8505,17 @@
                     roundMap[rnd] = {
                         season: race.season,
                         round: rnd,
-                        raceName: race.raceName,
+                        raceName: race.raceName || `Round ${rnd}`,
                         shortName: shortName || `R${rnd}`,
                         date: race.date,
                         [resultKey]: []
                     };
                 }
-                const items = race[resultKey] || [];
-                roundMap[rnd][resultKey].push(...items);
+                const altKey = resultKey === 'Results' ? 'results' : 'qualifyingResults';
+                const items = race[resultKey] || race[altKey] || [];
+                if (Array.isArray(items) && items.length > 0) {
+                    roundMap[rnd][resultKey].push(...items);
+                }
             });
             return Object.values(roundMap).sort((a, b) => a.round - b.round);
         }
@@ -8352,7 +8532,7 @@
 
             if (errorContainer) errorContainer.style.display = 'none';
 
-            if (!forceRefresh) {
+            if (!forceRefresh && typeof localStorage !== 'undefined') {
                 const cachedRaw = localStorage.getItem(cacheKey);
                 if (cachedRaw) {
                     try {
@@ -8418,7 +8598,9 @@
                 const processed = processSeasonTelemetry(season, qualRounds, resRounds);
 
                 try {
-                    localStorage.setItem(cacheKey, JSON.stringify(processed));
+                    if (typeof localStorage !== 'undefined') {
+                        localStorage.setItem(cacheKey, JSON.stringify(processed));
+                    }
                     if (cacheBadge) {
                         cacheBadge.className = 'cache-badge cached';
                         cacheBadge.textContent = '⚡ Cached (Instant)';
@@ -8443,6 +8625,7 @@
                         errorContainer.style.display = 'block';
                     }
                     if (cacheBadge) cacheBadge.textContent = '⚠️ Unavailable';
+                    renderTeammateH2H([]);
                 }
             }
         }
@@ -8453,15 +8636,19 @@
             loadTelemetrySeason(season);
         }
 
+        function getTelemetryPairKey(driverIdA, driverIdB) {
+            return driverIdA < driverIdB ? `${driverIdA}::${driverIdB}` : `${driverIdB}::${driverIdA}`;
+        }
+
         function processSeasonTelemetry(season, qualRounds, resRounds) {
             const allRoundNums = new Set();
             const roundMetaMap = {};
 
-            qualRounds.forEach(r => {
+            (qualRounds || []).forEach(r => {
                 allRoundNums.add(r.round);
                 roundMetaMap[r.round] = { round: r.round, raceName: r.raceName, shortName: r.shortName, date: r.date };
             });
-            resRounds.forEach(r => {
+            (resRounds || []).forEach(r => {
                 allRoundNums.add(r.round);
                 if (!roundMetaMap[r.round]) {
                     roundMetaMap[r.round] = { round: r.round, raceName: r.raceName, shortName: r.shortName, date: r.date };
@@ -8470,18 +8657,20 @@
 
             const sortedRounds = Array.from(allRoundNums).sort((a, b) => a - b);
             const qualByRound = {};
-            qualRounds.forEach(r => { qualByRound[r.round] = r.QualifyingResults || []; });
+            (qualRounds || []).forEach(r => { qualByRound[r.round] = r.QualifyingResults || []; });
             const resByRound = {};
-            resRounds.forEach(r => { resByRound[r.round] = r.Results || []; });
+            (resRounds || []).forEach(r => { resByRound[r.round] = r.Results || []; });
 
             const constructors = {};
+            const driverRoundsByTeam = {};
+            const pairRoundsByTeam = {};
 
             const ensureConstructor = (cObj) => {
                 const cid = cObj.constructorId;
                 if (!constructors[cid]) {
                     const meta = CONSTRUCTOR_METADATA[cid] || {
                         name: cObj.name || cid,
-                        neon: TEAM_COLORS[cid] || '#00D2BE',
+                        neon: (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) || '#00D2BE',
                         secondary: '#FFB347'
                     };
                     constructors[cid] = {
@@ -8492,25 +8681,35 @@
                         driversMap: {},
                         totalTeamPoints: 0
                     };
+                    driverRoundsByTeam[cid] = {};
+                    pairRoundsByTeam[cid] = {};
                 }
                 return constructors[cid];
             };
 
-            const registerDriver = (teamObj, dObj, points = 0) => {
+            const registerDriver = (teamObj, dObj, rnd, points = 0) => {
                 const did = dObj.driverId;
+                if (!did) return;
+                const cid = teamObj.constructorId;
                 if (!teamObj.driversMap[did]) {
+                    const given = dObj.givenName || '';
+                    const family = dObj.familyName || '';
                     teamObj.driversMap[did] = {
                         driverId: did,
-                        code: dObj.code || dObj.familyName.substring(0, 3).toUpperCase(),
-                        name: `${dObj.givenName} ${dObj.familyName}`,
-                        givenName: dObj.givenName,
-                        familyName: dObj.familyName,
+                        code: dObj.code || (family || did).substring(0, 3).toUpperCase(),
+                        name: `${given} ${family}`.trim() || did,
+                        givenName: given,
+                        familyName: family,
                         number: dObj.permanentNumber || '--',
                         roundsCount: 0,
                         points: 0
                     };
+                    driverRoundsByTeam[cid][did] = new Set();
                 }
-                teamObj.driversMap[did].roundsCount += 1;
+                if (!driverRoundsByTeam[cid][did].has(rnd)) {
+                    driverRoundsByTeam[cid][did].add(rnd);
+                    teamObj.driversMap[did].roundsCount += 1;
+                }
                 teamObj.driversMap[did].points += points;
                 teamObj.totalTeamPoints += points;
             };
@@ -8518,44 +8717,83 @@
             sortedRounds.forEach(rnd => {
                 const qList = qualByRound[rnd] || [];
                 const rList = resByRound[rnd] || [];
+                const roundTeamDrivers = {};
+
+                const trackRoundDriver = (cid, did) => {
+                    if (!roundTeamDrivers[cid]) roundTeamDrivers[cid] = new Set();
+                    roundTeamDrivers[cid].add(did);
+                };
 
                 rList.forEach(entry => {
-                    if (entry.Constructor && entry.Driver) {
+                    if (entry.Constructor?.constructorId && entry.Driver?.driverId) {
                         const team = ensureConstructor(entry.Constructor);
-                        registerDriver(team, entry.Driver, parseFloat(entry.points || 0));
+                        registerDriver(team, entry.Driver, rnd, parseFloat(entry.points || 0));
+                        trackRoundDriver(team.constructorId, entry.Driver.driverId);
                     }
                 });
 
                 qList.forEach(entry => {
-                    if (entry.Constructor && entry.Driver) {
+                    if (entry.Constructor?.constructorId && entry.Driver?.driverId) {
                         const team = ensureConstructor(entry.Constructor);
-                        if (!team.driversMap[entry.Driver.driverId]) {
-                            registerDriver(team, entry.Driver, 0);
+                        registerDriver(team, entry.Driver, rnd, 0);
+                        trackRoundDriver(team.constructorId, entry.Driver.driverId);
+                    }
+                });
+
+                // Pair teammates per round (round + Constructor.constructorId)
+                Object.entries(roundTeamDrivers).forEach(([cid, driverSet]) => {
+                    const activeDrivers = Array.from(driverSet);
+                    if (activeDrivers.length < 2) return;
+                    for (let i = 0; i < activeDrivers.length; i++) {
+                        for (let j = i + 1; j < activeDrivers.length; j++) {
+                            const key = getTelemetryPairKey(activeDrivers[i], activeDrivers[j]);
+                            pairRoundsByTeam[cid][key] = (pairRoundsByTeam[cid][key] || 0) + 1;
                         }
                     }
                 });
             });
 
-            // Build round-by-round lookup per constructor
+            // Build round-by-round active pairings per constructor (preserving 3rd/4th+ drivers)
             Object.values(constructors).forEach(team => {
+                const cid = team.constructorId;
                 const driversList = Object.values(team.driversMap).sort((a, b) => {
                     if (b.roundsCount !== a.roundsCount) return b.roundsCount - a.roundsCount;
-                    return b.points - a.points;
+                    if (b.points !== a.points) return b.points - a.points;
+                    return a.driverId.localeCompare(b.driverId);
                 });
                 team.drivers = driversList;
 
-                // Create driver pairings (Primary duo first, plus any reserve/replacement pairings)
-                const pairings = [];
-                if (driversList.length >= 2) {
-                    pairings.push([driversList[0], driversList[1]]);
-                    for (let i = 2; i < driversList.length; i++) {
-                        pairings.push([driversList[0], driversList[i]]);
-                        pairings.push([driversList[1], driversList[i]]);
+                const pairCounts = pairRoundsByTeam[cid] || {};
+                const activePairEntries = [];
+
+                for (let i = 0; i < driversList.length; i++) {
+                    for (let j = i + 1; j < driversList.length; j++) {
+                        const d1 = driversList[i];
+                        const d2 = driversList[j];
+                        const sharedCount = pairCounts[getTelemetryPairKey(d1.driverId, d2.driverId)] || 0;
+                        if (sharedCount > 0) {
+                            activePairEntries.push({
+                                pair: [d1, d2],
+                                sharedCount,
+                                i,
+                                j
+                            });
+                        }
                     }
-                } else if (driversList.length === 1) {
+                }
+
+                activePairEntries.sort((a, b) => {
+                    if (b.sharedCount !== a.sharedCount) return b.sharedCount - a.sharedCount;
+                    if (a.i !== b.i) return a.i - b.i;
+                    return a.j - b.j;
+                });
+
+                const pairings = activePairEntries.map(item => item.pair);
+                if (pairings.length === 0 && driversList.length === 1) {
                     pairings.push([driversList[0], driversList[0]]);
                 }
                 team.pairings = pairings;
+                team.pairSharedRounds = pairCounts;
             });
 
             return {
@@ -8568,8 +8806,11 @@
         }
 
         function initializeConstructorSelection(data) {
-            const cList = Object.values(data.constructors).sort((a, b) => b.totalTeamPoints - a.totalTeamPoints);
-            if (cList.length === 0) return;
+            const cList = Object.values(data.constructors || {}).sort((a, b) => b.totalTeamPoints - a.totalTeamPoints);
+            if (cList.length === 0) {
+                renderTeammateH2H([]);
+                return;
+            }
 
             if (!data.constructors[selectedConstructorId]) {
                 selectedConstructorId = cList[0].constructorId;
@@ -8639,20 +8880,24 @@
             const validDeltasMs = [];
             let qualWins1 = 0;
             let qualWins2 = 0;
+            let qualPositionWinsCount = 0;
             let raceWins1 = 0;
             let raceWins2 = 0;
             let mechExcludedCount = 0;
+            let sharedRounds = 0;
             let points1 = 0;
             let points2 = 0;
+            let sharedPoints1 = 0;
+            let sharedPoints2 = 0;
             let gridGainSum1 = 0;
             let gridGainCount1 = 0;
             let gridGainSum2 = 0;
             let gridGainCount2 = 0;
 
-            data.rounds.forEach(roundMeta => {
+            (data.rounds || []).forEach(roundMeta => {
                 const rnd = roundMeta.round;
-                const qEntries = data.qualByRound[rnd] || [];
-                const rEntries = data.resByRound[rnd] || [];
+                const qEntries = (data.qualByRound && data.qualByRound[rnd]) || [];
+                const rEntries = (data.resByRound && data.resByRound[rnd]) || [];
 
                 const q1Entry = qEntries.find(e => e.Driver?.driverId === d1.driverId && e.Constructor?.constructorId === team.constructorId);
                 const q2Entry = qEntries.find(e => e.Driver?.driverId === d2.driverId && e.Constructor?.constructorId === team.constructorId);
@@ -8662,6 +8907,11 @@
 
                 if (!q1Entry && !q2Entry && !r1Entry && !r2Entry) {
                     return;
+                }
+
+                const isSharedRound = Boolean((q1Entry || r1Entry) && (q2Entry || r2Entry) && d1.driverId !== d2.driverId);
+                if (isSharedRound) {
+                    sharedRounds++;
                 }
 
                 // Fastest shared qualifying session comparison (Q3 -> Q2 -> Q1)
@@ -8692,6 +8942,14 @@
                     validDeltasMs.push(deltaMs);
                     if (deltaMs < 0) qualWins1++;
                     else if (deltaMs > 0) qualWins2++;
+                } else if (q1Entry && q2Entry && d1.driverId !== d2.driverId) {
+                    const qPos1 = parseInt(q1Entry.position, 10);
+                    const qPos2 = parseInt(q2Entry.position, 10);
+                    if (Number.isFinite(qPos1) && Number.isFinite(qPos2) && qPos1 > 0 && qPos2 > 0) {
+                        qualPositionWinsCount++;
+                        if (qPos1 < qPos2) qualWins1++;
+                        else if (qPos2 < qPos1) qualWins2++;
+                    }
                 }
 
                 // Race Head-to-Head, Grid vs Finish, DNF tracking
@@ -8713,7 +8971,9 @@
                     pos1 = parseInt(r1Entry.position, 10) || null;
                     grid1 = parseInt(r1Entry.grid, 10) || 0;
                     status1 = r1Entry.status || 'Finished';
-                    points1 += parseFloat(r1Entry.points || 0);
+                    const pts1 = parseFloat(r1Entry.points || 0);
+                    points1 += pts1;
+                    if (isSharedRound) sharedPoints1 += pts1;
                     isDnf1 = isDnfStatus(status1);
                     isMech1 = isMechanicalDnf(status1);
                     if (grid1 > 0 && pos1 !== null && !isDnf1) {
@@ -8726,7 +8986,9 @@
                     pos2 = parseInt(r2Entry.position, 10) || null;
                     grid2 = parseInt(r2Entry.grid, 10) || 0;
                     status2 = r2Entry.status || 'Finished';
-                    points2 += parseFloat(r2Entry.points || 0);
+                    const pts2 = parseFloat(r2Entry.points || 0);
+                    points2 += pts2;
+                    if (isSharedRound) sharedPoints2 += pts2;
                     isDnf2 = isDnfStatus(status2);
                     isMech2 = isMechanicalDnf(status2);
                     if (grid2 > 0 && pos2 !== null && !isDnf2) {
@@ -8748,6 +9010,12 @@
                             raceWins2++;
                             raceWinner = 'd2';
                         }
+                    } else if (!isDnf1 && isDnf2) {
+                        raceWins1++;
+                        raceWinner = 'd1';
+                    } else if (isDnf1 && !isDnf2) {
+                        raceWins2++;
+                        raceWinner = 'd2';
                     }
                 }
 
@@ -8793,22 +9061,30 @@
 
             return {
                 roundDetails,
+                sharedRounds,
                 qualWins1,
                 qualWins2,
                 sharedQualCount: validDeltasMs.length,
+                qualPositionCount: qualPositionWinsCount,
                 medianDeltaMs,
                 raceWins1,
                 raceWins2,
                 mechExcludedCount,
                 points1,
                 points2,
+                sharedPoints1,
+                sharedPoints2,
                 avgGridGain1,
                 avgGridGain2
             };
         }
 
         function renderSelectedConstructorTelemetry() {
-            if (!currentTelemetryData) return;
+            if (!currentTelemetryData) {
+                renderTeammateH2H([]);
+                return;
+            }
+            renderTeammateH2H(currentTelemetryData);
             const team = currentTelemetryData.constructors[selectedConstructorId];
             if (!team || !team.pairings || team.pairings.length === 0) return;
 
@@ -9233,6 +9509,175 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function escapeTeammateHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function extractRaceArrayInput(input) {
+            if (!input) return [];
+            if (Array.isArray(input)) return input;
+            if (Array.isArray(input?.MRData?.RaceTable?.Races)) return input.MRData.RaceTable.Races;
+            if (Array.isArray(input?.races)) return input.races;
+            if (Array.isArray(input?.Races)) return input.Races;
+            if (Array.isArray(input?.Results) || Array.isArray(input?.QualifyingResults)) return [input];
+            return [];
+        }
+
+        function resolveTeammateDriverColor(driverId, fallbackColor) {
+            if (typeof DRIVER_COLORS !== 'undefined' && DRIVER_COLORS[driverId]) {
+                return DRIVER_COLORS[driverId];
+            }
+            return fallbackColor;
+        }
+
+        function buildTeammateH2HCardHtml(card) {
+            const teamName = escapeTeammateHtml(card.constructorName);
+            const cId = escapeTeammateHtml(card.constructorId);
+            const teamColor = escapeTeammateHtml(card.teamColor);
+            const d1Color = escapeTeammateHtml(card.d1Color);
+            const d2Color = escapeTeammateHtml(card.d2Color);
+            const d1Code = escapeTeammateHtml(card.d1.code);
+            const d2Code = escapeTeammateHtml(card.d2.code);
+            const d1Name = escapeTeammateHtml(card.d1.name);
+            const d2Name = escapeTeammateHtml(card.d2.name);
+            const roundsLabel = `${card.sharedRounds} Shared Rd${card.sharedRounds === 1 ? '' : 's'}`;
+            const qualTotal = card.qualWins1 + card.qualWins2;
+            const paceSub = card.sharedQualCount > 0
+                ? (card.medianDeltaMs === 0
+                    ? '0 ms median'
+                    : `${card.medianDeltaMs <= 0 ? d1Code : d2Code} -${Math.abs(card.medianDeltaMs)} ms`)
+                : (qualTotal > 0 ? `${qualTotal} shared qual` : 'No qual data');
+            const raceSub = card.mechExcludedCount > 0
+                ? `${card.mechExcludedCount} mech DNF excl.`
+                : `${card.sharedRounds} round${card.sharedRounds === 1 ? '' : 's'} compared`;
+
+            return `
+                <div class="teammate-h2h-card" style="--team-color: ${teamColor};" data-constructor-id="${cId}" data-pair="${d1Code}-${d2Code}">
+                    <div class="teammate-h2h-card-header">
+                        <div class="teammate-h2h-team">
+                            <span class="teammate-h2h-team-dot"></span>
+                            <span>${teamName}</span>
+                        </div>
+                        <span class="teammate-h2h-rounds-badge">${roundsLabel}</span>
+                    </div>
+                    <div class="teammate-h2h-drivers">
+                        <div class="teammate-h2h-driver-col">
+                            <span class="teammate-h2h-driver-code" style="color:${d1Color}">${d1Code}</span>
+                            <span class="teammate-h2h-driver-name" title="${d1Name}">${d1Name}</span>
+                            <span class="teammate-h2h-driver-pts">${card.points1} PTS</span>
+                        </div>
+                        <span class="teammate-h2h-vs">VS</span>
+                        <div class="teammate-h2h-driver-col right">
+                            <span class="teammate-h2h-driver-code" style="color:${d2Color}">${d2Code}</span>
+                            <span class="teammate-h2h-driver-name" title="${d2Name}">${d2Name}</span>
+                            <span class="teammate-h2h-driver-pts">${card.points2} PTS</span>
+                        </div>
+                    </div>
+                    <div class="teammate-h2h-stats">
+                        <div class="teammate-h2h-stat-box">
+                            <div class="teammate-h2h-stat-label">Qualifying H2H</div>
+                            <div class="teammate-h2h-stat-val"><span style="color:${d1Color}">${card.qualWins1}</span> - <span style="color:${d2Color}">${card.qualWins2}</span></div>
+                            <div class="teammate-h2h-stat-sub">${paceSub}</div>
+                        </div>
+                        <div class="teammate-h2h-stat-box">
+                            <div class="teammate-h2h-stat-label">Race H2H</div>
+                            <div class="teammate-h2h-stat-val"><span style="color:${d1Color}">${card.raceWins1}</span> - <span style="color:${d2Color}">${card.raceWins2}</span></div>
+                            <div class="teammate-h2h-stat-sub">${raceSub}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTeammateH2H(racesInput, qualInput) {
+            const container = typeof document !== 'undefined' ? document.getElementById('teammateH2HContainer') : null;
+            let telemetryData = null;
+
+            if (racesInput === undefined) {
+                telemetryData = currentTelemetryData;
+            } else if (racesInput && typeof racesInput === 'object' && racesInput.constructors && Array.isArray(racesInput.rounds)) {
+                telemetryData = racesInput;
+            } else {
+                const rawRaces = extractRaceArrayInput(racesInput);
+                const rawQual = extractRaceArrayInput(qualInput);
+                const embeddedQual = rawRaces.filter(r => r && (Array.isArray(r.QualifyingResults) || Array.isArray(r.qualifyingResults)));
+                const allQualInputs = [...embeddedQual, ...rawQual];
+
+                if (rawRaces.length > 0 || allQualInputs.length > 0) {
+                    const resRounds = mergeRacesByRound(rawRaces, 'Results');
+                    const qualRounds = mergeRacesByRound(allQualInputs, 'QualifyingResults');
+                    telemetryData = processSeasonTelemetry(currentTelemetrySeason, qualRounds, resRounds);
+                }
+            }
+
+            const cards = [];
+            if (telemetryData && telemetryData.constructors) {
+                const constructorsList = Object.values(telemetryData.constructors).sort((a, b) => {
+                    if (b.totalTeamPoints !== a.totalTeamPoints) return b.totalTeamPoints - a.totalTeamPoints;
+                    return (a.name || a.constructorId).localeCompare(b.name || b.constructorId);
+                });
+
+                constructorsList.forEach(team => {
+                    const pairings = Array.isArray(team.pairings) ? team.pairings : [];
+                    pairings.forEach(pair => {
+                        const d1 = pair && pair[0];
+                        const d2 = pair && pair[1];
+                        if (!d1 || !d2 || d1.driverId === d2.driverId) return;
+
+                        const stats = computePairTelemetry(telemetryData, team, d1, d2);
+                        if (stats.sharedRounds <= 0) return;
+
+                        const d1Color = resolveTeammateDriverColor(d1.driverId, team.neon || '#00D2BE');
+                        let d2Color = resolveTeammateDriverColor(d2.driverId, team.secondary || '#FFB347');
+                        if (d1Color.toLowerCase() === d2Color.toLowerCase()) {
+                            d2Color = team.secondary || '#FFB347';
+                        }
+
+                        const card = {
+                            constructorId: team.constructorId,
+                            constructorName: team.name || team.constructorId,
+                            teamColor: team.neon || '#00D2BE',
+                            d1,
+                            d2,
+                            driver1: d1,
+                            driver2: d2,
+                            d1Color,
+                            d2Color,
+                            sharedRounds: stats.sharedRounds,
+                            qualWins1: stats.qualWins1,
+                            qualWins2: stats.qualWins2,
+                            sharedQualCount: stats.sharedQualCount,
+                            raceWins1: stats.raceWins1,
+                            raceWins2: stats.raceWins2,
+                            mechExcludedCount: stats.mechExcludedCount,
+                            medianDeltaMs: stats.sharedQualCount > 0 ? stats.medianDeltaMs : null,
+                            points1: stats.points1,
+                            points2: stats.points2,
+                            sharedPoints1: stats.sharedPoints1,
+                            sharedPoints2: stats.sharedPoints2
+                        };
+                        card.html = buildTeammateH2HCardHtml(card);
+                        cards.push(card);
+                    });
+                });
+            }
+
+            if (container) {
+                if (cards.length === 0) {
+                    container.innerHTML = '<div class="teammate-h2h-empty">No teammate head-to-head data available for the selected season.</div>';
+                } else {
+                    container.innerHTML = cards.map(c => c.html).join('');
+                }
+            }
+
+            return cards;
         }
 
         // ==========================================================
@@ -21521,6 +21966,15 @@
             window.renderClinchScenariosAndTiebreaker = renderClinchScenariosAndTiebreaker;
             window.renderClinchScenarioMatrixTable = renderClinchScenarioMatrixTable;
             window.CLINCH_FALLBACK_2024 = CLINCH_FALLBACK_2024;
+            window.renderTeammateH2H = renderTeammateH2H;
+            window.processSeasonTelemetry = processSeasonTelemetry;
+            window.computePairTelemetry = computePairTelemetry;
+            window.renderSelectedConstructorTelemetry = renderSelectedConstructorTelemetry;
+            window.loadTelemetrySeason = loadTelemetrySeason;
+            window.selectTelemetryConstructor = selectTelemetryConstructor;
+            window.selectTelemetryDriverPair = selectTelemetryDriverPair;
+            window.onMechDnfToggleChange = onMechDnfToggleChange;
+            window.mergeRacesByRound = mergeRacesByRound;
         }
 
         function extractFastestLapFromResult(results) {
@@ -21773,7 +22227,16 @@
                 onOvertakeDnfToggle,
                 refreshOvertakeData,
                 overtakeIndexState,
-                OVERTAKE_INDEX_FALLBACK_2024
+                OVERTAKE_INDEX_FALLBACK_2024,
+                renderTeammateH2H,
+                processSeasonTelemetry,
+                computePairTelemetry,
+                renderSelectedConstructorTelemetry,
+                loadTelemetrySeason,
+                selectTelemetryConstructor,
+                selectTelemetryDriverPair,
+                onMechDnfToggleChange,
+                mergeRacesByRound
             };
         }
     </script>
