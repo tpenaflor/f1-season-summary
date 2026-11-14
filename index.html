@@ -17549,6 +17549,8 @@
             fuelBurnRate: 0.035,
             selectedDriver: 'all',
             cache: {},
+            scheduleCache: {},
+            loadRequestId: 0,
             inferredPitStops: false,
             resultsData: null,
             pitStopsData: null,
@@ -18034,16 +18036,54 @@
             };
         }
 
+        async function fetchStintSeasonSchedule(season, forceRefresh = false) {
+            const seasonStr = String(season);
+            const cached = stintDegradationState.scheduleCache[seasonStr];
+            if (!forceRefresh && Array.isArray(cached)) {
+                return cached;
+            }
+            try {
+                // fetchWithRetry already returns parsed JSON (Jolpica MRData envelope)
+                const data = await fetchWithRetry(`${BASE_URL}/${seasonStr}/races.json?limit=100`);
+                const races = data?.MRData?.RaceTable?.Races || [];
+                const rounds = races
+                    .filter(r => r && r.round !== undefined && r.round !== null && String(r.round).trim() !== '')
+                    .map(r => ({
+                        round: String(r.round),
+                        raceName: r.raceName || 'Grand Prix',
+                        date: r.date || ''
+                    }))
+                    .sort((a, b) => parseInt(a.round, 10) - parseInt(b.round, 10));
+                stintDegradationState.scheduleCache[seasonStr] = rounds;
+                return rounds;
+            } catch (err) {
+                console.warn(`Error loading ${seasonStr} schedule for stint profiler:`, err);
+                return [];
+            }
+        }
+
         async function loadStintDegradationData(season = '2024', round = '1', forceRefresh = false) {
             const seasonStr = String(season);
-            const roundStr = String(round);
-            const cacheKey = `${seasonStr}_${roundStr}`;
+            let roundStr = String(round);
+            const requestId = ++stintDegradationState.loadRequestId;
+            const isStale = () => requestId !== stintDegradationState.loadRequestId;
 
             const cacheBadge = document.getElementById('stintCacheBadge');
             const anomalyBanner = document.getElementById('stintAnomalyBanner');
 
             stintDegradationState.season = seasonStr;
             stintDegradationState.round = roundStr;
+
+            // Populate the round selector from the season schedule (/{season}/races.json)
+            const schedule = await fetchStintSeasonSchedule(seasonStr, forceRefresh);
+            if (isStale()) return null;
+            if (schedule.length > 0 && !schedule.some(r => r.round === roundStr)) {
+                roundStr = schedule[0].round;
+            }
+            stintDegradationState.round = roundStr;
+            populateStintRoundSelector(schedule, roundStr);
+
+            const cacheKey = `${seasonStr}_${roundStr}`;
 
             // Request memoization check
             if (!forceRefresh && stintDegradationState.cache[cacheKey]) {
@@ -18147,6 +18187,9 @@
                     lapsData: finalLaps
                 };
 
+                // A newer season/round request superseded this one; don't clobber its render
+                if (isStale()) return null;
+
                 stintDegradationState.resultsData = finalResults;
                 stintDegradationState.pitStopsData = finalPitStops;
                 stintDegradationState.lapsData = finalLaps;
@@ -18175,6 +18218,7 @@
                 return metrics;
             } catch (err) {
                 console.warn('Error loading stint degradation data:', err);
+                if (isStale()) return null;
                 if (seasonStr === '2024' && roundStr === '1') {
                     const fallbackMetrics = processStintDegradationData(
                         STINT_DEGRADATION_FALLBACK_2024.resultsData,
@@ -18198,34 +18242,90 @@
         function populateStintRoundSelector(rounds, selectedRound = '1') {
             const select = document.getElementById('stintRoundSelect');
             if (!select) return;
+            const selectedStr = String(selectedRound || '1');
             select.innerHTML = '';
             if (!Array.isArray(rounds) || rounds.length === 0) {
+                // Schedule unavailable: expose only the currently loaded round
                 const opt = document.createElement('option');
-                opt.value = '1';
-                opt.textContent = 'Round 1 - Bahrain Grand Prix';
+                opt.value = selectedStr;
+                opt.textContent = (stintDegradationState.season === '2024' && selectedStr === '1')
+                    ? 'Round 1 - Bahrain Grand Prix'
+                    : `Round ${selectedStr}`;
+                opt.selected = true;
                 select.appendChild(opt);
+                select.value = selectedStr;
                 return;
             }
+            let matched = false;
             rounds.forEach(r => {
                 const opt = document.createElement('option');
                 opt.value = String(r.round);
                 opt.textContent = `Round ${r.round} - ${r.raceName || 'Grand Prix'}`;
-                if (String(r.round) === String(selectedRound)) {
+                if (String(r.round) === selectedStr) {
                     opt.selected = true;
-                    select.value = String(r.round);
+                    matched = true;
                 }
                 select.appendChild(opt);
             });
+            select.value = matched ? selectedStr : String(rounds[0].round);
+        }
+
+        function populateStintDriverSelector(drivers, selectedDriver = 'all') {
+            const select = document.getElementById('stintDriverSelect');
+            const driverList = Array.isArray(drivers) ? drivers : [];
+            let selection = selectedDriver || 'all';
+            const isValid = selection === 'all' || selection === 'top5' ||
+                driverList.some(d => d && d.driverId === selection);
+            if (!isValid) selection = 'all';
+
+            if (select) {
+                select.innerHTML = '';
+                const allOpt = document.createElement('option');
+                allOpt.value = 'all';
+                allOpt.textContent = 'All Drivers (Overlay)';
+                select.appendChild(allOpt);
+                driverList.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.driverId;
+                    opt.textContent = `P${d.position} • ${d.driverName} (${d.driverCode} - ${d.constructorName})`;
+                    if (d.driverId === selection) opt.selected = true;
+                    select.appendChild(opt);
+                });
+                select.value = selection === 'top5' ? 'all' : selection;
+            }
+
+            if (!isValid) {
+                ['btnStintFilterAll', 'btnStintFilterTop5', 'btnStintFilterWinner'].forEach(id => {
+                    const b = document.getElementById(id);
+                    if (b) b.classList.remove('active');
+                });
+                const allBtn = document.getElementById('btnStintFilterAll');
+                if (allBtn) allBtn.classList.add('active');
+            }
+
+            stintDegradationState.selectedDriver = selection;
+            return selection;
         }
 
         function onStintSeasonChange(season) {
             stintDegradationState.season = String(season);
-            loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, false);
+            // New season: previous round/driver are not meaningful anymore
+            stintDegradationState.round = '1';
+            stintDegradationState.selectedDriver = 'all';
+            const driverSelect = document.getElementById('stintDriverSelect');
+            if (driverSelect) driverSelect.value = 'all';
+            ['btnStintFilterAll', 'btnStintFilterTop5', 'btnStintFilterWinner'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.classList.remove('active');
+            });
+            const allBtn = document.getElementById('btnStintFilterAll');
+            if (allBtn) allBtn.classList.add('active');
+            return loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, false);
         }
 
         function onStintRoundChange(round) {
             stintDegradationState.round = String(round);
-            loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, false);
+            return loadStintDegradationData(stintDegradationState.season, stintDegradationState.round, false);
         }
 
         function refreshStintData() {
@@ -18315,16 +18415,8 @@
                 banner.style.display = metrics.inferredPitStops ? 'flex' : 'none';
             }
 
-            const driverSelect = document.getElementById('stintDriverSelect');
-            if (driverSelect && metrics.drivers && driverSelect.options.length <= 1) {
-                driverSelect.innerHTML = '<option value="all">All Drivers (Overlay)</option>';
-                metrics.drivers.forEach(d => {
-                    const opt = document.createElement('option');
-                    opt.value = d.driverId;
-                    opt.textContent = `P${d.position} • ${d.driverName} (${d.driverCode} - ${d.constructorName})`;
-                    driverSelect.appendChild(opt);
-                });
-            }
+            // Rebuild on every season/round render so options never freeze on the first event
+            populateStintDriverSelector(metrics.drivers, stintDegradationState.selectedDriver);
 
             renderStintKpis(metrics.kpis);
             renderStintDegradationChart(metrics, stintDegradationState.selectedDriver);
@@ -21272,6 +21364,8 @@
             window.onStintDriverFilterChange = onStintDriverFilterChange;
             window.setStintDriverFilter = setStintDriverFilter;
             window.populateStintRoundSelector = populateStintRoundSelector;
+            window.populateStintDriverSelector = populateStintDriverSelector;
+            window.fetchStintSeasonSchedule = fetchStintSeasonSchedule;
             window.renderStintDegradationView = renderStintDegradationView;
             window.renderStintKpis = renderStintKpis;
             window.renderStintDegradationChart = renderStintDegradationChart;
@@ -21634,6 +21728,8 @@
                 onStintDriverFilterChange,
                 setStintDriverFilter,
                 populateStintRoundSelector,
+                populateStintDriverSelector,
+                fetchStintSeasonSchedule,
                 renderStintDegradationView,
                 renderStintKpis,
                 renderStintDegradationChart,
