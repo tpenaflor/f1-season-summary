@@ -15681,13 +15681,13 @@
         });
 
         const LAP_CHART_FALLBACK_2024 = {
-            labels: Array.from({ length: 57 }, (_, i) => String(i + 1)),
+            labels: ['0', ...Array.from({ length: 57 }, (_, i) => String(i + 1))],
             maxLaps: 57,
             totalDrivers: 20,
             retirementsCount: 0,
             drivers: LAP_CHART_FALLBACK_DRIVERS_2024,
             datasets: LAP_CHART_FALLBACK_DRIVERS_2024.map(driver => {
-                const positions = Array.from({ length: 57 }, (_, i) => {
+                const lapPositions = Array.from({ length: 57 }, (_, i) => {
                     const lapNum = i + 1;
                     if (driver.driverId === 'max_verstappen') return 1;
                     if (driver.driverId === 'perez') return lapNum < 14 ? 5 : 2;
@@ -15696,6 +15696,8 @@
                     if (driver.driverId === 'russell') return lapNum < 12 ? 3 : 5;
                     return driver.finalPos;
                 });
+                const startGrid = driver.grid > 0 ? driver.grid : null;
+                const positions = [startGrid, ...lapPositions];
                 return {
                     label: `${driver.name} (${driver.code})`,
                     driverId: driver.driverId,
@@ -15733,15 +15735,16 @@
             dataLoaded: false
         };
 
-        function cleanRetirementTruncation(positions, retirementLap) {
+        function cleanRetirementTruncation(positions, retirementLap, startLap = 1) {
             if (!Array.isArray(positions)) return [];
             if (retirementLap === undefined || retirementLap === null || isNaN(retirementLap)) {
                 return [...positions];
             }
             const retLap = parseInt(retirementLap, 10);
             if (retLap < 0) return [...positions];
+            const baseLap = Number.isInteger(startLap) ? startLap : 1;
             return positions.map((pos, index) => {
-                const lapNumber = index + 1;
+                const lapNumber = index + baseLap;
                 if (lapNumber > retLap) {
                     return null;
                 }
@@ -15749,12 +15752,19 @@
             });
         }
 
-        function buildDriverLapPositions(laps, driverId, retirementLap = null, maxLaps = null) {
+        function buildDriverLapPositions(laps, driverId, retirementLap = null, maxLaps = null, gridPosition = undefined) {
             const totalLaps = maxLaps || (Array.isArray(laps) ? laps.length : 0);
             const positions = [];
             const retLap = (retirementLap !== null && retirementLap !== undefined && !isNaN(retirementLap))
                 ? parseInt(retirementLap, 10)
                 : null;
+
+            if (gridPosition !== undefined) {
+                const parsedGrid = (gridPosition !== null && gridPosition !== '' && !isNaN(gridPosition))
+                    ? parseInt(gridPosition, 10)
+                    : null;
+                positions.push(parsedGrid !== null && parsedGrid > 0 ? parsedGrid : null);
+            }
 
             for (let lapNum = 1; lapNum <= totalLaps; lapNum++) {
                 if (retLap !== null && retLap >= 0 && lapNum > retLap) {
@@ -15866,6 +15876,7 @@
 
             lapList.forEach(lap => {
                 if (!lap || !Array.isArray(lap.Timings)) return;
+                if (lap.number !== undefined && parseInt(lap.number, 10) <= 0) return;
                 const leaderTiming = lap.Timings.find(t => String(t.position) === '1');
                 if (leaderTiming && leaderTiming.driverId) {
                     const dId = leaderTiming.driverId;
@@ -15965,12 +15976,21 @@
                     const dId = r.Driver.driverId;
                     const constrId = r.Constructor?.constructorId || '';
                     const status = r.status || '';
+                    const statusLower = status.toLowerCase();
+                    const posTextUpper = String(r.positionText || '').trim().toUpperCase();
+                    const isDns = statusLower.includes('did not start') ||
+                        statusLower.includes('withdrew') ||
+                        statusLower.includes('did not qualify') ||
+                        posTextUpper === 'W' ||
+                        posTextUpper === 'F';
                     const isFinishedOrLapped = status === 'Finished' || status.startsWith('+') || /^\+\d+/.test(status);
                     const isRetired = (!isFinishedOrLapped && status !== '') || r.positionText === 'R' || r.positionText === 'D';
                     const retLap = isRetired ? parseInt(r.laps, 10) : null;
                     if (retLap !== null && !isNaN(retLap)) {
                         retirementsMap[dId] = retLap;
                     }
+                    const parsedGrid = parseInt(r.grid, 10);
+                    const gridPos = (!isDns && !isNaN(parsedGrid) && parsedGrid > 0) ? parsedGrid : null;
 
                     driversMap[dId] = {
                         driverId: dId,
@@ -15979,7 +15999,7 @@
                         constructorId: constrId,
                         constructorName: r.Constructor?.name || '',
                         color: (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[constrId]) || (typeof DRIVER_COLORS !== 'undefined' && DRIVER_COLORS[dId]) || '#00F0FF',
-                        grid: parseInt(r.grid, 10) || null,
+                        grid: gridPos,
                         finalPos: parseInt(r.position, 10) || null,
                         status: status,
                         retirementLap: retLap
@@ -16026,7 +16046,7 @@
                 }
             });
 
-            const labels = Array.from({ length: maxLaps }, (_, i) => String(i + 1));
+            const labels = ['0', ...Array.from({ length: maxLaps }, (_, i) => String(i + 1))];
             const driverList = Object.values(driversMap);
 
             driverList.sort((a, b) => {
@@ -16037,8 +16057,9 @@
 
             const datasets = driverList.map(driver => {
                 const retLap = retirementsMap[driver.driverId];
-                const rawPositions = buildDriverLapPositions(laps, driver.driverId, retLap, maxLaps);
-                const positions = cleanRetirementTruncation(rawPositions, retLap);
+                const gridPos = (driver.grid !== undefined && driver.grid !== null && driver.grid > 0) ? driver.grid : null;
+                const rawPositions = buildDriverLapPositions(laps, driver.driverId, retLap, maxLaps, gridPos);
+                const positions = cleanRetirementTruncation(rawPositions, retLap, 0);
                 const teamColor = driver.color;
 
                 return {
@@ -16191,6 +16212,9 @@
 
             const data = chartData || processLapChartData(lapChartState.lapsData, lapChartState.resultsData, lapChartState.round);
             const maxDrivers = data.totalDrivers || 20;
+            const maxGridPos = Array.isArray(data.drivers)
+                ? data.drivers.reduce((m, d) => Math.max(m, d.grid || 0), 0)
+                : 0;
 
             const ctx = canvas.getContext('2d');
             lapChartState.chartInstance = new Chart(ctx, {
@@ -16223,13 +16247,23 @@
                             callbacks: {
                                 title: (items) => {
                                     if (!items.length) return '';
+                                    if (String(items[0].label) === '0') {
+                                        return 'Lap 0 — Starting Grid';
+                                    }
                                     return `Lap ${items[0].label} of ${data.maxLaps}`;
                                 },
                                 label: (ctx) => {
                                     const ds = ctx.dataset;
                                     const pos = ctx.parsed.y;
+                                    const isLapZero = String(ctx.label) === '0' || ctx.dataIndex === 0;
                                     if (pos === null || pos === undefined) {
+                                        if (isLapZero) {
+                                            return ` ${ds.driverCode}: Pit Lane / No Grid`;
+                                        }
                                         return ` ${ds.driverCode}: Retired`;
+                                    }
+                                    if (isLapZero) {
+                                        return ` P${pos} (Grid) — ${ds.driverName} (${ds.constructorName || ds.driverCode})`;
                                     }
                                     return ` P${pos} — ${ds.driverName} (${ds.constructorName || ds.driverCode})`;
                                 }
@@ -16240,7 +16274,7 @@
                         y: {
                             reverse: true,
                             min: 1,
-                            max: Math.max(maxDrivers, 20),
+                            max: Math.max(maxDrivers, maxGridPos, 20),
                             ticks: {
                                 stepSize: 1,
                                 callback: (val) => 'P' + val,
@@ -16260,7 +16294,7 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Lap Number (1..N)',
+                                text: 'Lap Number (0 = Grid, 1..N)',
                                 color: '#94A3B8',
                                 font: { size: 12, weight: '700' }
                             },
@@ -16551,12 +16585,20 @@
                 });
             }
 
+            const raceLaps = laps.filter(l => l && (l.number === undefined || parseInt(l.number, 10) >= 1));
+            if (raceLaps.length === 0) {
+                if (timelineEl) timelineEl.innerHTML = '';
+                if (tbody) tbody.innerHTML = '';
+                return;
+            }
+
             const stints = [];
             let currentLeader = null;
             let startLap = 1;
 
-            laps.forEach((l, index) => {
-                const lapNum = parseInt(l.number, 10) || (index + 1);
+            raceLaps.forEach((l, index) => {
+                const parsedNum = parseInt(l.number, 10);
+                const lapNum = !isNaN(parsedNum) ? parsedNum : (index + 1);
                 const timing = l.Timings?.find(t => String(t.position) === '1');
                 const leaderId = timing?.driverId || 'unknown';
 
@@ -16569,7 +16611,8 @@
                 }
             });
             if (currentLeader !== null && currentLeader !== 'unknown') {
-                const lastLapNum = parseInt(laps[laps.length - 1].number, 10) || laps.length;
+                const lastParsed = parseInt(raceLaps[raceLaps.length - 1].number, 10);
+                const lastLapNum = !isNaN(lastParsed) ? lastParsed : raceLaps.length;
                 stints.push({ driverId: currentLeader, startLap, endLap: lastLapNum, count: lastLapNum - startLap + 1 });
             }
 
@@ -16607,7 +16650,7 @@
                         </td>
                         <td style="color: #94A3B8;">${team}</td>
                         <td style="text-align: right; font-weight: 800; color: #00F0FF; font-family: monospace;">${count}</td>
-                        <td style="color: #94A3B8; font-family: monospace;">${laps.length} laps</td>
+                        <td style="color: #94A3B8; font-family: monospace;">${raceLaps.length} laps</td>
                     `;
                     tbody.appendChild(tr);
                 });

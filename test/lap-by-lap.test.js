@@ -417,16 +417,19 @@ describe('Issue #14: Lap-by-Lap Module Exports & Initial State', () => {
     assert.strictEqual(lapChartState.isLoading, false);
   });
 
-  test('LAP_CHART_FALLBACK_2024 defines standard 57-lap Bahrain GP fallback dataset', () => {
+  test('LAP_CHART_FALLBACK_2024 defines standard 57-lap Bahrain GP fallback dataset with lap 0 grid', () => {
     const fb = exports.LAP_CHART_FALLBACK_2024;
     assert.strictEqual(fb.maxLaps, 57);
     assert.strictEqual(fb.totalDrivers, 20);
     assert.strictEqual(fb.retirementsCount, 0);
-    assert.strictEqual(fb.labels.length, 57);
+    assert.strictEqual(fb.labels.length, 58);
+    assert.strictEqual(fb.labels[0], '0');
     assert.strictEqual(fb.datasets.length, 20);
     assert.strictEqual(fb.datasets[0].stepped, true);
     assert.strictEqual(fb.datasets[0].spanGaps, false);
     assert.strictEqual(fb.datasets[0].driverId, 'max_verstappen');
+    assert.strictEqual(fb.datasets[0].data.length, 58);
+    assert.strictEqual(fb.datasets[0].data[0], 1);
   });
 
   test('SEASON_LAPS_LED_FALLBACK_2024 contains validated leaderboard and leader', () => {
@@ -534,10 +537,10 @@ describe('Issue #14: Data Processing & Dataset Generation (processLapChartData)'
     assert.strictEqual(resNull.maxLaps, 57);
   });
 
-  test('computes maxLaps, labels, and totalDrivers accurately', () => {
+  test('computes maxLaps, labels (starting with lap 0), and totalDrivers accurately', () => {
     const res = processLapChartData(sampleLaps, sampleResults, '1');
     assert.strictEqual(res.maxLaps, 5);
-    assert.deepEqual(toPlain(res.labels), ['1', '2', '3', '4', '5']);
+    assert.deepEqual(toPlain(res.labels), ['0', '1', '2', '3', '4', '5']);
     assert.strictEqual(res.totalDrivers >= 4, true);
   });
 
@@ -555,10 +558,11 @@ describe('Issue #14: Data Processing & Dataset Generation (processLapChartData)'
 
   test('correctly identifies retirements and cleans truncation without counting classified lapped cars', () => {
     const res = processLapChartData(sampleLaps, sampleResults, '1');
-    // Alonso retired on lap 24 (or lap 4 in our sample laps)
+    // Alonso retired on lap 24 (or lap 4 in our sample laps), started P6 at lap 0
     const alonsoDs = res.datasets.find(d => d.driverId === 'alonso');
     assert.ok(alonsoDs);
-    assert.strictEqual(alonsoDs.data[4], null); // lap 5 should be null
+    assert.strictEqual(alonsoDs.data[0], 6); // lap 0 starting grid
+    assert.strictEqual(alonsoDs.data[5], null); // lap 5 should be null
 
     // Norris has status "+1 Lap" - must NOT be in retirementsCount
     const norrisDriver = res.drivers.find(d => d.driverId === 'norris');
