@@ -12757,7 +12757,6 @@
                 countBadge.textContent = `Showing ${filteredStandings.length} / ${standings.length} Teams`;
             }
 
-            let prevPts = leaderPts;
             let html = '';
 
             standings.forEach((item, index) => {
@@ -12769,12 +12768,12 @@
                 const cid = constructor.constructorId || item.id || `team_${rank}`;
                 const name = constructor.name || 'Unknown';
                 const pts = parseFloat(item.points || 0);
+                const prevPts = index > 0 ? parseFloat(standings[index - 1]?.points || 0) : pts;
                 const color = (typeof TEAM_COLORS !== 'undefined' && TEAM_COLORS[cid]) ||
                     (typeof FALLBACK_PALETTE !== 'undefined' ? FALLBACK_PALETTE[index % FALLBACK_PALETTE.length] : '#00F0FF');
 
                 const deltaLeader = (leaderPts - pts);
                 const deltaAhead = (index === 0) ? 0 : (prevPts - pts);
-                prevPts = pts;
 
                 const atrInfo = getAtrTierInfo(rank);
                 const sparklineData = (trajectories && trajectories[cid]) ? trajectories[cid] : [pts];
