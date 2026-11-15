@@ -665,6 +665,196 @@
             border-radius: 3px 3px 0 0;
         }
 
+        .tab-btn.tab-btn-hidden {
+            display: none !important;
+        }
+
+        .tab-config-trigger {
+            margin-left: auto;
+            font-family: var(--font-family);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--telemetry-border);
+            background-color: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .tab-config-trigger:hover,
+        .tab-config-trigger[aria-expanded="true"] {
+            color: #ffffff;
+            border-color: rgba(0, 210, 190, 0.55);
+            background-color: rgba(0, 210, 190, 0.08);
+        }
+
+        .tab-config-count {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: rgba(0, 210, 190, 0.14);
+            color: #00D2BE;
+            border: 1px solid rgba(0, 210, 190, 0.35);
+        }
+
+        .tab-config-panel {
+            background: linear-gradient(180deg, var(--telemetry-card) 0%, var(--telemetry-bg) 100%);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+        }
+
+        .tab-config-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--telemetry-border);
+        }
+
+        .tab-config-panel-title h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .tab-config-panel-title p {
+            margin: 4px 0 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .tab-config-presets {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tab-preset-btn {
+            font-family: var(--font-family);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--telemetry-border);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tab-preset-btn:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-preset-btn.active {
+            color: #00D2BE;
+            border-color: rgba(0, 210, 190, 0.6);
+            background: rgba(0, 210, 190, 0.12);
+        }
+
+        .tab-config-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .tab-config-category {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--telemetry-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .tab-config-category-title {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .tab-config-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tab-config-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 7px 9px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .tab-config-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-config-item input[type="checkbox"] {
+            margin-top: 2px;
+            accent-color: #00D2BE;
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .tab-config-item-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .tab-config-item-label {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .tab-config-item-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .tab-config-notice {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #FBBF24;
+        }
+
+        @media (max-width: 640px) {
+            .tab-config-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .telemetry-section {
             background: linear-gradient(180deg, var(--telemetry-card) 0%, var(--telemetry-bg) 100%);
             border: 1px solid var(--telemetry-border);
@@ -5204,57 +5394,74 @@
     </header>
 
     <main class="container">
-        <!-- Main Navigation Tabs -->
+        <!-- Main Navigation Tabs (Default Core Set + Configurable Optional Views) -->
         <nav class="main-tabs-nav" aria-label="Dashboard View Navigation">
-            <button type="button" class="tab-btn active" id="tabBtnAll" onclick="switchMainTab('all')">
-                <span class="tab-icon">👁️</span> All Telemetry & Standings
+            <button type="button" class="tab-btn active" id="tabBtnResults" data-tab-id="results" onclick="switchMainTab('results')">
+                <span class="tab-icon">🏁</span> Latest Race &amp; Driver Standings
             </button>
-            <button type="button" class="tab-btn" id="tabBtnLapChart" onclick="switchMainTab('lap-chart')">
-                <span class="tab-icon">🔄</span> Lap-by-Lap &amp; Laps Led
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnStints" onclick="switchMainTab('stints')">
-                <span class="tab-icon">📉</span> Stint &amp; Degradation Profiler
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnFinishingGap" onclick="switchMainTab('finishing-gap')">
-                <span class="tab-icon">⏱️</span> Finishing Gap &amp; Deficit
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnProfiler" onclick="switchMainTab('profiler')">
-                <span class="tab-icon">🏎️</span> Circuit &amp; Aero Profiler
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnConstructors" onclick="switchMainTab('constructors')">
-                <span class="tab-icon">🏎️</span> Constructor ATR & Standings
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnMomentum" onclick="switchMainTab('momentum')">
-                <span class="tab-icon">🚀</span> Constructor Momentum &amp; Trajectory
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnSprint" onclick="switchMainTab('sprint')">
-                <span class="tab-icon">⚡</span> Sprint vs GP Disparity
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnClinch" onclick="switchMainTab('clinch')">
-                <span class="tab-icon">🏆</span> Championship Clinch Engine
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnPitStops" onclick="switchMainTab('pitstops')">
-                <span class="tab-icon">⏱️</span> Pit Stop Performance Matrix
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnReliability" onclick="switchMainTab('reliability')">
-                <span class="tab-icon">🛡️</span> Reliability &amp; DNF Matrix
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnQualifying" onclick="switchMainTab('qualifying')">
-                <span class="tab-icon">🎯</span> Qualifying Pace &amp; Pole Conversion
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnOvertake" onclick="switchMainTab('overtake')">
-                <span class="tab-icon">📈</span> Grid vs Finish &amp; Overtake Index
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnTelemetry" onclick="switchMainTab('telemetry')">
-                <span class="tab-icon">⚡</span> Teammate Head-to-Head Telemetry
-            </button>
-            <button type="button" class="tab-btn" id="tabBtnProgression" onclick="switchMainTab('progression')">
+            <button type="button" class="tab-btn" id="tabBtnProgression" data-tab-id="progression" onclick="switchMainTab('progression')">
                 <span class="tab-icon">📈</span> Standings Progression
             </button>
-            <button type="button" class="tab-btn" id="tabBtnResults" onclick="switchMainTab('results')">
-                <span class="tab-icon">🏁</span> Latest Race & Driver Standings
+            <button type="button" class="tab-btn" id="tabBtnConstructors" data-tab-id="constructors" onclick="switchMainTab('constructors')">
+                <span class="tab-icon">🏎️</span> Constructor ATR &amp; Standings
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnLapChart" data-tab-id="lap-chart" onclick="switchMainTab('lap-chart')">
+                <span class="tab-icon">🔄</span> Lap-by-Lap &amp; Laps Led
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnTelemetry" data-tab-id="telemetry" onclick="switchMainTab('telemetry')">
+                <span class="tab-icon">⚡</span> Teammate Head-to-Head Telemetry
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnQualifying" data-tab-id="qualifying" aria-hidden="true" onclick="switchMainTab('qualifying')">
+                <span class="tab-icon">🎯</span> Qualifying Pace &amp; Pole Conversion
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnOvertake" data-tab-id="overtake" aria-hidden="true" onclick="switchMainTab('overtake')">
+                <span class="tab-icon">📈</span> Grid vs Finish &amp; Overtake Index
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnSprint" data-tab-id="sprint" aria-hidden="true" onclick="switchMainTab('sprint')">
+                <span class="tab-icon">⚡</span> Sprint vs GP Disparity
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnStints" data-tab-id="stints" aria-hidden="true" onclick="switchMainTab('stints')">
+                <span class="tab-icon">📉</span> Stint &amp; Degradation Profiler
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnPitStops" data-tab-id="pitstops" aria-hidden="true" onclick="switchMainTab('pitstops')">
+                <span class="tab-icon">⏱️</span> Pit Stop Performance Matrix
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnFinishingGap" data-tab-id="finishing-gap" aria-hidden="true" onclick="switchMainTab('finishing-gap')">
+                <span class="tab-icon">⏱️</span> Finishing Gap &amp; Deficit
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnMomentum" data-tab-id="momentum" aria-hidden="true" onclick="switchMainTab('momentum')">
+                <span class="tab-icon">🚀</span> Constructor Momentum &amp; Trajectory
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnProfiler" data-tab-id="profiler" aria-hidden="true" onclick="switchMainTab('profiler')">
+                <span class="tab-icon">🏎️</span> Circuit &amp; Aero Profiler
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnReliability" data-tab-id="reliability" aria-hidden="true" onclick="switchMainTab('reliability')">
+                <span class="tab-icon">🛡️</span> Reliability &amp; DNF Matrix
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnClinch" data-tab-id="clinch" aria-hidden="true" onclick="switchMainTab('clinch')">
+                <span class="tab-icon">🏆</span> Championship Clinch Engine
+            </button>
+            <button type="button" class="tab-btn tab-btn-hidden" id="tabBtnAll" data-tab-id="all" aria-hidden="true" onclick="switchMainTab('all')">
+                <span class="tab-icon">👁️</span> All Telemetry &amp; Standings
+            </button>
+            <button type="button" class="tab-config-trigger" id="tabConfigBtn" onclick="toggleTabConfigPanel()" aria-expanded="false" aria-controls="tabConfigPanel" title="Configure visible dashboard tabs">
+                <span>⚙️</span> Configure Tabs <span class="tab-config-count" id="tabConfigCount">5/16</span>
             </button>
         </nav>
+
+        <!-- Tab Configuration Panel (Issue #30) -->
+        <div class="tab-config-panel" id="tabConfigPanel" style="display: none;" role="region" aria-label="Dashboard Tab Configuration">
+            <div class="tab-config-panel-header">
+                <div class="tab-config-panel-title">
+                    <h3>Configure Dashboard Tabs</h3>
+                    <p>Showing the 5 essential tabs by default. Enable additional telemetry views or choose a preset below (saved locally).</p>
+                </div>
+                <button type="button" class="tab-preset-btn" onclick="toggleTabConfigPanel(false)">Close ✕</button>
+            </div>
+            <div class="tab-config-presets" id="tabConfigPresets"></div>
+            <div class="tab-config-categories" id="tabConfigList"></div>
+            <div class="tab-config-notice" id="tabConfigNotice" style="display: none;"></div>
+        </div>
 
         <!-- Interactive Lap-by-Lap Position Chart & Season Laps Led Telemetry (Issue #14) -->
         <section class="card telemetry-section lap-chart-section" id="lap-chart-section">
@@ -21408,6 +21615,504 @@
             return loadOvertakeIndexData(overtakeIndexState.season, true);
         }
 
+        // ==========================================
+        // Tab Optimization & Configuration (Issue #30)
+        // ==========================================
+        const TAB_STORAGE_KEY = 'f1_tab_config_v1';
+
+        const TAB_REGISTRY = [
+            {
+                id: 'results',
+                btnId: 'tabBtnResults',
+                label: 'Latest Race & Driver Standings',
+                category: 'core',
+                description: 'Latest Grand Prix classification and current World Drivers Championship table (Jolpica F1 API).',
+                defaultEnabled: true,
+                sectionIds: ['latest-race-section', 'standings-table-section'],
+                aliases: []
+            },
+            {
+                id: 'progression',
+                btnId: 'tabBtnProgression',
+                label: 'Standings Progression',
+                category: 'core',
+                description: 'Round-by-round cumulative driver points trajectory across the season.',
+                defaultEnabled: true,
+                sectionIds: ['progression-section'],
+                aliases: []
+            },
+            {
+                id: 'constructors',
+                btnId: 'tabBtnConstructors',
+                label: 'Constructor ATR & Standings',
+                category: 'core',
+                description: 'Constructor championship table, points delta, and wind-tunnel ATR allocation.',
+                defaultEnabled: true,
+                sectionIds: ['constructor-atr-section'],
+                aliases: []
+            },
+            {
+                id: 'lap-chart',
+                btnId: 'tabBtnLapChart',
+                label: 'Lap-by-Lap & Laps Led',
+                category: 'core',
+                description: 'Interactive race lap position trace and season laps led leaderboard.',
+                defaultEnabled: true,
+                sectionIds: ['lap-chart-section'],
+                aliases: []
+            },
+            {
+                id: 'telemetry',
+                btnId: 'tabBtnTelemetry',
+                label: 'Teammate Head-to-Head Telemetry',
+                category: 'core',
+                description: 'Qualifying and race pace comparison between intra-team teammates.',
+                defaultEnabled: true,
+                sectionIds: ['teammate-telemetry-section'],
+                aliases: []
+            },
+            {
+                id: 'qualifying',
+                btnId: 'tabBtnQualifying',
+                label: 'Qualifying Pace & Pole Conversion',
+                category: 'driver',
+                description: 'Grid-to-finish correlation and pole-to-victory conversion efficiency.',
+                defaultEnabled: false,
+                sectionIds: ['qualifying-correlation-section'],
+                aliases: []
+            },
+            {
+                id: 'overtake',
+                btnId: 'tabBtnOvertake',
+                label: 'Grid vs Finish & Overtake Index',
+                category: 'driver',
+                description: 'Positions gained on track and race-craft overtake index metrics.',
+                defaultEnabled: false,
+                sectionIds: ['overtake-index-section'],
+                aliases: ['overtake-index', 'grid-delta']
+            },
+            {
+                id: 'sprint',
+                btnId: 'tabBtnSprint',
+                label: 'Sprint vs GP Disparity',
+                category: 'driver',
+                description: 'Saturday Sprint scoring share vs Sunday Grand Prix efficiency.',
+                defaultEnabled: false,
+                sectionIds: ['sprint-disparity-section'],
+                aliases: []
+            },
+            {
+                id: 'stints',
+                btnId: 'tabBtnStints',
+                label: 'Stint & Degradation Profiler',
+                category: 'race',
+                description: 'Tyre stint detection, fuel-corrected lap degradation, and pace matrix.',
+                defaultEnabled: false,
+                sectionIds: ['stint-profiler-section'],
+                aliases: ['degradation']
+            },
+            {
+                id: 'pitstops',
+                btnId: 'tabBtnPitStops',
+                label: 'Pit Stop Performance Matrix',
+                category: 'race',
+                description: 'Constructor pit crew stationary times, IQR spreads, and outlier filtering.',
+                defaultEnabled: false,
+                sectionIds: ['pitstop-matrix-section'],
+                aliases: []
+            },
+            {
+                id: 'finishing-gap',
+                btnId: 'tabBtnFinishingGap',
+                label: 'Finishing Gap & Deficit',
+                category: 'race',
+                description: 'Winning margins and time-deficit classification across races.',
+                defaultEnabled: false,
+                sectionIds: ['finishing-gap-section'],
+                aliases: []
+            },
+            {
+                id: 'momentum',
+                btnId: 'tabBtnMomentum',
+                label: 'Constructor Momentum & Trajectory',
+                category: 'championship',
+                description: 'Rolling constructor form and multi-round points momentum.',
+                defaultEnabled: false,
+                sectionIds: ['constructor-momentum-section'],
+                aliases: []
+            },
+            {
+                id: 'profiler',
+                btnId: 'tabBtnProfiler',
+                label: 'Circuit & Aero Profiler',
+                category: 'championship',
+                description: 'Team performance segmented by circuit aerodynamic archetype.',
+                defaultEnabled: false,
+                sectionIds: ['circuit-profiler-section'],
+                aliases: []
+            },
+            {
+                id: 'reliability',
+                btnId: 'tabBtnReliability',
+                label: 'Reliability & DNF Matrix',
+                category: 'championship',
+                description: 'Mechanical vs collision retirement breakdown across constructors.',
+                defaultEnabled: false,
+                sectionIds: ['reliability-matrix-section'],
+                aliases: []
+            },
+            {
+                id: 'clinch',
+                btnId: 'tabBtnClinch',
+                label: 'Championship Clinch Engine',
+                category: 'championship',
+                description: 'Mathematical WDC/WCC title clinch simulator and scenario matrix.',
+                defaultEnabled: false,
+                sectionIds: ['clinch-engine-section'],
+                aliases: []
+            },
+            {
+                id: 'all',
+                btnId: 'tabBtnAll',
+                label: 'All Telemetry & Standings',
+                category: 'layout',
+                description: 'Combined vertical scroll view displaying all dashboard sections.',
+                defaultEnabled: false,
+                sectionIds: [],
+                aliases: []
+            }
+        ];
+
+        const DEFAULT_ENABLED_TABS = TAB_REGISTRY
+            .filter(tab => tab.defaultEnabled)
+            .map(tab => tab.id);
+
+        const TAB_PRESETS = {
+            'default': {
+                id: 'default',
+                label: 'Essential (5)',
+                tabs: [...DEFAULT_ENABLED_TABS]
+            },
+            'race-engineer': {
+                id: 'race-engineer',
+                label: 'Race Engineer (8)',
+                tabs: [...DEFAULT_ENABLED_TABS, 'stints', 'pitstops', 'finishing-gap']
+            },
+            'weekend-pace': {
+                id: 'weekend-pace',
+                label: 'Weekend & Pace (8)',
+                tabs: [...DEFAULT_ENABLED_TABS, 'qualifying', 'overtake', 'sprint']
+            },
+            'championship': {
+                id: 'championship',
+                label: 'Championship (9)',
+                tabs: [...DEFAULT_ENABLED_TABS, 'momentum', 'profiler', 'reliability', 'clinch']
+            },
+            'all': {
+                id: 'all',
+                label: 'All Tabs (16)',
+                tabs: TAB_REGISTRY.map(tab => tab.id)
+            }
+        };
+
+        const TAB_CATEGORY_LABELS = {
+            core: 'Core Dashboard (Default)',
+            driver: 'Driver & Session Analytics',
+            race: 'Race Telemetry & Strategy',
+            championship: 'Constructor & Championship',
+            layout: 'Combined Views'
+        };
+
+        const tabConfigState = {
+            enabledTabs: [...DEFAULT_ENABLED_TABS],
+            activeTab: 'results',
+            panelOpen: false,
+            notice: ''
+        };
+
+        function normalizeTabId(tabId) {
+            if (typeof tabId !== 'string') return null;
+            const trimmed = tabId.trim().toLowerCase();
+            if (!trimmed) return null;
+            for (let i = 0; i < TAB_REGISTRY.length; i++) {
+                const entry = TAB_REGISTRY[i];
+                if (entry.id === trimmed || (Array.isArray(entry.aliases) && entry.aliases.includes(trimmed))) {
+                    return entry.id;
+                }
+            }
+            return null;
+        }
+
+        function sanitizeEnabledTabs(tabs) {
+            if (!Array.isArray(tabs)) return [...DEFAULT_ENABLED_TABS];
+            const validSet = new Set();
+            tabs.forEach(item => {
+                const canonical = normalizeTabId(item);
+                if (canonical) validSet.add(canonical);
+            });
+            const ordered = TAB_REGISTRY
+                .filter(entry => validSet.has(entry.id))
+                .map(entry => entry.id);
+            return ordered.length > 0 ? ordered : [...DEFAULT_ENABLED_TABS];
+        }
+
+        function parseTabsQueryParam(searchStr) {
+            const raw = typeof searchStr === 'string'
+                ? searchStr
+                : (typeof window !== 'undefined' && window.location && typeof window.location.search === 'string' ? window.location.search : '');
+            if (!raw) return null;
+            const query = raw.startsWith('?') ? raw.slice(1) : raw;
+            if (!query) return null;
+            const params = query.split('&');
+            for (let i = 0; i < params.length; i++) {
+                const parts = params[i].split('=');
+                const key = decodeURIComponent(parts[0] || '');
+                if (key === 'tabs') {
+                    const val = decodeURIComponent(parts.slice(1).join('=') || '').trim();
+                    if (!val) return null;
+                    if (val.toLowerCase() === 'all') {
+                        return TAB_REGISTRY.map(tab => tab.id);
+                    }
+                    if (val.toLowerCase() === 'default') {
+                        return [...DEFAULT_ENABLED_TABS];
+                    }
+                    const requested = val.split(',').map(s => normalizeTabId(s)).filter(Boolean);
+                    return requested.length > 0 ? sanitizeEnabledTabs(requested) : null;
+                }
+            }
+            return null;
+        }
+
+        function loadTabConfiguration(searchOverride) {
+            const queryTabs = parseTabsQueryParam(searchOverride);
+            if (queryTabs) {
+                tabConfigState.enabledTabs = sanitizeEnabledTabs(queryTabs);
+                return [...tabConfigState.enabledTabs];
+            }
+            try {
+                if (typeof localStorage !== 'undefined' && localStorage) {
+                    const saved = localStorage.getItem(TAB_STORAGE_KEY);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        const rawTabs = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.enabledTabs) ? parsed.enabledTabs : null);
+                        if (rawTabs && rawTabs.length > 0) {
+                            tabConfigState.enabledTabs = sanitizeEnabledTabs(rawTabs);
+                            return [...tabConfigState.enabledTabs];
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignore localStorage parse/access issues and fall back to defaults
+            }
+            tabConfigState.enabledTabs = [...DEFAULT_ENABLED_TABS];
+            return [...tabConfigState.enabledTabs];
+        }
+
+        function saveTabConfiguration(tabs) {
+            const sanitized = sanitizeEnabledTabs(tabs);
+            tabConfigState.enabledTabs = sanitized;
+            try {
+                if (typeof localStorage !== 'undefined' && localStorage) {
+                    localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify({
+                        version: 1,
+                        enabledTabs: sanitized
+                    }));
+                }
+            } catch (e) {
+                // Ignore storage quota/access errors
+            }
+            return [...sanitized];
+        }
+
+        function getEnabledTabs() {
+            return [...tabConfigState.enabledTabs];
+        }
+
+        function getDisabledTabs() {
+            const enabledSet = new Set(tabConfigState.enabledTabs);
+            return TAB_REGISTRY.filter(tab => !enabledSet.has(tab.id)).map(tab => tab.id);
+        }
+
+        function isTabEnabled(tabId) {
+            const canonical = normalizeTabId(tabId);
+            if (!canonical) return false;
+            return tabConfigState.enabledTabs.includes(canonical);
+        }
+
+        function getInitialActiveTab() {
+            if (isTabEnabled('results')) return 'results';
+            return tabConfigState.enabledTabs[0] || 'results';
+        }
+
+        function applyTabConfigurationToDom() {
+            if (typeof document === 'undefined') return;
+            const enabledSet = new Set(tabConfigState.enabledTabs);
+            TAB_REGISTRY.forEach(entry => {
+                const btn = document.getElementById(entry.btnId);
+                if (!btn) return;
+                const enabled = enabledSet.has(entry.id);
+                if (enabled) {
+                    if (btn.classList && typeof btn.classList.remove === 'function') {
+                        btn.classList.remove('tab-btn-hidden');
+                    }
+                    if (btn.style) btn.style.display = '';
+                    if (typeof btn.setAttribute === 'function') {
+                        btn.setAttribute('aria-hidden', 'false');
+                    }
+                } else {
+                    if (btn.classList && typeof btn.classList.add === 'function') {
+                        btn.classList.add('tab-btn-hidden');
+                    }
+                    if (btn.style) btn.style.display = 'none';
+                    if (typeof btn.setAttribute === 'function') {
+                        btn.setAttribute('aria-hidden', 'true');
+                    }
+                }
+            });
+            const countEl = document.getElementById('tabConfigCount');
+            if (countEl) {
+                countEl.textContent = `${tabConfigState.enabledTabs.length}/${TAB_REGISTRY.length}`;
+            }
+            renderTabConfigPanel();
+        }
+
+        function getMatchingPresetId() {
+            const currentKey = [...tabConfigState.enabledTabs].sort().join(',');
+            const presetKeys = Object.keys(TAB_PRESETS);
+            for (let i = 0; i < presetKeys.length; i++) {
+                const preset = TAB_PRESETS[presetKeys[i]];
+                if ([...preset.tabs].sort().join(',') === currentKey) {
+                    return preset.id;
+                }
+            }
+            return null;
+        }
+
+        function renderTabConfigPanel() {
+            if (typeof document === 'undefined') return;
+            const presetsEl = document.getElementById('tabConfigPresets');
+            const listEl = document.getElementById('tabConfigList');
+            const noticeEl = document.getElementById('tabConfigNotice');
+
+            if (presetsEl) {
+                const activePreset = getMatchingPresetId();
+                const presetButtons = Object.values(TAB_PRESETS).map(preset => {
+                    const activeClass = activePreset === preset.id ? ' active' : '';
+                    return `<button type="button" class="tab-preset-btn${activeClass}" data-preset-id="${preset.id}" onclick="applyTabPreset('${preset.id}')">${preset.label}</button>`;
+                });
+                presetsEl.innerHTML = presetButtons.join('');
+            }
+
+            if (listEl) {
+                const enabledSet = new Set(tabConfigState.enabledTabs);
+                const categoryOrder = ['core', 'driver', 'race', 'championship', 'layout'];
+                const categoryBlocks = categoryOrder.map(catKey => {
+                    const items = TAB_REGISTRY.filter(tab => tab.category === catKey);
+                    if (items.length === 0) return '';
+                    const itemsHtml = items.map(tab => {
+                        const checkedAttr = enabledSet.has(tab.id) ? ' checked' : '';
+                        return `<label class="tab-config-item">` +
+                            `<input type="checkbox" data-config-tab="${tab.id}"${checkedAttr} onchange="setTabEnabled('${tab.id}', this.checked)">` +
+                            `<span class="tab-config-item-text">` +
+                            `<span class="tab-config-item-label">${tab.label}</span>` +
+                            `<span class="tab-config-item-desc">${tab.description}</span>` +
+                            `</span>` +
+                            `</label>`;
+                    }).join('');
+                    return `<div class="tab-config-category">` +
+                        `<div class="tab-config-category-title">${TAB_CATEGORY_LABELS[catKey] || catKey}</div>` +
+                        `<div class="tab-config-items">${itemsHtml}</div>` +
+                        `</div>`;
+                }).filter(Boolean);
+                listEl.innerHTML = categoryBlocks.join('');
+            }
+
+            if (noticeEl) {
+                if (tabConfigState.notice) {
+                    noticeEl.textContent = tabConfigState.notice;
+                    if (noticeEl.style) noticeEl.style.display = 'block';
+                } else {
+                    noticeEl.textContent = '';
+                    if (noticeEl.style) noticeEl.style.display = 'none';
+                }
+            }
+        }
+
+        function toggleTabConfigPanel(forceOpen) {
+            const nextState = typeof forceOpen === 'boolean' ? forceOpen : !tabConfigState.panelOpen;
+            tabConfigState.panelOpen = nextState;
+            if (typeof document !== 'undefined') {
+                const panelEl = document.getElementById('tabConfigPanel');
+                const triggerBtn = document.getElementById('tabConfigBtn');
+                if (panelEl && panelEl.style) {
+                    panelEl.style.display = nextState ? 'block' : 'none';
+                }
+                if (triggerBtn && typeof triggerBtn.setAttribute === 'function') {
+                    triggerBtn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+                }
+                if (nextState) {
+                    renderTabConfigPanel();
+                }
+            }
+            return tabConfigState.panelOpen;
+        }
+
+        function setTabEnabled(tabId, enabled) {
+            const canonical = normalizeTabId(tabId);
+            if (!canonical) {
+                return { ok: false, reason: 'unknown-tab', enabledTabs: getEnabledTabs() };
+            }
+            const nextEnabled = Boolean(enabled);
+            const current = [...tabConfigState.enabledTabs];
+            if (!nextEnabled) {
+                if (current.includes(canonical) && current.length <= 1) {
+                    tabConfigState.notice = 'At least one tab must remain enabled.';
+                    applyTabConfigurationToDom();
+                    return { ok: false, reason: 'last-tab', enabledTabs: getEnabledTabs() };
+                }
+                const filtered = current.filter(id => id !== canonical);
+                tabConfigState.notice = '';
+                saveTabConfiguration(filtered);
+                applyTabConfigurationToDom();
+                if (normalizeTabId(tabConfigState.activeTab) === canonical) {
+                    switchMainTab(getInitialActiveTab());
+                }
+                return { ok: true, enabledTabs: getEnabledTabs() };
+            }
+
+            if (!current.includes(canonical)) {
+                current.push(canonical);
+            }
+            tabConfigState.notice = '';
+            saveTabConfiguration(current);
+            applyTabConfigurationToDom();
+            return { ok: true, enabledTabs: getEnabledTabs() };
+        }
+
+        function applyTabPreset(presetId) {
+            const preset = TAB_PRESETS[presetId];
+            if (!preset) return false;
+            tabConfigState.notice = '';
+            saveTabConfiguration(preset.tabs);
+            applyTabConfigurationToDom();
+            if (!isTabEnabled(tabConfigState.activeTab)) {
+                switchMainTab(getInitialActiveTab());
+            }
+            return true;
+        }
+
+        function resetTabConfiguration() {
+            return applyTabPreset('default');
+        }
+
+        function initTabConfiguration(searchOverride) {
+            loadTabConfiguration(searchOverride);
+            applyTabConfigurationToDom();
+            const initialTab = getInitialActiveTab();
+            switchMainTab(initialTab);
+            return initialTab;
+        }
+
         function switchMainTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const btnMap = {
@@ -21433,6 +22138,10 @@
             };
             const activeBtn = document.getElementById(btnMap[tabId] || `tabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
             if (activeBtn) activeBtn.classList.add('active');
+            if (typeof tabConfigState !== 'undefined' && tabConfigState) {
+                const resolvedTab = typeof normalizeTabId === 'function' ? normalizeTabId(tabId) : null;
+                tabConfigState.activeTab = resolvedTab || tabId;
+            }
 
             const lapChartSec = document.getElementById('lap-chart-section');
             const stintSec = document.getElementById('stint-profiler-section');
@@ -21963,6 +22672,10 @@
                     overtakeIndexState.season = String(overtakeSeasonSelect.value);
                 }
             }
+
+            if (typeof initTabConfiguration === 'function') {
+                initTabConfiguration();
+            }
         });
 
         if (typeof window !== 'undefined') {
@@ -22146,6 +22859,28 @@
             window.FINISHING_GAP_FALLBACK_DRIVERS_2024 = FINISHING_GAP_FALLBACK_DRIVERS_2024;
             window.FINISHING_GAP_FALLBACK_ROUNDS_2024 = FINISHING_GAP_FALLBACK_ROUNDS_2024;
             window.switchMainTab = switchMainTab;
+            window.TAB_STORAGE_KEY = TAB_STORAGE_KEY;
+            window.TAB_REGISTRY = TAB_REGISTRY;
+            window.DEFAULT_ENABLED_TABS = DEFAULT_ENABLED_TABS;
+            window.TAB_PRESETS = TAB_PRESETS;
+            window.TAB_CATEGORY_LABELS = TAB_CATEGORY_LABELS;
+            window.tabConfigState = tabConfigState;
+            window.normalizeTabId = normalizeTabId;
+            window.sanitizeEnabledTabs = sanitizeEnabledTabs;
+            window.parseTabsQueryParam = parseTabsQueryParam;
+            window.loadTabConfiguration = loadTabConfiguration;
+            window.saveTabConfiguration = saveTabConfiguration;
+            window.getEnabledTabs = getEnabledTabs;
+            window.getDisabledTabs = getDisabledTabs;
+            window.isTabEnabled = isTabEnabled;
+            window.getInitialActiveTab = getInitialActiveTab;
+            window.applyTabConfigurationToDom = applyTabConfigurationToDom;
+            window.renderTabConfigPanel = renderTabConfigPanel;
+            window.toggleTabConfigPanel = toggleTabConfigPanel;
+            window.setTabEnabled = setTabEnabled;
+            window.applyTabPreset = applyTabPreset;
+            window.resetTabConfiguration = resetTabConfiguration;
+            window.initTabConfiguration = initTabConfiguration;
             window.fetchLatestRaceResults = fetchLatestRaceResults;
             window.fetchDriverStandings = fetchDriverStandings;
             window.onSeasonChange = onSeasonChange;
@@ -22328,6 +23063,28 @@
                 LAP_CHART_FALLBACK_LAPS_2024,
                 SEASON_LAPS_LED_FALLBACK_2024,
                 switchMainTab,
+                TAB_STORAGE_KEY,
+                TAB_REGISTRY,
+                DEFAULT_ENABLED_TABS,
+                TAB_PRESETS,
+                TAB_CATEGORY_LABELS,
+                tabConfigState,
+                normalizeTabId,
+                sanitizeEnabledTabs,
+                parseTabsQueryParam,
+                loadTabConfiguration,
+                saveTabConfiguration,
+                getEnabledTabs,
+                getDisabledTabs,
+                isTabEnabled,
+                getInitialActiveTab,
+                applyTabConfigurationToDom,
+                renderTabConfigPanel,
+                toggleTabConfigPanel,
+                setTabEnabled,
+                applyTabPreset,
+                resetTabConfiguration,
+                initTabConfiguration,
                 fetchLatestRaceResults,
                 fetchDriverStandings,
                 onSeasonChange,
