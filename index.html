@@ -19903,6 +19903,27 @@
             const allRoundKeys = Array.from(new Set([...roundQualMap.keys(), ...roundResMap.keys()]))
                 .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 
+            // Issue #38: a round only counts once its race has actually been run, i.e. Jolpica
+            // returned race Results for it. Qualifying-only rounds (e.g. the Saturday-to-Sunday
+            // window, or a race whose results are not yet published) are "pending": they must not
+            // be scored as DNS/P{maxGrid} losses nor as unconverted poles.
+            const hasRaceResults = (roundNum) => {
+                const res = roundResMap.get(roundNum);
+                return Array.isArray(res?.Results) && res.Results.length > 0;
+            };
+            const completedRoundKeys = allRoundKeys.filter(hasRaceResults);
+            const pendingRounds = allRoundKeys
+                .filter(k => !hasRaceResults(k))
+                .map(k => {
+                    const q = roundQualMap.get(k);
+                    const r = roundResMap.get(k);
+                    return {
+                        round: k,
+                        raceName: q?.raceName || r?.raceName || `Round ${k}`,
+                        date: q?.date || r?.date || ''
+                    };
+                });
+
             let maxGrid = 20;
             resRoundsList.forEach(r => {
                 const results = r.Results || [];
@@ -19913,6 +19934,7 @@
                 });
             });
             qualRoundsList.forEach(r => {
+                if (!r || r.round == null || !hasRaceResults(String(r.round))) return;
                 const results = r.QualifyingResults || [];
                 if (results.length > maxGrid) maxGrid = results.length;
                 results.forEach(res => {
@@ -19927,7 +19949,7 @@
             const points = [];
             const driverMap = new Map();
 
-            allRoundKeys.forEach(roundNum => {
+            completedRoundKeys.forEach(roundNum => {
                 const qualRound = roundQualMap.get(roundNum);
                 const resRound = roundResMap.get(roundNum);
 
@@ -20197,7 +20219,9 @@
 
             return {
                 season,
-                totalRaces: allRoundKeys.length,
+                totalRaces: completedRoundKeys.length,
+                pendingRounds,
+                pendingRoundCount: pendingRounds.length,
                 totalPoles,
                 convertedWins,
                 unconvertedPoles,
@@ -20222,6 +20246,12 @@
             if (metrics.isFallback) return false;
             if (!(Number(metrics.totalRaces) > 0)) return false;
             if (!Array.isArray(metrics.points)) return false;
+            // Issue #38: never serve/persist a snapshot containing unraced rounds — it would freeze
+            // the pending state. Also purge legacy entries that scored an unraced round as an
+            // unconverted pole (a completed race always has a winner).
+            if (Number(metrics.pendingRoundCount) > 0) return false;
+            if (Array.isArray(metrics.pendingRounds) && metrics.pendingRounds.length > 0) return false;
+            if (Array.isArray(metrics.poleSitters) && metrics.poleSitters.some(p => p && !p.winnerDriverId)) return false;
             try {
                 if (_qualifyingFallbackSignature === null) {
                     _qualifyingFallbackSignature = JSON.stringify(computeQualifyingCorrelationMetrics(
@@ -20648,7 +20678,13 @@
             if (!metrics) return;
 
             if (valConv) valConv.textContent = `${metrics.poleConversionRate}%`;
-            if (subConv) subConv.textContent = `${metrics.convertedWins} of ${metrics.totalPoles} Poles Converted to Win`;
+            if (subConv) {
+                const pendingCount = Number(metrics.pendingRoundCount) || 0;
+                const pendingNote = pendingCount > 0
+                    ? ` (${pendingCount} upcoming race${pendingCount > 1 ? 's' : ''} pending)`
+                    : '';
+                subConv.textContent = `${metrics.convertedWins} of ${metrics.totalPoles} Poles Converted to Win${pendingNote}`;
+            }
 
             if (valDelta) {
                 const sign = metrics.avgDelta > 0 ? '+' : '';

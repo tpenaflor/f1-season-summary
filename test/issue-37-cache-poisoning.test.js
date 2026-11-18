@@ -152,7 +152,9 @@ describe('Issue #37: Qualifying Correlation cache poisoning', () => {
     test('does not cache partial data when one endpoint fails', async () => {
         const env = createEnv(routedFetch({ qualifying: async () => racesPayload(qualifyingRaces()), results: fail }));
         const metrics = await env.exports.loadQualifyingCorrelationData('2023', true);
-        assert.ok(metrics.totalRaces > 0);
+        // Issue #38: qualifying-only rounds are pending (unraced), not scored races.
+        assert.equal(metrics.totalRaces, 0);
+        assert.ok(metrics.pendingRoundCount > 0);
         assert.equal(env.elements.qualifyingCacheBadge.textContent, '⚠️ Partial Jolpica Data');
         assert.equal(env.storage[KEY_2023], undefined);
     });
