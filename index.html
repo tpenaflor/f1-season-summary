@@ -10123,16 +10123,16 @@
             clinchState.round = 'latest';
             const roundSel = document.getElementById('clinchRoundSelect');
             if (roundSel) roundSel.value = 'latest';
-            loadClinchEngineData(season, 'latest', false);
+            return loadClinchEngineData(season, 'latest', false);
         }
 
         function onClinchRoundChange(round) {
             clinchState.round = round;
-            loadClinchEngineData(clinchState.season, round, false);
+            return loadClinchEngineData(clinchState.season, round, false);
         }
 
         function refreshClinchEngineData() {
-            loadClinchEngineData(clinchState.season, clinchState.round, true);
+            return loadClinchEngineData(clinchState.season, clinchState.round, true);
         }
 
         async function fetchWithRetry(url, options = {}, retries = 2, delay = 500) {
@@ -10196,8 +10196,9 @@
 
         async function loadClinchEngineData(season, round = 'latest', forceRefresh = false) {
             const mode = clinchState.mode;
-            clinchState.season = String(season || clinchState.season || '2024');
-            const cacheKey = `f1_clinch_v1_${season}_${mode}_${round}`;
+            const seasonStr = String(season || clinchState.season || '2024');
+            clinchState.season = seasonStr;
+            const cacheKey = `f1_clinch_v1_${seasonStr}_${mode}_${round}`;
             const badge = document.getElementById('clinchCacheBadge');
             const errEl = document.getElementById('clinchError');
             if (errEl) errEl.style.display = 'none';
@@ -10232,11 +10233,11 @@
             try {
                 const roundPath = (round && round !== 'latest') ? `/${round}` : '';
                 const endpointType = mode === 'constructors' ? 'constructorStandings.json' : 'driverStandings.json';
-                const standingsUrl = `https://api.jolpi.ca/ergast/f1/${season}${roundPath}/${endpointType}`;
-                const racesUrl = `https://api.jolpi.ca/ergast/f1/${season}/races.json`;
+                const standingsUrl = `https://api.jolpi.ca/ergast/f1/${seasonStr}${roundPath}/${endpointType}`;
+                const racesUrl = `https://api.jolpi.ca/ergast/f1/${seasonStr}/races.json`;
                 const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
-                    ? fetchAllJolpicaPages(season, 'results', 'Results').catch(() => [])
-                    : fetchWithRetry(`https://api.jolpi.ca/ergast/f1/${season}/results.json?limit=1000`)
+                    ? fetchAllJolpicaPages(seasonStr, 'results', 'Results').catch(() => [])
+                    : fetchWithRetry(`https://api.jolpi.ca/ergast/f1/${seasonStr}/results.json?limit=1000`)
                         .then(r => r?.MRData?.RaceTable?.Races || [])
                         .catch(() => []);
 
@@ -10312,7 +10313,7 @@
                 }
 
                 const payload = {
-                    season,
+                    season: seasonStr,
                     mode,
                     round,
                     races,
@@ -10336,37 +10337,64 @@
                 applyClinchPayload(payload);
             } catch (err) {
                 console.warn('Clinch API fallback activated:', err);
-                const fallbackStandings = mode === 'constructors'
-                    ? CLINCH_FALLBACK_2024.r24_constructors
-                    : (round === '21' ? CLINCH_FALLBACK_2024.r21_drivers : CLINCH_FALLBACK_2024.r24_drivers);
-                const fallbackCompleted = round === '21' ? 21 : (round === '22' ? 22 : 24);
-                const fallbackRaces = Array.from({ length: 24 }, (_, i) => ({
-                    round: String(i + 1),
-                    raceName: i + 1 === 22 ? 'Las Vegas Grand Prix' : (i + 1 === 23 ? 'Qatar Grand Prix' : `Round ${i + 1} Grand Prix`),
-                    Sprint: [5, 6, 11, 19, 21, 23].includes(i + 1) ? { date: '2024-11-30' } : undefined
-                }));
-
-                if (badge) {
-                    badge.className = 'cache-badge cached';
-                    badge.textContent = '⚡ Offline Telemetry';
-                }
                 clinchState.isLoading = false;
                 clinchState.dataLoaded = true;
-                applyClinchPayload({
-                    season,
-                    mode,
-                    round,
-                    races: fallbackRaces,
-                    completedRound: fallbackCompleted,
-                    countbackVerified: true,
-                    standings: fallbackStandings
-                });
+
+                if (seasonStr === '2024') {
+                    const fallbackStandings = mode === 'constructors'
+                        ? CLINCH_FALLBACK_2024.r24_constructors
+                        : (round === '21' ? CLINCH_FALLBACK_2024.r21_drivers : CLINCH_FALLBACK_2024.r24_drivers);
+                    const fallbackCompleted = round === '21' ? 21 : (round === '22' ? 22 : 24);
+                    const fallbackRaces = Array.from({ length: 24 }, (_, i) => ({
+                        round: String(i + 1),
+                        raceName: i + 1 === 22 ? 'Las Vegas Grand Prix' : (i + 1 === 23 ? 'Qatar Grand Prix' : `Round ${i + 1} Grand Prix`),
+                        Sprint: [5, 6, 11, 19, 21, 23].includes(i + 1) ? { date: '2024-11-30' } : undefined
+                    }));
+
+                    if (badge) {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚡ Offline Telemetry';
+                    }
+                    applyClinchPayload({
+                        season: seasonStr,
+                        mode,
+                        round,
+                        races: fallbackRaces,
+                        completedRound: fallbackCompleted,
+                        countbackVerified: true,
+                        standings: fallbackStandings
+                    });
+                } else {
+                    if (badge) {
+                        badge.className = 'cache-badge no-data';
+                        badge.textContent = '⚠️ Telemetry Unavailable';
+                    }
+                    if (errEl) {
+                        errEl.style.display = 'block';
+                        errEl.textContent = `No championship standings telemetry available for the ${seasonStr} season.`;
+                    }
+                    populateClinchRoundDropdown([], 0, 'latest');
+                    applyClinchPayload({
+                        season: seasonStr,
+                        mode,
+                        round,
+                        races: [],
+                        completedRound: 0,
+                        countbackVerified: false,
+                        standings: []
+                    });
+                }
             }
         }
 
         function populateClinchRoundDropdown(races, completedRound, selectedRound) {
             const roundSel = document.getElementById('clinchRoundSelect');
-            if (!roundSel || !races || races.length === 0) return;
+            if (!roundSel) return;
+            if (!races || races.length === 0) {
+                roundSel.innerHTML = '<option value="latest" selected>Latest Standings</option>';
+                roundSel.value = 'latest';
+                return;
+            }
 
             const currentVal = selectedRound || roundSel.value || 'latest';
             let html = `<option value="latest" ${currentVal === 'latest' ? 'selected' : ''}>Latest Standings (Round ${completedRound})</option>`;
@@ -10380,7 +10408,7 @@
         }
 
         function applyClinchPayload(payload) {
-            const totalRaces = payload.races.length || 24;
+            const totalRaces = payload.races.length || (String(payload.season) === '2024' ? 24 : 0);
             const completedRound = payload.completedRound;
             const remainingRacesList = payload.races.filter(r => parseInt(r.round, 10) > completedRound);
             const remainingRaces = Math.max(0, remainingRacesList.length);
@@ -10428,6 +10456,14 @@
             const grid = document.getElementById('clinchSimControlsGrid');
             const label = document.getElementById('clinchSimRoundLabel');
             if (!grid) return;
+
+            if (!clinchState.standings || clinchState.standings.length === 0) {
+                grid.innerHTML = '';
+                if (label) {
+                    label.textContent = `No championship standings available for the ${clinchState.season} season.`;
+                }
+                return;
+            }
 
             const topContenders = clinchState.standings.slice(0, 6);
             const simAvailable = isClinchSimulationAvailable();
@@ -10614,7 +10650,46 @@
         }
 
         function recalculateAndRenderClinchMath() {
-            if (!clinchState.standings || clinchState.standings.length === 0) return;
+            if (!clinchState.standings || clinchState.standings.length === 0) {
+                const simBadge = document.getElementById('clinchSimActiveBadge');
+                if (simBadge) simBadge.style.display = 'none';
+
+                const setText = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                };
+                setText('clinchKpiLeaderName', '—');
+                setText('clinchKpiLeaderSub', `No standings data for ${clinchState.season}`);
+                setText('clinchKpiDeficitVal', '—');
+                setText('clinchKpiDeficitSub', '—');
+                setText('clinchKpiRemainingEvents', '0 GP / 0 SPR');
+                setText('clinchKpiRemainingSub', '0 Rounds Accounted');
+                setText('clinchKpiMaxPoints', '0 PTS');
+                setText('clinchKpiMaxPointsFormula', '—');
+                const elMagicNum = document.getElementById('clinchKpiMagicNumber');
+                if (elMagicNum) {
+                    elMagicNum.textContent = '—';
+                    elMagicNum.style.color = 'var(--clinch-cyan)';
+                }
+                setText('clinchKpiMagicSub', '—');
+
+                const elGaugeFill = document.getElementById('clinchGaugeFill');
+                if (elGaugeFill) elGaugeFill.style.width = '0%';
+                const elMarker = document.getElementById('clinchThresholdMarker');
+                if (elMarker) elMarker.style.left = '0%';
+                setText('clinchThresholdTag', 'THRESHOLD: —');
+                setText('clinchGaugeReadout', 'No championship standings loaded');
+                setText('clinchGaugeP2Ceiling', '—');
+                setText('clinchGaugeScaleMax', '—');
+
+                const listEl = document.getElementById('clinchScenarioList');
+                if (listEl) listEl.innerHTML = '';
+                const tieEl = document.getElementById('clinchTiebreakerContent');
+                if (tieEl) tieEl.innerHTML = '';
+                const tbody = document.getElementById('clinchMatrixTableBody');
+                if (tbody) tbody.innerHTML = '';
+                return;
+            }
             const isSimActive = isClinchSimActive();
             const simBadge = document.getElementById('clinchSimActiveBadge');
             if (simBadge) simBadge.style.display = isSimActive ? 'inline-flex' : 'none';
@@ -13868,6 +13943,12 @@
                     badge.className = 'cache-badge no-data';
                     badge.textContent = '⚠️ Data Unavailable';
                 }
+                const emptyMetrics = computeConstructorMomentumMetrics({ rounds: [], constructors: {} });
+                constructorMomentumState.metrics = emptyMetrics;
+                constructorMomentumState.rounds = [];
+                constructorMomentumState.constructors = {};
+                constructorMomentumState.sortedConstructors = [];
+                constructorMomentumState.hiddenTeams.clear();
                 renderConstructorMomentumView();
                 return constructorMomentumState;
             }
@@ -13954,7 +14035,21 @@
             const canvas = typeof document !== 'undefined' ? document.getElementById('constructorMomentumChart') : null;
             const pillsContainer = typeof document !== 'undefined' ? document.getElementById('momentumTeamLegendPills') : null;
             const metrics = constructorMomentumState.metrics;
-            if (!metrics) return;
+
+            if (constructorMomentumChartInstance) {
+                if (typeof constructorMomentumChartInstance.destroy === 'function') {
+                    constructorMomentumChartInstance.destroy();
+                }
+                constructorMomentumChartInstance = null;
+            }
+
+            if (!metrics || !Array.isArray(metrics.sortedConstructors) || metrics.sortedConstructors.length === 0) {
+                if (pillsContainer) pillsContainer.innerHTML = '';
+                if (typeof clearChartCanvas === 'function') {
+                    clearChartCanvas('constructorMomentumChart');
+                }
+                return;
+            }
 
             const { sortedConstructors, rounds } = metrics;
             const hiddenTeams = constructorMomentumState.hiddenTeams;
@@ -13996,13 +14091,6 @@
                     hidden: isHidden
                 };
             });
-
-            if (constructorMomentumChartInstance) {
-                if (typeof constructorMomentumChartInstance.destroy === 'function') {
-                    constructorMomentumChartInstance.destroy();
-                }
-                constructorMomentumChartInstance = null;
-            }
 
             const ctx = canvas.getContext ? canvas.getContext('2d') : null;
             if (!ctx) return;
@@ -14054,6 +14142,10 @@
         function renderMomentumTable(metrics) {
             const tbody = typeof document !== 'undefined' ? document.getElementById('constructorMomentumTableBody') : null;
             if (!tbody || !metrics || !metrics.sortedConstructors) return;
+            if (metrics.sortedConstructors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #94A3B8; padding: 24px;">No constructor momentum data available for selected season.</td></tr>';
+                return;
+            }
 
             const html = metrics.sortedConstructors.map((c, index) => {
                 const rank = c.rank || (index + 1);
@@ -14118,14 +14210,18 @@
         }
 
         function onMomentumSeasonChange(season) {
-            constructorMomentumState.season = String(season);
-            loadConstructorMomentumData(season, false);
+            const nextSeason = String(season);
+            if (nextSeason !== String(constructorMomentumState.season || '')) {
+                constructorMomentumState.hiddenTeams.clear();
+            }
+            constructorMomentumState.season = nextSeason;
+            return loadConstructorMomentumData(nextSeason, false);
         }
 
         function refreshMomentumData() {
             const sel = typeof document !== 'undefined' ? document.getElementById('momentumSeasonSelect') : null;
             const season = sel ? sel.value : constructorMomentumState.season;
-            loadConstructorMomentumData(season, true);
+            return loadConstructorMomentumData(season, true);
         }
 
         // =========================================================
@@ -14375,7 +14471,8 @@
             return 'balanced';
         }
 
-        function computeProfilerMetrics(raceRounds, qualRounds, standingsList) {
+        function computeProfilerMetrics(raceRounds, qualRounds, standingsList, season = (typeof circuitProfilerState !== 'undefined' ? circuitProfilerState.season : '2024')) {
+            const seasonStr = String(season || '2024');
             const rawTeams = {};
             const roundDeltas = {};
             const roundPoles = {};
@@ -14531,7 +14628,16 @@
 
             // Fallback if no race rounds parsed
             if (Object.keys(rawTeams).length === 0) {
-                return CIRCUIT_PROFILER_FALLBACK_2024;
+                if (seasonStr === '2024') {
+                    return CIRCUIT_PROFILER_FALLBACK_2024;
+                }
+                return {
+                    season: seasonStr,
+                    teams: [],
+                    medians: { high_downforce: 0, low_drag: 0, balanced: 0, high_deg: 0 },
+                    circuits: [],
+                    isFallback: false
+                };
             }
 
             // Calculate averages and archetype scores
@@ -14610,14 +14716,29 @@
             teamsList.sort((a, b) => a.overallRank - b.overallRank);
 
             return {
+                season: seasonStr,
                 teams: teamsList,
                 medians,
-                circuits: circuits.length > 0 ? circuits : CIRCUIT_PROFILER_FALLBACK_2024.circuits
+                circuits: circuits.length > 0 ? circuits : (seasonStr === '2024' ? CIRCUIT_PROFILER_FALLBACK_2024.circuits : [])
             };
         }
 
         function renderProfilerKpis(metrics) {
-            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) return;
+            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) {
+                const resetKpi = (teamId, valId, valText, barId) => {
+                    const teamEl = document.getElementById(teamId);
+                    const valEl = document.getElementById(valId);
+                    const barEl = document.getElementById(barId);
+                    if (teamEl) teamEl.textContent = '—';
+                    if (valEl) valEl.textContent = valText;
+                    if (barEl) barEl.style.background = '#334155';
+                };
+                resetKpi('profilerKpiPowerTeam', 'profilerKpiPowerDelta', '--% Pace', 'profilerKpiPowerBar');
+                resetKpi('profilerKpiStreetTeam', 'profilerKpiStreetDelta', '--% Pace', 'profilerKpiStreetBar');
+                resetKpi('profilerKpiEfficiencyTeam', 'profilerKpiEfficiencyScore', '-- / 100', 'profilerKpiEfficiencyBar');
+                resetKpi('profilerKpiDegTeam', 'profilerKpiDegDelta', '--', 'profilerKpiDegBar');
+                return;
+            }
             const teams = metrics.teams;
 
             // 1. Low Drag / Power KPI
@@ -14667,11 +14788,23 @@
 
         function renderProfilerRadarChart() {
             const canvas = document.getElementById('profilerRadarChart');
+            const pillsContainer = document.getElementById('profilerTeamPills');
             const metrics = circuitProfilerState.metrics;
-            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) return;
+            if (!metrics || !Array.isArray(metrics.teams) || metrics.teams.length === 0) {
+                if (pillsContainer) pillsContainer.innerHTML = '';
+                if (profilerRadarChartInstance) {
+                    if (typeof profilerRadarChartInstance.destroy === 'function') {
+                        profilerRadarChartInstance.destroy();
+                    }
+                    profilerRadarChartInstance = null;
+                }
+                if (typeof clearChartCanvas === 'function') {
+                    clearChartCanvas('profilerRadarChart');
+                }
+                return;
+            }
 
             // 1. Render legend pills
-            const pillsContainer = document.getElementById('profilerTeamPills');
             if (pillsContainer) {
                 pillsContainer.innerHTML = metrics.teams.map(t => {
                     const isMuted = circuitProfilerState.hiddenTeams.has(t.constructorId);
@@ -15054,23 +15187,31 @@
                 ]);
 
                 let standingsList = standingsResp?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings || [];
+                const hasLiveData = (Array.isArray(raceRounds) && raceRounds.length > 0) ||
+                    (Array.isArray(qualRounds) && qualRounds.length > 0) ||
+                    (Array.isArray(standingsList) && standingsList.length > 0);
 
-                const metrics = computeProfilerMetrics(raceRounds, qualRounds, standingsList);
+                const metrics = computeProfilerMetrics(raceRounds, qualRounds, standingsList, season);
 
                 circuitProfilerState.metrics = metrics;
                 circuitProfilerState.circuits = metrics.circuits || [];
                 circuitProfilerState.isLoading = false;
                 circuitProfilerState.dataLoaded = true;
 
-                if (storage && metrics && metrics.teams && metrics.teams.length > 0) {
+                if (storage && hasLiveData && metrics && Array.isArray(metrics.teams) && metrics.teams.length > 0 && !metrics.isFallback) {
                     try {
                         storage.setItem(cacheKey, JSON.stringify(metrics));
                     } catch (e) {}
                 }
 
                 if (badge) {
-                    badge.className = 'cache-badge cached';
-                    badge.textContent = '⚡ Live Telemetry';
+                    if (!hasLiveData && season !== '2024') {
+                        badge.className = 'cache-badge no-data';
+                        badge.textContent = '⚠️ Live Telemetry Offline';
+                    } else {
+                        badge.className = 'cache-badge cached';
+                        badge.textContent = '⚡ Live Telemetry';
+                    }
                 }
 
                 renderProfilerView();
@@ -15079,8 +15220,19 @@
                 console.warn('Error loading Circuit Profiler data:', err);
                 circuitProfilerState.isLoading = false;
                 circuitProfilerState.dataLoaded = true;
-                circuitProfilerState.metrics = CIRCUIT_PROFILER_FALLBACK_2024;
-                circuitProfilerState.circuits = CIRCUIT_PROFILER_FALLBACK_2024.circuits;
+                if (season === '2024') {
+                    circuitProfilerState.metrics = CIRCUIT_PROFILER_FALLBACK_2024;
+                    circuitProfilerState.circuits = CIRCUIT_PROFILER_FALLBACK_2024.circuits;
+                } else {
+                    circuitProfilerState.metrics = {
+                        season,
+                        teams: [],
+                        medians: { high_downforce: 0, low_drag: 0, balanced: 0, high_deg: 0 },
+                        circuits: [],
+                        isFallback: false
+                    };
+                    circuitProfilerState.circuits = [];
+                }
 
                 if (badge) {
                     badge.className = 'cache-badge no-data';
@@ -15093,14 +15245,18 @@
         }
 
         function onProfilerSeasonChange(season) {
-            circuitProfilerState.season = String(season);
-            loadProfilerData(season, false);
+            const nextSeason = String(season);
+            if (nextSeason !== String(circuitProfilerState.season || '')) {
+                circuitProfilerState.hiddenTeams.clear();
+            }
+            circuitProfilerState.season = nextSeason;
+            return loadProfilerData(nextSeason, false);
         }
 
         function refreshProfilerData() {
             const sel = typeof document !== 'undefined' ? document.getElementById('profilerSeasonSelect') : null;
             const season = sel ? sel.value : circuitProfilerState.season;
-            loadProfilerData(season, true);
+            return loadProfilerData(season, true);
         }
 
         /* =========================================================
@@ -15265,11 +15421,27 @@
             return `+${s.toFixed(3)}s`;
         }
 
-        function computeFinishingGapMetrics(raceRounds, scope = 'constructors') {
+        function computeFinishingGapMetrics(raceRounds, scope = 'constructors', season = (typeof finishingGapState !== 'undefined' ? finishingGapState.season : '2024')) {
+            const seasonStr = String(season || '2024');
             if (!raceRounds || !Array.isArray(raceRounds) || raceRounds.length === 0) {
-                return scope === 'drivers'
-                    ? FINISHING_GAP_FALLBACK_DRIVERS_2024
-                    : FINISHING_GAP_FALLBACK_2024;
+                if (seasonStr === '2024') {
+                    return scope === 'drivers'
+                        ? FINISHING_GAP_FALLBACK_DRIVERS_2024
+                        : FINISHING_GAP_FALLBACK_2024;
+                }
+                return {
+                    scope,
+                    season: seasonStr,
+                    competitors: [],
+                    rounds: [],
+                    benchmarkLeader: null,
+                    fieldMedianGap: 0,
+                    fieldMedianPct: 0,
+                    closestFinish: null,
+                    spread: 0,
+                    avgRaceDuration: 0,
+                    isFallback: false
+                };
             }
 
             const roundDetails = [];
@@ -15434,9 +15606,24 @@
 
             const compList = Object.values(competitors);
             if (compList.length === 0) {
-                return scope === 'drivers'
-                    ? FINISHING_GAP_FALLBACK_DRIVERS_2024
-                    : FINISHING_GAP_FALLBACK_2024;
+                if (seasonStr === '2024') {
+                    return scope === 'drivers'
+                        ? FINISHING_GAP_FALLBACK_DRIVERS_2024
+                        : FINISHING_GAP_FALLBACK_2024;
+                }
+                return {
+                    scope,
+                    season: seasonStr,
+                    competitors: [],
+                    rounds: [],
+                    benchmarkLeader: null,
+                    fieldMedianGap: 0,
+                    fieldMedianPct: 0,
+                    closestFinish: null,
+                    spread: 0,
+                    avgRaceDuration: 0,
+                    isFallback: false
+                };
             }
 
             const avgRaceDuration = winningRacesCount > 0 ? (totalWinningRaceTime / winningRacesCount) : 5400.0;
@@ -15506,14 +15693,15 @@
 
             return {
                 scope,
+                season: seasonStr,
                 competitors: compList,
-                rounds: roundDetails.length > 0 ? roundDetails : FINISHING_GAP_FALLBACK_ROUNDS_2024,
+                rounds: roundDetails.length > 0 ? roundDetails : (seasonStr === '2024' ? FINISHING_GAP_FALLBACK_ROUNDS_2024 : []),
                 benchmarkLeader: compList[0] || null,
                 fieldMedianGap,
                 fieldMedianPct,
                 closestFinish: (closestFinish.gap < Infinity)
                     ? closestFinish
-                    : { round: '16', raceName: 'Italian GP', gap: 0.525, runnerUp: 'Oscar Piastri' },
+                    : (seasonStr === '2024' ? { round: '16', raceName: 'Italian GP', gap: 0.525, runnerUp: 'Oscar Piastri' } : null),
                 spread,
                 avgRaceDuration
             };
@@ -15530,18 +15718,20 @@
                     const cached = localStorage.getItem(cacheKey);
                     if (cached) {
                         const parsed = JSON.parse(cached);
-                        finishingGapState.results = parsed.results || [];
-                        finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope);
-                        finishingGapState.isLoading = false;
-                        finishingGapState.dataLoaded = true;
+                        if (parsed && Array.isArray(parsed.results) && parsed.results.length > 0) {
+                            finishingGapState.results = parsed.results;
+                            finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope, seasonStr);
+                            finishingGapState.isLoading = false;
+                            finishingGapState.dataLoaded = true;
 
-                        if (badge) {
-                            badge.className = 'cache-badge cached';
-                            badge.textContent = '⚡ Cached Telemetry';
+                            if (badge) {
+                                badge.className = 'cache-badge cached';
+                                badge.textContent = '⚡ Cached Telemetry';
+                            }
+
+                            renderFinishingGapView();
+                            return finishingGapState;
                         }
-
-                        renderFinishingGapView();
-                        return finishingGapState;
                     }
                 } catch (e) {
                     console.warn('Failed reading finishing gap cache:', e);
@@ -15565,7 +15755,7 @@
                 }
 
                 finishingGapState.results = results;
-                finishingGapState.metrics = computeFinishingGapMetrics(results, finishingGapState.scope);
+                finishingGapState.metrics = computeFinishingGapMetrics(results, finishingGapState.scope, seasonStr);
                 finishingGapState.isLoading = false;
                 finishingGapState.dataLoaded = true;
 
@@ -15587,7 +15777,7 @@
                 finishingGapState.isLoading = false;
                 finishingGapState.dataLoaded = true;
                 finishingGapState.results = [];
-                finishingGapState.metrics = computeFinishingGapMetrics([], finishingGapState.scope);
+                finishingGapState.metrics = computeFinishingGapMetrics([], finishingGapState.scope, seasonStr);
 
                 if (badge) {
                     badge.className = 'cache-badge no-data';
@@ -15601,13 +15791,20 @@
 
         function onFinishingGapSeasonChange(season) {
             finishingGapState.season = String(season);
-            loadFinishingGapData(season, false);
+            finishingGapState.venueRound = 'all';
+            if (typeof document !== 'undefined') {
+                const titleEl = document.getElementById('fgChartTitle');
+                if (titleEl) {
+                    titleEl.textContent = 'Median Finishing Gap to Winner (Seconds)';
+                }
+            }
+            return loadFinishingGapData(season, false);
         }
 
         function refreshFinishingGapData() {
             const sel = typeof document !== 'undefined' ? document.getElementById('finishingGapSeasonSelect') : null;
             const season = sel ? sel.value : finishingGapState.season;
-            loadFinishingGapData(season, true);
+            return loadFinishingGapData(season, true);
         }
 
         function setFinishingGapViewScope(scope) {
@@ -15627,7 +15824,7 @@
                 }
             }
 
-            finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, scope);
+            finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, scope, finishingGapState.season);
             renderFinishingGapView();
         }
 
@@ -15671,18 +15868,26 @@
 
         function renderFinishingGapView() {
             if (!finishingGapState.metrics) {
-                finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope);
+                finishingGapState.metrics = computeFinishingGapMetrics(finishingGapState.results, finishingGapState.scope, finishingGapState.season);
             }
             const metrics = finishingGapState.metrics;
 
             if (typeof document !== 'undefined') {
                 const venueSelect = document.getElementById('finishingGapVenueSelect');
-                if (venueSelect && venueSelect.options && venueSelect.options.length <= 1 && metrics && metrics.rounds && metrics.rounds.length > 0) {
-                    let html = '<option value="all" selected>All Grand Prix (Season Median)</option>';
-                    metrics.rounds.forEach(r => {
-                        html += `<option value="${r.round}">R${r.round} ${r.raceName.replace(' Grand Prix', ' GP')}</option>`;
+                if (venueSelect) {
+                    const currentVenue = String(finishingGapState.venueRound || 'all');
+                    const roundsList = (metrics && Array.isArray(metrics.rounds)) ? metrics.rounds : [];
+                    const hasSelectedRound = currentVenue === 'all' || roundsList.some(r => String(r.round) === currentVenue);
+                    const activeVenue = hasSelectedRound ? currentVenue : 'all';
+                    finishingGapState.venueRound = activeVenue;
+                    let html = `<option value="all"${activeVenue === 'all' ? ' selected' : ''}>All Grand Prix (Season Median)</option>`;
+                    roundsList.forEach(r => {
+                        const rVal = String(r.round);
+                        const selAttr = activeVenue === rVal ? ' selected' : '';
+                        html += `<option value="${rVal}"${selAttr}>R${r.round} ${(r.raceName || '').replace(' Grand Prix', ' GP')}</option>`;
                     });
                     venueSelect.innerHTML = html;
+                    venueSelect.value = activeVenue;
                 }
             }
 
@@ -15693,7 +15898,28 @@
 
         function renderFinishingGapKpis(metrics) {
             if (!metrics) metrics = finishingGapState.metrics;
-            if (!metrics || !Array.isArray(metrics.competitors) || metrics.competitors.length === 0) return;
+            if (!metrics || !Array.isArray(metrics.competitors) || metrics.competitors.length === 0) {
+                if (typeof document !== 'undefined') {
+                    const setText = (id, text) => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = text;
+                    };
+                    setText('fgKpiBenchmarkTeam', '—');
+                    setText('fgKpiBenchmarkGap', '—');
+                    const benchBarEl = document.getElementById('fgKpiBenchmarkBar');
+                    if (benchBarEl) benchBarEl.style.background = '#334155';
+                    setText('fgKpiBenchmarkTag', 'No Data');
+                    setText('fgKpiBenchmarkDesc', `No race telemetry available for the ${finishingGapState.season} season`);
+                    setText('fgKpiFieldMedianGap', '—');
+                    setText('fgKpiFieldMedianPct', '—');
+                    setText('fgKpiClosestRound', '—');
+                    setText('fgKpiClosestFinish', '—');
+                    setText('fgKpiClosestDriver', '—');
+                    setText('fgKpiSpread', '—');
+                    setText('fgKpiSpreadTier', '—');
+                }
+                return;
+            }
 
             const isAllVenues = finishingGapState.venueRound === 'all';
             const rnd = finishingGapState.venueRound;
@@ -15787,6 +16013,13 @@
             if (finishingGapChartInstance && typeof finishingGapChartInstance.destroy === 'function') {
                 finishingGapChartInstance.destroy();
                 finishingGapChartInstance = null;
+            }
+
+            if (metrics.competitors.length === 0) {
+                if (typeof clearChartCanvas === 'function') {
+                    clearChartCanvas('finishingGapChart');
+                }
+                return;
             }
 
             const tier = finishingGapState.tier;
@@ -16518,6 +16751,23 @@
             return laps;
         }
 
+        function resetLapChartStateForSeason(nextSeason, nextRound = '1') {
+            if (lapChartState.chartInstance && typeof lapChartState.chartInstance.destroy === 'function') {
+                lapChartState.chartInstance.destroy();
+                lapChartState.chartInstance = null;
+            }
+            lapChartState.season = String(nextSeason);
+            lapChartState.round = String(nextRound);
+            lapChartState.rounds = [];
+            lapChartState.lapsData = [];
+            lapChartState.resultsData = [];
+            lapChartState.seasonResults = [];
+            lapChartState.seasonLapsByRound = {};
+            lapChartState.seasonLapsLed = null;
+            lapChartState.driverVisibility = {};
+            lapChartState.dataLoaded = false;
+        }
+
         function renderLapPositionChart(chartData) {
             const canvas = document.getElementById('lapPositionChart');
             if (!canvas || typeof canvas.getContext !== 'function') return null;
@@ -16527,7 +16777,13 @@
                 lapChartState.chartInstance = null;
             }
 
-            const data = chartData || processLapChartData(lapChartState.lapsData, lapChartState.resultsData, lapChartState.round);
+            const data = chartData || processLapChartData(lapChartState.lapsData, lapChartState.resultsData, lapChartState.round, lapChartState.season);
+            if (!data || !Array.isArray(data.datasets) || data.datasets.length === 0) {
+                if (typeof clearChartCanvas === 'function') {
+                    clearChartCanvas('lapPositionChart');
+                }
+                return null;
+            }
             const maxDrivers = data.totalDrivers || 20;
             const maxGridPos = Array.isArray(data.drivers)
                 ? data.drivers.reduce((m, d) => Math.max(m, d.grid || 0), 0)
@@ -16756,7 +17012,12 @@
 
         async function loadSeasonLapsLed(season) {
             const seasonStr = String(season || lapChartState.season || '2024');
-            lapChartState.season = seasonStr;
+            const prevSeason = String(lapChartState.season || '');
+            if (prevSeason !== seasonStr) {
+                resetLapChartStateForSeason(seasonStr, '1');
+            } else {
+                lapChartState.season = seasonStr;
+            }
 
             const badgeEl = document.getElementById('lapsLedCardBadge');
             const subtitleEl = document.getElementById('lapsLedCardSubtitle');
@@ -16770,7 +17031,7 @@
             }
 
             try {
-                let races = (lapChartState.season === seasonStr && Array.isArray(lapChartState.seasonResults) && lapChartState.seasonResults.length > 0 && (!lapChartState.seasonResults[0]?.season || String(lapChartState.seasonResults[0].season) === seasonStr))
+                let races = (prevSeason === seasonStr && Array.isArray(lapChartState.seasonResults) && lapChartState.seasonResults.length > 0 && (!lapChartState.seasonResults[0]?.season || String(lapChartState.seasonResults[0].season) === seasonStr))
                     ? lapChartState.seasonResults
                     : await fetchSeasonResults(seasonStr).catch(() => []);
 
@@ -17081,16 +17342,23 @@
             }
         }
 
-        function populateLapRoundSelector(rounds, selectedRound = '1') {
+        function populateLapRoundSelector(rounds, selectedRound = '1', season = (typeof lapChartState !== 'undefined' ? lapChartState.season : '2024')) {
             const select = document.getElementById('lapRoundSelect');
             if (!select) return;
             select.innerHTML = '';
 
+            const seasonStr = String(season || (typeof lapChartState !== 'undefined' ? lapChartState.season : '2024'));
+            const selectedStr = String(selectedRound || '1');
+
             if (!Array.isArray(rounds) || rounds.length === 0) {
                 const opt = document.createElement('option');
-                opt.value = '1';
-                opt.textContent = 'Round 1 - Bahrain Grand Prix';
+                opt.value = selectedStr;
+                opt.textContent = (seasonStr === '2024' && selectedStr === '1')
+                    ? 'Round 1 - Bahrain Grand Prix'
+                    : `Round ${selectedStr}`;
+                opt.selected = true;
                 select.appendChild(opt);
+                select.value = selectedStr;
                 return;
             }
 
@@ -17098,7 +17366,7 @@
                 const opt = document.createElement('option');
                 opt.value = String(r.round);
                 opt.textContent = `Round ${r.round} - ${r.raceName || 'Grand Prix'}`;
-                if (String(r.round) === String(selectedRound)) {
+                if (String(r.round) === selectedStr) {
                     opt.selected = true;
                     select.value = String(r.round);
                 }
@@ -17108,24 +17376,34 @@
 
         function onLapRoundChange(round) {
             lapChartState.round = String(round);
-            loadLapTelemetry(lapChartState.season, lapChartState.round, false);
+            return loadLapTelemetry(lapChartState.season, lapChartState.round, false);
         }
 
         function onLapSeasonChange(season) {
-            lapChartState.season = String(season);
-            lapChartState.round = '1';
-            loadLapTelemetry(lapChartState.season, '1', false);
+            const nextSeason = String(season);
+            if (String(lapChartState.season || '') !== nextSeason) {
+                resetLapChartStateForSeason(nextSeason, '1');
+            } else {
+                lapChartState.season = nextSeason;
+                lapChartState.round = '1';
+            }
+            return loadLapTelemetry(lapChartState.season, '1', false);
         }
 
         function refreshLapData() {
-            loadLapTelemetry(lapChartState.season, lapChartState.round, true);
+            return loadLapTelemetry(lapChartState.season, lapChartState.round, true);
         }
 
         async function loadLapTelemetry(season = '2024', round = '1', forceRefresh = false) {
             const seasonStr = String(season);
             const roundStr = String(round);
-            lapChartState.season = seasonStr;
-            lapChartState.round = roundStr;
+            const prevSeason = String(lapChartState.season || '');
+            if (prevSeason !== seasonStr) {
+                resetLapChartStateForSeason(seasonStr, roundStr);
+            } else {
+                lapChartState.season = seasonStr;
+                lapChartState.round = roundStr;
+            }
 
             const cacheKeyLaps = `f1_laps_${seasonStr}_${roundStr}`;
             const cacheKeyResults = `f1_results_${seasonStr}`;
@@ -17149,8 +17427,8 @@
                         lapChartState.seasonResults = parsedResults;
                         lapChartState.seasonLapsByRound[roundStr] = parsedLaps;
 
-                        populateLapRoundSelector(parsedResults, roundStr);
-                        const chartData = processLapChartData(parsedLaps, parsedResults, roundStr);
+                        populateLapRoundSelector(parsedResults, roundStr, seasonStr);
+                        const chartData = processLapChartData(parsedLaps, parsedResults, roundStr, seasonStr);
                         renderLapPositionChart(chartData);
                         renderLapDriverFilters(chartData.drivers);
                         renderSeasonLapsLedLeaderboard();
@@ -17164,8 +17442,10 @@
                             venueSubEl.textContent = `${chartData.maxLaps} Laps • ${currentRace.Circuit?.circuitName || 'Grand Prix Venue'} • Stepped Multi-Line Inverted Telemetry`;
                         }
                         if (totalLapsBadge) totalLapsBadge.textContent = `${chartData.maxLaps} Laps`;
-                        if (winnerBadge && chartData.drivers && chartData.drivers.length > 0) {
-                            winnerBadge.textContent = `Winner: ${chartData.drivers[0].name}`;
+                        if (winnerBadge) {
+                            winnerBadge.textContent = (chartData.drivers && chartData.drivers.length > 0)
+                                ? `Winner: ${chartData.drivers[0].name}`
+                                : 'Winner: —';
                         }
                         if (retBadge) {
                             retBadge.textContent = `${chartData.retirementsCount || 0} Retirements`;
@@ -17196,12 +17476,18 @@
                     fetchLapPositions(seasonStr, roundStr).catch(() => [])
                 ]);
 
+                if (lapChartState.season !== seasonStr || lapChartState.round !== roundStr) {
+                    return lapChartState;
+                }
+
                 lapChartState.isLoading = false;
                 lapChartState.resultsData = races.length > 0 ? races : [];
                 lapChartState.seasonResults = races;
                 lapChartState.lapsData = laps.length > 0 ? laps : [];
                 if (laps.length > 0) {
                     lapChartState.seasonLapsByRound[roundStr] = laps;
+                } else {
+                    delete lapChartState.seasonLapsByRound[roundStr];
                 }
 
                 if (typeof localStorage !== 'undefined') {
@@ -17218,6 +17504,9 @@
                         const roundData = (typeof fetchWithRetry === 'function')
                             ? await fetchWithRetry(roundUrl)
                             : await fetch(roundUrl).then(r => r.ok ? r.json() : null);
+                        if (lapChartState.season !== seasonStr || lapChartState.round !== roundStr) {
+                            return lapChartState;
+                        }
                         const roundRaces = roundData?.MRData?.RaceTable?.Races;
                         if (Array.isArray(roundRaces) && roundRaces.length > 0) {
                             currentRace = roundRaces[0];
@@ -17231,29 +17520,41 @@
                     } catch (e) {}
                 }
 
-                populateLapRoundSelector(races, roundStr);
+                populateLapRoundSelector(races, roundStr, seasonStr);
                 const chartData = processLapChartData(
                     lapChartState.lapsData.length > 0 ? lapChartState.lapsData : null,
                     races,
-                    roundStr
+                    roundStr,
+                    seasonStr
                 );
                 renderLapPositionChart(chartData);
                 renderLapDriverFilters(chartData.drivers);
                 renderSeasonLapsLedLeaderboard();
-                renderLapRoundBreakdown(lapChartState.lapsData.length > 0 ? lapChartState.lapsData : LAP_CHART_FALLBACK_LAPS_2024, races);
+                renderLapRoundBreakdown(
+                    lapChartState.lapsData.length > 0
+                        ? lapChartState.lapsData
+                        : (seasonStr === '2024' ? LAP_CHART_FALLBACK_LAPS_2024 : []),
+                    races
+                );
                 if (venueTitleEl) {
                     venueTitleEl.textContent = currentRace
                         ? `${currentRace.raceName} — Lap-by-Lap Position Progression`
-                        : 'Bahrain Grand Prix — Lap-by-Lap Position Progression';
+                        : (seasonStr === '2024'
+                            ? 'Bahrain Grand Prix — Lap-by-Lap Position Progression'
+                            : `${seasonStr} Season (Round ${roundStr}) — No Lap Telemetry Available`);
                 }
                 if (venueSubEl) {
                     venueSubEl.textContent = currentRace
                         ? `${chartData.maxLaps} Laps • ${currentRace.Circuit?.circuitName || 'Grand Prix Venue'} • Stepped Multi-Line Inverted Telemetry`
-                        : `${chartData.maxLaps} Laps • Sakhir Circuit • Stepped Multi-Line Inverted Telemetry`;
+                        : (seasonStr === '2024'
+                            ? `${chartData.maxLaps} Laps • Sakhir Circuit • Stepped Multi-Line Inverted Telemetry`
+                            : `No lap timing telemetry available for ${seasonStr} Round ${roundStr}`);
                 }
                 if (totalLapsBadge) totalLapsBadge.textContent = `${chartData.maxLaps} Laps`;
-                if (winnerBadge && chartData.drivers && chartData.drivers.length > 0) {
-                    winnerBadge.textContent = `Winner: ${chartData.drivers[0].name}`;
+                if (winnerBadge) {
+                    winnerBadge.textContent = (chartData.drivers && chartData.drivers.length > 0)
+                        ? `Winner: ${chartData.drivers[0].name}`
+                        : 'Winner: —';
                 }
                 if (retBadge) {
                     retBadge.textContent = `${chartData.retirementsCount || 0} Retirements`;
@@ -17272,19 +17573,35 @@
                 return lapChartState;
             } catch (err) {
                 console.warn('Error loading lap telemetry:', err);
+                if (lapChartState.season !== seasonStr || lapChartState.round !== roundStr) {
+                    return lapChartState;
+                }
                 lapChartState.isLoading = false;
+                lapChartState.lapsData = [];
+                lapChartState.resultsData = [];
+                lapChartState.seasonResults = [];
+                delete lapChartState.seasonLapsByRound[roundStr];
 
-                const chartData = processLapChartData(null, [], roundStr);
+                populateLapRoundSelector([], roundStr, seasonStr);
+                const chartData = processLapChartData(null, [], roundStr, seasonStr);
                 renderLapPositionChart(chartData);
                 renderLapDriverFilters(chartData.drivers);
                 renderSeasonLapsLedLeaderboard();
-                renderLapRoundBreakdown(LAP_CHART_FALLBACK_LAPS_2024, []);
+                renderLapRoundBreakdown(seasonStr === '2024' ? LAP_CHART_FALLBACK_LAPS_2024 : [], []);
 
-                if (venueTitleEl) venueTitleEl.textContent = 'Bahrain Grand Prix — Lap-by-Lap Position Progression';
-                if (venueSubEl) venueSubEl.textContent = '57 Laps • Sakhir Circuit • Stepped Multi-Line Inverted Telemetry';
-                if (totalLapsBadge) totalLapsBadge.textContent = '57 Laps';
-                if (winnerBadge) winnerBadge.textContent = 'Winner: Max Verstappen';
-                if (retBadge) retBadge.textContent = '0 Retirements';
+                if (seasonStr === '2024') {
+                    if (venueTitleEl) venueTitleEl.textContent = 'Bahrain Grand Prix — Lap-by-Lap Position Progression';
+                    if (venueSubEl) venueSubEl.textContent = '57 Laps • Sakhir Circuit • Stepped Multi-Line Inverted Telemetry';
+                    if (totalLapsBadge) totalLapsBadge.textContent = '57 Laps';
+                    if (winnerBadge) winnerBadge.textContent = 'Winner: Max Verstappen';
+                    if (retBadge) retBadge.textContent = '0 Retirements';
+                } else {
+                    if (venueTitleEl) venueTitleEl.textContent = `${seasonStr} Season (Round ${roundStr}) — No Lap Telemetry Available`;
+                    if (venueSubEl) venueSubEl.textContent = `No lap timing telemetry available for ${seasonStr} Round ${roundStr}`;
+                    if (totalLapsBadge) totalLapsBadge.textContent = '0 Laps';
+                    if (winnerBadge) winnerBadge.textContent = 'Winner: —';
+                    if (retBadge) retBadge.textContent = '0 Retirements';
+                }
 
                 if (badge) {
                     badge.className = 'cache-badge no-data';
@@ -18301,7 +18618,10 @@
                     renderReliabilityView(RELIABILITY_FALLBACK_2024);
                     return RELIABILITY_FALLBACK_2024;
                 }
-                return null;
+                const emptyMetrics = computeReliabilityMetrics([], { season: seasonStr });
+                reliabilityState.metrics = emptyMetrics;
+                renderReliabilityView(emptyMetrics);
+                return emptyMetrics;
             } finally {
                 reliabilityState.loading = false;
             }
@@ -18309,13 +18629,13 @@
 
         function onReliabilitySeasonChange(season) {
             reliabilityState.season = String(season);
-            loadReliabilityData(season, false);
+            return loadReliabilityData(season, false);
         }
 
         function refreshReliabilityData() {
             const sel = typeof document !== 'undefined' ? document.getElementById('reliabilitySeasonSelect') : null;
             const season = sel ? sel.value : reliabilityState.season;
-            loadReliabilityData(season, true);
+            return loadReliabilityData(season, true);
         }
 
         function setReliabilityViewScope(scope) {
@@ -19259,6 +19579,14 @@
             const cacheBadge = document.getElementById('stintCacheBadge');
             const anomalyBanner = document.getElementById('stintAnomalyBanner');
 
+            const prevSeason = String(stintDegradationState.season || '');
+            if (prevSeason !== seasonStr) {
+                stintDegradationState.resultsData = [];
+                stintDegradationState.pitStopsData = [];
+                stintDegradationState.lapsData = [];
+                stintDegradationState.processedMetrics = null;
+                stintDegradationState.inferredPitStops = false;
+            }
             stintDegradationState.season = seasonStr;
             stintDegradationState.round = roundStr;
             stintDegradationState.isLoading = true;
@@ -19431,6 +19759,22 @@
                     renderStintDegradationView(fallbackMetrics);
                     return fallbackMetrics;
                 }
+                stintDegradationState.resultsData = [];
+                stintDegradationState.pitStopsData = [];
+                stintDegradationState.lapsData = [];
+                const emptyMetrics = processStintDegradationData([], [], [], {
+                    season: seasonStr,
+                    round: roundStr,
+                    fuelCorrection: stintDegradationState.fuelCorrection,
+                    fuelBurnRate: stintDegradationState.fuelBurnRate
+                });
+                stintDegradationState.processedMetrics = emptyMetrics;
+                stintDegradationState.inferredPitStops = false;
+                if (cacheBadge) {
+                    cacheBadge.className = 'cache-badge no-data';
+                    cacheBadge.textContent = '⚠️ Data Unavailable';
+                }
+                renderStintDegradationView(emptyMetrics);
                 return null;
             }
         }
@@ -19508,6 +19852,11 @@
             // New season: previous round/driver are not meaningful anymore
             stintDegradationState.round = '1';
             stintDegradationState.selectedDriver = 'all';
+            stintDegradationState.resultsData = [];
+            stintDegradationState.pitStopsData = [];
+            stintDegradationState.lapsData = [];
+            stintDegradationState.processedMetrics = null;
+            stintDegradationState.inferredPitStops = false;
             const driverSelect = document.getElementById('stintDriverSelect');
             if (driverSelect) driverSelect.value = 'all';
             ['btnStintFilterAll', 'btnStintFilterTop5', 'btnStintFilterWinner'].forEach(id => {
@@ -19658,6 +20007,13 @@
             const totalStintsBadge = document.getElementById('stintTotalStintsBadge');
             if (totalStintsBadge) totalStintsBadge.textContent = `${totalStintsCount} Stints`;
 
+            if (driversToDisplay.length === 0) {
+                if (typeof clearChartCanvas === 'function') {
+                    clearChartCanvas('stintDegradationChart');
+                }
+                return null;
+            }
+
             const datasets = [];
 
             driversToDisplay.forEach(driver => {
@@ -19799,6 +20155,14 @@
                 if (stintDegradationState.barsChartInstance && typeof stintDegradationState.barsChartInstance.destroy === 'function') {
                     stintDegradationState.barsChartInstance.destroy();
                     stintDegradationState.barsChartInstance = null;
+                }
+
+                if (driversToDisplay.length === 0) {
+                    if (typeof clearChartCanvas === 'function') {
+                        clearChartCanvas('stintLengthBarChart');
+                    }
+                    if (barsContainer) barsContainer.innerHTML = '';
+                    return;
                 }
 
                 const maxStintCount = Math.max(1, ...driversToDisplay.map(d => d.stints.length));
