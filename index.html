@@ -11528,7 +11528,7 @@
             });
 
             // If fallback mode has no detailed GP race array and we're looking at full season, derive GP pts from standings
-            if (filteredGpRaces.length === 0 && !isSingleVenue) {
+            if (filteredGpRaces.length === 0 && !isSingleVenue && !useWeekendOnlyScope) {
                 Object.values(driversMap).forEach(d => {
                     if (d.standingsTotalPts !== null) {
                         d.gpPts = Math.max(0, d.standingsTotalPts - d.sprintPts);
@@ -11608,13 +11608,16 @@
                 return aFin - bFin;
             });
 
+            const weekendGpResultsUnavailable = Boolean(useWeekendOnlyScope && filteredGpRaces.length === 0 && numSprintSessions > 0);
+
             return {
                 rows,
                 totalSprintPoolContested: totalSprintPoolContested || (numSprintSessions === 0 ? 0 : numSprintSessions * (season === '2021' ? 6 : 36)),
                 numSprintSessions,
                 numGpSessions,
                 sprintPtsAvailablePerDriver,
-                gpPtsAvailablePerDriver
+                gpPtsAvailablePerDriver,
+                weekendGpResultsUnavailable
             };
         }
 
@@ -11651,6 +11654,13 @@
 
             const metrics = computeSprintDisparityMetrics();
             const rows = metrics.rows;
+
+            const formulaSubEl = document.getElementById('sprintFormulaSubtitle');
+            if (formulaSubEl) {
+                formulaSubEl.textContent = metrics.weekendGpResultsUnavailable
+                    ? 'Round-level GP results unavailable in offline fallback — showing Sprint points only (switch to Full Season for standings-derived GP totals)'
+                    : 'SDI = (Sprint Pts Earned / Sprint Pts Available) ÷ (GP Pts Earned / GP Pts Available)';
+            }
 
             // 1. Update KPI Cards
             const poolValEl = document.getElementById('sprintKpiPoolVal');
@@ -23251,6 +23261,7 @@
             window.renderSprintDisparityAnalysis = renderSprintData;
             window.renderSprintPlaceholder = renderSprintPlaceholder;
             window.sprintState = sprintState;
+            window.SPRINT_FALLBACK_2024 = SPRINT_FALLBACK_2024;
             window.onSprintSeasonChange = onSprintSeasonChange;
             window.refreshSprintDisparityData = refreshSprintDisparityData;
             window.selectSprintVenue = selectSprintVenue;
@@ -23437,6 +23448,7 @@
                 renderSprintDisparityAnalysis,
                 renderSprintPlaceholder,
                 sprintState,
+                SPRINT_FALLBACK_2024,
                 onSprintSeasonChange,
                 refreshSprintDisparityData,
                 selectSprintVenue,
