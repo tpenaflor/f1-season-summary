@@ -4202,12 +4202,23 @@
         .rank-delta-neutral { background: rgba(255, 255, 255, 0.05); color: #94A3B8; border: 1px solid #334155; }
 
         @media (max-width: 640px) {
-            .teammate-comparison-card,
-            .telemetry-radar-wrapper,
-            .sprint-disparity-layout {
-                flex-direction: column !important;
+            .telemetry-header-controls,
+            .duo-driver-card,
+            .duo-driver-card.duo-right,
+            .bilateral-header-bar,
+            .sprint-venue-bar,
+            .sprint-subhead,
+            .sprint-switch-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .telemetry-charts-grid,
+            .sprint-kpi-grid {
+                grid-template-columns: 1fr;
             }
             .table-responsive,
+            .bilateral-table-responsive,
+            .sprint-table-wrapper,
             .clinch-table-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
