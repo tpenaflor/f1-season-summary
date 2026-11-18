@@ -15377,6 +15377,20 @@
             isLoading: false,
             dataLoaded: false
         };
+        let finishingGapRequestId = 0;
+
+        function updateFinishingGapChartTitle(venueRound, metrics = finishingGapState.metrics) {
+            if (typeof document === 'undefined') return;
+            const titleEl = document.getElementById('fgChartTitle');
+            if (!titleEl) return;
+            if (String(venueRound || 'all') === 'all') {
+                titleEl.textContent = 'Median Finishing Gap to Winner (Seconds)';
+            } else {
+                const rObj = metrics?.rounds?.find(r => String(r.round) === String(venueRound));
+                const rName = rObj ? rObj.raceName : `Round ${venueRound}`;
+                titleEl.textContent = `Finishing Gap to Winner — ${rName} (Seconds)`;
+            }
+        }
 
         function parseFinishingTimeToSeconds(timeStr, millis, winnerMillis) {
             if (typeof timeStr === 'number') return timeStr;
@@ -15717,7 +15731,20 @@
 
         async function loadFinishingGapData(season = '2024', forceRefresh = false) {
             const seasonStr = String(season);
+            const seasonChanged = finishingGapState.season !== seasonStr;
             finishingGapState.season = seasonStr;
+            if (seasonChanged) {
+                finishingGapState.venueRound = 'all';
+                if (typeof document !== 'undefined') {
+                    const venueSelect = document.getElementById('finishingGapVenueSelect');
+                    if (venueSelect) {
+                        venueSelect.innerHTML = '<option value="all" selected>All Grand Prix (Season Median)</option>';
+                        venueSelect.value = 'all';
+                    }
+                }
+                updateFinishingGapChartTitle('all', null);
+            }
+            const requestId = ++finishingGapRequestId;
             const cacheKey = `f1_finishing_gap_${seasonStr}`;
             const badge = typeof document !== 'undefined' ? document.getElementById('finishingGapCacheBadge') : null;
 
@@ -15758,6 +15785,10 @@
                     ? await fetchAllJolpicaPages(seasonStr, 'results', 'Results').catch(() => [])
                     : [];
 
+                if (requestId !== finishingGapRequestId || finishingGapState.season !== seasonStr) {
+                    return finishingGapState;
+                }
+
                 if (!results || results.length === 0) {
                     throw new Error(`No race results available for season ${seasonStr}`);
                 }
@@ -15781,6 +15812,9 @@
                 renderFinishingGapView();
                 return finishingGapState;
             } catch (err) {
+                if (requestId !== finishingGapRequestId || finishingGapState.season !== seasonStr) {
+                    return finishingGapState;
+                }
                 console.warn('Error loading Finishing Gap data from Jolpica:', err);
                 finishingGapState.isLoading = false;
                 finishingGapState.dataLoaded = true;
@@ -15801,11 +15835,13 @@
             finishingGapState.season = String(season);
             finishingGapState.venueRound = 'all';
             if (typeof document !== 'undefined') {
-                const titleEl = document.getElementById('fgChartTitle');
-                if (titleEl) {
-                    titleEl.textContent = 'Median Finishing Gap to Winner (Seconds)';
+                const venueSelect = document.getElementById('finishingGapVenueSelect');
+                if (venueSelect) {
+                    venueSelect.innerHTML = '<option value="all" selected>All Grand Prix (Season Median)</option>';
+                    venueSelect.value = 'all';
                 }
             }
+            updateFinishingGapChartTitle('all', null);
             return loadFinishingGapData(season, false);
         }
 
@@ -15857,18 +15893,7 @@
 
         function setFinishingGapVenueFilter(venueRound) {
             finishingGapState.venueRound = String(venueRound);
-            if (typeof document !== 'undefined') {
-                const titleEl = document.getElementById('fgChartTitle');
-                if (titleEl) {
-                    if (venueRound === 'all') {
-                        titleEl.textContent = 'Median Finishing Gap to Winner (Seconds)';
-                    } else {
-                        const rObj = finishingGapState.metrics?.rounds?.find(r => String(r.round) === String(venueRound));
-                        const rName = rObj ? rObj.raceName : `Round ${venueRound}`;
-                        titleEl.textContent = `Finishing Gap to Winner — ${rName} (Seconds)`;
-                    }
-                }
-            }
+            updateFinishingGapChartTitle(finishingGapState.venueRound, finishingGapState.metrics);
             renderFinishingGapKpis();
             renderFinishingGapChart();
             renderFinishingGapTable();
@@ -15899,6 +15924,7 @@
                 }
             }
 
+            updateFinishingGapChartTitle(finishingGapState.venueRound, metrics);
             renderFinishingGapKpis(metrics);
             renderFinishingGapChart(metrics);
             renderFinishingGapTable(metrics);
