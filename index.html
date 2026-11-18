@@ -9968,11 +9968,115 @@
             remainingSprints: 0,
             nextRace: null,
             standings: [],
-            simPositions: {}, // id -> '0' | '1'..'10' | 'DNF'
+            simPositions: {}, // id -> '0' | '1'..'10' | 'DNF' (car #1 / driver)
+            simPositions2: {}, // id -> '0' | '1'..'10' | 'DNF' (car #2, constructors mode only)
             simFastestLapId: null,
+            countbackVerified: false,
             isLoading: false,
             dataLoaded: false
         };
+
+        const CLINCH_SIM_TOP10 = ['1','2','3','4','5','6','7','8','9','10'];
+
+        // Season-aware points system (Issue #39): race / sprint scales and fastest-lap bonus era (2019–2024).
+        function getClinchPointsSystem(season) {
+            const yr = parseInt(season, 10) || 2024;
+            let race;
+            if (yr >= 2010) race = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+            else if (yr >= 2003) race = [10, 8, 6, 5, 4, 3, 2, 1];
+            else race = [10, 6, 4, 3, 2, 1];
+            let sprint = [];
+            if (yr === 2021) sprint = [3, 2, 1];
+            else if (yr >= 2022) sprint = [8, 7, 6, 5, 4, 3, 2, 1];
+            const fastestLap = (yr >= 2019 && yr <= 2024) ? 1 : 0;
+            return { race, sprint, fastestLap };
+        }
+
+        // Max points a single contender can score per event. WDC = one car, WCC = two cars (e.g. 2024: 26/8 vs 44/15).
+        function getClinchMaxEventPoints(mode, season) {
+            const sys = getClinchPointsSystem(season);
+            const cars = mode === 'constructors' ? 2 : 1;
+            const topN = (arr) => arr.slice(0, cars).reduce((sum, v) => sum + v, 0);
+            const gpNoFl = topN(sys.race);
+            return {
+                cars,
+                gp: gpNoFl + sys.fastestLap,
+                gpNoFl,
+                sprint: topN(sys.sprint),
+                fastestLap: sys.fastestLap
+            };
+        }
+
+        function getClinchPositionPoints(pos, season) {
+            const sys = getClinchPointsSystem(season);
+            const n = parseInt(pos, 10);
+            if (!Number.isFinite(n) || n < 1) return 0;
+            return sys.race[n - 1] || 0;
+        }
+
+        // Build real finishing-position counts (countback vectors) from /{season}/results.json rounds.
+        function computeClinchCountbackCounts(resultRounds, mode, completedRound) {
+            if (!Array.isArray(resultRounds)) return {};
+            const hasLimit = completedRound !== undefined && completedRound !== null && completedRound !== '';
+            const limitRound = hasLimit ? (parseInt(completedRound, 10) || 0) : null;
+            const counts = {};
+            resultRounds.forEach(race => {
+                const rnd = parseInt(race && race.round, 10);
+                if (limitRound !== null && (!Number.isFinite(rnd) || rnd > limitRound)) return;
+                (race && Array.isArray(race.Results) ? race.Results : []).forEach(res => {
+                    const pos = parseInt(res && res.position, 10);
+                    if (!Number.isFinite(pos) || pos < 1) return;
+                    if (res.positionText != null && !/^\d+$/.test(String(res.positionText).trim())) return; // unclassified (R/D/W/N/E/F)
+                    const id = mode === 'constructors' ? res.Constructor?.constructorId : res.Driver?.driverId;
+                    if (!id) return;
+                    const arr = counts[id] || (counts[id] = []);
+                    while (arr.length < pos) arr.push(0);
+                    arr[pos - 1]++;
+                });
+            });
+            return counts;
+        }
+
+        // FIA countback comparison (wins, then P2s, P3s, ...). Positive => A ahead, negative => B ahead,
+        // 0 => identical countback.
+        function compareClinchCountback(a, b) {
+            const wa = a?.wins || 0;
+            const wb = b?.wins || 0;
+            if (wa !== wb) return wa - wb;
+            const p2a = typeof a?.p2 === 'number' && Number.isFinite(a.p2) ? a.p2 : 0;
+            const p2b = typeof b?.p2 === 'number' && Number.isFinite(b.p2) ? b.p2 : 0;
+            if (p2a !== p2b) return p2a - p2b;
+            const p3a = typeof a?.p3 === 'number' && Number.isFinite(a.p3) ? a.p3 : 0;
+            const p3b = typeof b?.p3 === 'number' && Number.isFinite(b.p3) ? b.p3 : 0;
+            if (p3a !== p3b) return p3a - p3b;
+            if (Array.isArray(a?.countback) && Array.isArray(b?.countback)) {
+                const len = Math.max(a.countback.length, b.countback.length);
+                for (let i = 3; i < len; i++) {
+                    const d = (a.countback[i] || 0) - (b.countback[i] || 0);
+                    if (d !== 0) return d;
+                }
+            }
+            return 0;
+        }
+
+        function getClinchSimSlots(contenderId) {
+            const slots = [clinchState.simPositions[contenderId] || '0'];
+            if (clinchState.mode === 'constructors') {
+                slots.push((clinchState.simPositions2 || {})[contenderId] || '0');
+            }
+            return slots;
+        }
+
+        function isClinchSimulationAvailable() {
+            return (clinchState.remainingRaces || 0) > 0;
+        }
+
+        function isClinchSimActive() {
+            if (!isClinchSimulationAvailable()) return false;
+            const vals = Object.values(clinchState.simPositions || {});
+            if (clinchState.mode === 'constructors') vals.push(...Object.values(clinchState.simPositions2 || {}));
+            return vals.some(v => v && v !== '0');
+        }
 
         // Fallback data in case API is offline or rate-limited
         const CLINCH_FALLBACK_2024 = {
@@ -10130,43 +10234,75 @@
                 const endpointType = mode === 'constructors' ? 'constructorStandings.json' : 'driverStandings.json';
                 const standingsUrl = `https://api.jolpi.ca/ergast/f1/${season}${roundPath}/${endpointType}`;
                 const racesUrl = `https://api.jolpi.ca/ergast/f1/${season}/races.json`;
+                const resultsPromise = (typeof fetchAllJolpicaPages === 'function')
+                    ? fetchAllJolpicaPages(season, 'results', 'Results').catch(() => [])
+                    : fetchWithRetry(`https://api.jolpi.ca/ergast/f1/${season}/results.json?limit=1000`)
+                        .then(r => r?.MRData?.RaceTable?.Races || [])
+                        .catch(() => []);
 
-                const [standingsRes, racesRes] = await Promise.all([
+                const [standingsRes, racesRes, resultRounds] = await Promise.all([
                     fetchWithRetry(standingsUrl),
-                    fetchWithRetry(racesUrl)
+                    fetchWithRetry(racesUrl),
+                    resultsPromise
                 ]);
 
                 const races = racesRes?.MRData?.RaceTable?.Races || [];
                 const standingsLists = standingsRes?.MRData?.StandingsTable?.StandingsLists || [];
                 const listObj = standingsLists[0] || {};
                 const completedRound = parseInt(listObj.round || (round !== 'latest' ? round : races.length), 10) || 0;
+                const countbackCounts = computeClinchCountbackCounts(resultRounds, mode, completedRound) || {};
+                const countbackVerified = Object.keys(countbackCounts).length > 0;
 
                 let rawStandings = [];
                 if (mode === 'constructors') {
-                    rawStandings = (listObj.ConstructorStandings || []).map((item, idx) => ({
-                        id: item.Constructor?.constructorId || `team_${idx}`,
-                        name: item.Constructor?.name || 'Constructor',
-                        code: (item.Constructor?.name || 'CON').substring(0, 3).toUpperCase(),
-                        team: item.Constructor?.nationality ? `${item.Constructor.nationality} Constructor` : item.Constructor?.name,
-                        constructorId: item.Constructor?.constructorId || '',
-                        points: parseFloat(item.points || '0'),
-                        wins: parseInt(item.wins || '0', 10),
-                        p2: Math.max(0, Math.round(parseFloat(item.points || '0') / 65)),
-                        p3: Math.max(0, Math.round(parseFloat(item.points || '0') / 80))
-                    }));
+                    rawStandings = (listObj.ConstructorStandings || []).map((item, idx) => {
+                        const id = item.Constructor?.constructorId || `team_${idx}`;
+                        const cb = countbackCounts[id] || [];
+                        const standingWins = parseInt(item.wins || '0', 10) || 0;
+                        const wins = standingWins > 0 ? standingWins : (cb[0] || 0);
+                        const p2 = cb[1] || 0;
+                        const p3 = cb[2] || 0;
+                        const countback = cb.slice();
+                        countback[0] = wins;
+                        countback[1] = p2;
+                        countback[2] = p3;
+                        return {
+                            id,
+                            name: item.Constructor?.name || 'Constructor',
+                            code: (item.Constructor?.name || 'CON').substring(0, 3).toUpperCase(),
+                            team: item.Constructor?.nationality ? `${item.Constructor.nationality} Constructor` : item.Constructor?.name,
+                            constructorId: item.Constructor?.constructorId || '',
+                            points: parseFloat(item.points || '0'),
+                            wins,
+                            p2,
+                            p3,
+                            countback
+                        };
+                    });
                 } else {
                     rawStandings = (listObj.DriverStandings || []).map((item, idx) => {
                         const c = (item.Constructors && item.Constructors[0]) || {};
+                        const id = item.Driver?.driverId || `driver_${idx}`;
+                        const cb = countbackCounts[id] || [];
+                        const standingWins = parseInt(item.wins || '0', 10) || 0;
+                        const wins = standingWins > 0 ? standingWins : (cb[0] || 0);
+                        const p2 = cb[1] || 0;
+                        const p3 = cb[2] || 0;
+                        const countback = cb.slice();
+                        countback[0] = wins;
+                        countback[1] = p2;
+                        countback[2] = p3;
                         return {
-                            id: item.Driver?.driverId || `driver_${idx}`,
+                            id,
                             name: `${item.Driver?.givenName || ''} ${item.Driver?.familyName || ''}`.trim(),
                             code: item.Driver?.code || (item.Driver?.familyName || 'DRV').substring(0, 3).toUpperCase(),
                             team: c.name || 'F1 Team',
                             constructorId: c.constructorId || '',
                             points: parseFloat(item.points || '0'),
-                            wins: parseInt(item.wins || '0', 10),
-                            p2: Math.max(0, Math.round(parseFloat(item.points || '0') / 95)),
-                            p3: Math.max(0, Math.round(parseFloat(item.points || '0') / 110))
+                            wins,
+                            p2,
+                            p3,
+                            countback
                         };
                     });
                 }
@@ -10181,6 +10317,7 @@
                     round,
                     races,
                     completedRound,
+                    countbackVerified,
                     standings: rawStandings
                 };
 
@@ -10221,6 +10358,7 @@
                     round,
                     races: fallbackRaces,
                     completedRound: fallbackCompleted,
+                    countbackVerified: true,
                     standings: fallbackStandings
                 });
             }
@@ -10260,8 +10398,16 @@
                 remainingRaces,
                 remainingSprints,
                 nextRace,
-                standings: payload.standings.map(s => ({ ...s })),
+                countbackVerified: Boolean(payload.countbackVerified),
+                standings: payload.standings.map(s => ({
+                    ...s,
+                    points: Number(s.points) || 0,
+                    wins: parseInt(s.wins || 0, 10) || 0,
+                    p2: Number.isFinite(Number(s.p2)) ? Number(s.p2) : 0,
+                    p3: Number.isFinite(Number(s.p3)) ? Number(s.p3) : 0
+                })),
                 simPositions: {},
+                simPositions2: {},
                 simFastestLapId: null
             };
             if (typeof window !== 'undefined') {
@@ -10271,6 +10417,7 @@
             // Initialize default simulation controls to "0" (no simulated delta yet)
             clinchState.standings.slice(0, 6).forEach(c => {
                 clinchState.simPositions[c.id] = '0';
+                clinchState.simPositions2[c.id] = '0';
             });
 
             renderClinchSimControls();
@@ -10283,34 +10430,51 @@
             if (!grid) return;
 
             const topContenders = clinchState.standings.slice(0, 6);
+            const simAvailable = isClinchSimulationAvailable();
+            const sys = getClinchPointsSystem(clinchState.season);
+            const isConstructors = clinchState.mode === 'constructors';
             const nextRaceName = clinchState.nextRace
                 ? `Round ${clinchState.nextRace.round}: ${clinchState.nextRace.raceName}`
-                : `Hypothetical Next Round Shootout (Season Completed — Use R21 Preset to Simulate Real Clinch)`;
+                : 'Season Completed (0 Rounds Remaining)';
 
             if (label) {
-                label.textContent = `Simulating ${nextRaceName} — Adjust finish positions (P1–P10, DNF) & Fastest Lap (+1pt) for immediate recalculation.`;
+                if (!simAvailable) {
+                    label.textContent = `${nextRaceName} — Next-round simulation is locked because the season/checkpoint is complete. Select an earlier Round Checkpoint or click "Load 2024 Pre-Vegas (R21) Title Fight" to simulate.`;
+                } else {
+                    const flNote = sys.fastestLap > 0 ? ' & Fastest Lap (+1pt)' : '';
+                    const carNote = isConstructors ? 'two cars (Car 1 & Car 2)' : 'finish positions';
+                    label.textContent = `Simulating ${nextRaceName} — Adjust ${carNote} (P1–P10, DNF)${flNote} for immediate recalculation.`;
+                }
             }
 
             const posOptions = [
                 { val: '0', text: 'Current (No Sim Delta)' },
-                { val: '1', text: 'P1 — 25 pts' },
-                { val: '2', text: 'P2 — 18 pts' },
-                { val: '3', text: 'P3 — 15 pts' },
-                { val: '4', text: 'P4 — 12 pts' },
-                { val: '5', text: 'P5 — 10 pts' },
-                { val: '6', text: 'P6 — 8 pts' },
-                { val: '7', text: 'P7 — 6 pts' },
-                { val: '8', text: 'P8 — 4 pts' },
-                { val: '9', text: 'P9 — 2 pts' },
-                { val: '10', text: 'P10 — 1 pt' },
+                ...CLINCH_SIM_TOP10.map(pos => ({
+                    val: pos,
+                    text: `P${pos} — ${getClinchPositionPoints(pos, clinchState.season)} pts`
+                })),
                 { val: 'DNF', text: 'DNF / P11+ — 0 pts' }
             ];
+            const disabledAttr = simAvailable ? '' : 'disabled';
+            const flDisabledAttr = (simAvailable && sys.fastestLap > 0) ? '' : 'disabled';
 
             grid.innerHTML = topContenders.map((c, idx) => {
                 const color = TEAM_COLORS[c.constructorId] || FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
                 const currentSimPos = clinchState.simPositions[c.id] || '0';
+                const currentSimPos2 = (clinchState.simPositions2 || {})[c.id] || '0';
                 const hasFL = clinchState.simFastestLapId === c.id;
                 const simPts = getSimulatedDeltaPoints(c.id);
+
+                const select1Html = `
+                    <select class="clinch-sim-select" data-car-slot="1" aria-label="${isConstructors ? `Car 1 finish position for ${c.name}` : `Finish position for ${c.name}`}" onchange="onClinchSimPosChange('${c.id}', this.value, 1)" ${disabledAttr}>
+                        ${posOptions.map(o => `<option value="${o.val}" ${currentSimPos === o.val ? 'selected' : ''}>${isConstructors ? `Car 1: ${o.text}` : o.text}</option>`).join('')}
+                    </select>
+                `;
+                const select2Html = isConstructors ? `
+                    <select class="clinch-sim-select" data-car-slot="2" aria-label="Car 2 finish position for ${c.name}" onchange="onClinchSimPosChange('${c.id}', this.value, 2)" ${disabledAttr}>
+                        ${posOptions.map(o => `<option value="${o.val}" ${currentSimPos2 === o.val ? 'selected' : ''}>Car 2: ${o.text}</option>`).join('')}
+                    </select>
+                ` : '';
 
                 return `
                     <div class="clinch-sim-card" style="border-top: 2px solid ${color};">
@@ -10324,12 +10488,11 @@
                             </span>
                         </div>
                         <div class="clinch-sim-controls-row">
-                            <select class="clinch-sim-select" aria-label="Finish position for ${c.name}" onchange="onClinchSimPosChange('${c.id}', this.value)">
-                                ${posOptions.map(o => `<option value="${o.val}" ${currentSimPos === o.val ? 'selected' : ''}>${o.text}</option>`).join('')}
-                            </select>
-                            <label class="clinch-fl-label" title="Award +1 pt for Fastest Lap (requires P1-P10 finish)">
-                                <input type="checkbox" ${hasFL ? 'checked' : ''} onchange="onClinchSimFlChange('${c.id}', this.checked)">
-                                <span>FL +1</span>
+                            ${select1Html}
+                            ${select2Html}
+                            <label class="clinch-fl-label" title="${sys.fastestLap > 0 ? 'Award +1 pt for Fastest Lap (requires P1-P10 finish)' : 'Fastest Lap bonus point discontinued in 2025+'}">
+                                <input type="checkbox" ${hasFL ? 'checked' : ''} ${flDisabledAttr} onchange="onClinchSimFlChange('${c.id}', this.checked)">
+                                <span>${sys.fastestLap > 0 ? 'FL +1' : 'FL 0'}</span>
                             </label>
                         </div>
                     </div>
@@ -10338,26 +10501,41 @@
         }
 
         function getSimulatedDeltaPoints(contenderId) {
-            const pos = clinchState.simPositions[contenderId] || '0';
-            const basePts = CLINCH_POINTS_MAP[pos] || 0;
-            const isTop10 = ['1','2','3','4','5','6','7','8','9','10'].includes(pos);
-            const flBonus = (clinchState.simFastestLapId === contenderId && isTop10) ? 1 : 0;
-            return basePts + flBonus;
+            if (!isClinchSimulationAvailable()) return 0;
+            const sys = getClinchPointsSystem(clinchState.season);
+            const slots = getClinchSimSlots(contenderId);
+            const pts = slots.reduce((sum, pos) => sum + getClinchPositionPoints(pos, clinchState.season), 0);
+            const hasTop10 = slots.some(pos => CLINCH_SIM_TOP10.includes(pos));
+            const flBonus = (clinchState.simFastestLapId === contenderId && hasTop10) ? sys.fastestLap : 0;
+            return pts + flBonus;
         }
 
-        function onClinchSimPosChange(contenderId, posValue) {
-            clinchState.simPositions[contenderId] = posValue;
-            if (!['1','2','3','4','5','6','7','8','9','10'].includes(posValue) && clinchState.simFastestLapId === contenderId) {
+        function onClinchSimPosChange(contenderId, posValue, carSlot = 1) {
+            if (!isClinchSimulationAvailable()) return;
+            if (Number(carSlot) === 2) {
+                clinchState.simPositions2 = clinchState.simPositions2 || {};
+                clinchState.simPositions2[contenderId] = posValue;
+            } else {
+                clinchState.simPositions[contenderId] = posValue;
+            }
+            const hasTop10 = getClinchSimSlots(contenderId).some(p => CLINCH_SIM_TOP10.includes(p));
+            if (!hasTop10 && clinchState.simFastestLapId === contenderId) {
                 clinchState.simFastestLapId = null;
             }
             renderClinchSimControls();
             recalculateAndRenderClinchMath();
         }
 
+        function onClinchSimPos2Change(contenderId, posValue) {
+            onClinchSimPosChange(contenderId, posValue, 2);
+        }
+
         function onClinchSimFlChange(contenderId, checked) {
-            if (checked) {
-                const pos = clinchState.simPositions[contenderId] || '0';
-                if (!['1','2','3','4','5','6','7','8','9','10'].includes(pos)) {
+            if (!isClinchSimulationAvailable()) return;
+            const sys = getClinchPointsSystem(clinchState.season);
+            if (checked && sys.fastestLap > 0) {
+                const hasTop10 = getClinchSimSlots(contenderId).some(p => CLINCH_SIM_TOP10.includes(p));
+                if (!hasTop10) {
                     clinchState.simPositions[contenderId] = '1';
                 }
                 clinchState.simFastestLapId = contenderId;
@@ -10381,42 +10559,63 @@
             }
 
             const top = clinchState.standings.slice(0, 6);
-            top.forEach(c => { clinchState.simPositions[c.id] = '0'; });
+            clinchState.simPositions2 = clinchState.simPositions2 || {};
+            top.forEach(c => {
+                clinchState.simPositions[c.id] = '0';
+                clinchState.simPositions2[c.id] = '0';
+            });
             clinchState.simFastestLapId = null;
 
+            if (!isClinchSimulationAvailable()) {
+                renderClinchSimControls();
+                recalculateAndRenderClinchMath();
+                return;
+            }
+
+            const sys = getClinchPointsSystem(clinchState.season);
+            const isConstructors = clinchState.mode === 'constructors';
             if (preset === 'leader_win' && top.length >= 2) {
-                clinchState.simPositions[top[0].id] = '1';
-                clinchState.simFastestLapId = top[0].id;
-                clinchState.simPositions[top[1].id] = '2';
+                if (isConstructors) {
+                    clinchState.simPositions[top[0].id] = '1';
+                    clinchState.simPositions2[top[0].id] = '2';
+                    clinchState.simPositions[top[1].id] = '3';
+                    clinchState.simPositions2[top[1].id] = '4';
+                } else {
+                    clinchState.simPositions[top[0].id] = '1';
+                    clinchState.simPositions[top[1].id] = '2';
+                }
+                if (sys.fastestLap > 0) clinchState.simFastestLapId = top[0].id;
             } else if (preset === 'p2_win_leader_dnf' && top.length >= 2) {
-                clinchState.simPositions[top[0].id] = 'DNF';
-                clinchState.simPositions[top[1].id] = '1';
-                clinchState.simFastestLapId = top[1].id;
+                if (isConstructors) {
+                    clinchState.simPositions[top[0].id] = 'DNF';
+                    clinchState.simPositions2[top[0].id] = 'DNF';
+                    clinchState.simPositions[top[1].id] = '1';
+                    clinchState.simPositions2[top[1].id] = '2';
+                } else {
+                    clinchState.simPositions[top[0].id] = 'DNF';
+                    clinchState.simPositions[top[1].id] = '1';
+                }
+                if (sys.fastestLap > 0) clinchState.simFastestLapId = top[1].id;
             }
 
             renderClinchSimControls();
             recalculateAndRenderClinchMath();
         }
 
-        // Countback tie-breaker comparison (FIA Sporting Regulations Art. 7.2: P1 wins, then P2, then P3)
+        // Countback tie-breaker comparison (FIA Sporting Regulations Art. 7.2: P1 wins, then P2, then P3, ...)
         function winsTieBreaker(contenderA, contenderB, remainingRacesForB = 0) {
             const maxPossibleWinsB = (contenderB.wins || 0) + remainingRacesForB;
             if ((contenderA.wins || 0) > maxPossibleWinsB) return true;
             if ((contenderA.wins || 0) < (contenderB.wins || 0)) return false;
             if (remainingRacesForB === 0) {
-                if ((contenderA.wins || 0) !== (contenderB.wins || 0)) {
-                    return (contenderA.wins || 0) > (contenderB.wins || 0);
-                }
-                if ((contenderA.p2 || 0) !== (contenderB.p2 || 0)) {
-                    return (contenderA.p2 || 0) > (contenderB.p2 || 0);
-                }
-                return (contenderA.p3 || 0) >= (contenderB.p3 || 0);
+                return compareClinchCountback(contenderA, contenderB) > 0;
             }
             return false;
         }
 
         function recalculateAndRenderClinchMath() {
-            const isSimActive = Object.values(clinchState.simPositions).some(v => v !== '0');
+            if (!clinchState.standings || clinchState.standings.length === 0) return;
+            const isSimActive = isClinchSimActive();
             const simBadge = document.getElementById('clinchSimActiveBadge');
             if (simBadge) simBadge.style.display = isSimActive ? 'inline-flex' : 'none';
 
@@ -10429,35 +10628,45 @@
                 ? Math.max(0, clinchState.remainingSprints - (nextIsSprint ? 1 : 0))
                 : clinchState.remainingSprints;
 
-            // Formula explicitly required: (N_races * 26) + (N_sprints * 8)
-            const maxPointsRemaining = (effRaces * 26) + (effSprints * 8);
+            const maxEvt = getClinchMaxEventPoints(clinchState.mode, clinchState.season);
+            const maxPointsRemaining = (effRaces * maxEvt.gp) + (effSprints * maxEvt.sprint);
 
-            // Compute projected standings with simulated points and wins
+            // Compute projected standings with simulated points and finishes (locked to 0 when season/checkpoint complete)
             const projected = clinchState.standings.map(c => {
-                const delta = getSimulatedDeltaPoints(c.id);
-                const simWinAdd = clinchState.simPositions[c.id] === '1' ? 1 : 0;
-                const simP2Add = clinchState.simPositions[c.id] === '2' ? 1 : 0;
-                const simP3Add = clinchState.simPositions[c.id] === '3' ? 1 : 0;
+                const delta = isSimActive ? getSimulatedDeltaPoints(c.id) : 0;
+                const slots = isSimActive ? getClinchSimSlots(c.id) : [];
+                const simWinAdd = slots.filter(s => s === '1').length;
+                const simP2Add = slots.filter(s => s === '2').length;
+                const simP3Add = slots.filter(s => s === '3').length;
+                const nextCountback = Array.isArray(c.countback) ? c.countback.slice() : null;
+                if (nextCountback && isSimActive) {
+                    slots.forEach(s => {
+                        const pos = parseInt(s, 10);
+                        if (Number.isFinite(pos) && pos >= 1) {
+                            while (nextCountback.length < pos) nextCountback.push(0);
+                            nextCountback[pos - 1]++;
+                        }
+                    });
+                }
                 return {
                     ...c,
                     simDelta: delta,
                     projectedPoints: c.points + delta,
                     wins: (c.wins || 0) + simWinAdd,
                     p2: (c.p2 || 0) + simP2Add,
-                    p3: (c.p3 || 0) + simP3Add
+                    p3: (c.p3 || 0) + simP3Add,
+                    ...(nextCountback ? { countback: nextCountback } : {})
                 };
             });
 
-            // Sort by projected points, then countback tie-breaker (wins, p2, p3)
+            // Sort by projected points, then countback tie-breaker (wins, p2, p3, ...)
             projected.sort((a, b) => {
                 if (b.projectedPoints !== a.projectedPoints) return b.projectedPoints - a.projectedPoints;
-                if (b.wins !== a.wins) return b.wins - a.wins;
-                if (b.p2 !== a.p2) return b.p2 - a.p2;
-                return b.p3 - a.p3;
+                return compareClinchCountback(b, a);
             });
 
             const leader = projected[0];
-            const p2 = projected[1] || { name: 'N/A', projectedPoints: 0, wins: 0, p2: 0, p3: 0 };
+            const p2 = projected[1] || { id: '', name: 'N/A', code: 'N/A', team: 'N/A', projectedPoints: 0, wins: 0, p2: 0, p3: 0 };
 
             const leaderPts = leader.projectedPoints;
             const p2Pts = p2.projectedPoints;
@@ -10493,7 +10702,7 @@
                     : `${clinchState.totalRaces - effRaces} of ${clinchState.totalRaces} Rounds Accounted`;
             }
             if (elMaxPts) elMaxPts.textContent = `${maxPointsRemaining} PTS`;
-            if (elMaxFormula) elMaxFormula.textContent = `(${effRaces} × 26) + (${effSprints} × 8) Max Scale`;
+            if (elMaxFormula) elMaxFormula.textContent = `(${effRaces} × ${maxEvt.gp}) + (${effSprints} × ${maxEvt.sprint}) Max Scale`;
             if (elMagicNum) {
                 elMagicNum.textContent = isTitleClinched ? 'CLINCHED 🏆' : `${magicNumberLeader} PTS`;
                 elMagicNum.style.color = isTitleClinched ? 'var(--clinch-gold)' : 'var(--clinch-cyan)';
@@ -10538,11 +10747,25 @@
             const tieEl = document.getElementById('clinchTiebreakerContent');
             if (!listEl || !tieEl) return;
 
-            const nextRaceTitle = clinchState.nextRace ? clinchState.nextRace.raceName : 'the Finale';
+            const maxEvt = getClinchMaxEventPoints(clinchState.mode, clinchState.season);
+            const isConstructors = clinchState.mode === 'constructors';
+            const remainingList = (clinchState.races || []).filter(r => parseInt(r.round, 10) > clinchState.completedRound);
+            const upcomingRace = isSimActive ? (remainingList[1] || null) : (clinchState.nextRace || remainingList[0] || null);
+            const nextRaceTitle = upcomingRace ? upcomingRace.raceName : 'the Finale';
+            const upcomingIsSprint = Boolean(upcomingRace && upcomingRace.Sprint);
+            const sprintsAfterNext = Math.max(0, effSprints - (upcomingIsSprint ? 1 : 0));
+            const nextRoundMaxPts = maxEvt.gp + (upcomingIsSprint ? maxEvt.sprint : 0);
+            const nextRoundNoFlPts = maxEvt.gpNoFl + (upcomingIsSprint ? maxEvt.sprint : 0);
+
             const currentLead = leader.projectedPoints - p2.projectedPoints;
-            const pointsAfterNextRound = Math.max(0, ((Math.max(0, effRaces - 1)) * 26) + (effSprints * 8));
+            const pointsAfterNextRound = Math.max(0, ((Math.max(0, effRaces - 1)) * maxEvt.gp) + (sprintsAfterNext * maxEvt.sprint));
             const leadNeededAfterNext = leaderGuaranteedTiebreak ? pointsAfterNextRound : (pointsAfterNextRound + 1);
             const netPointsGainNeededNextRound = leadNeededAfterNext - currentLead;
+
+            const bestHaulLabel = isConstructors
+                ? (maxEvt.fastestLap > 0 ? 'P1+P2 + Fastest Lap' : 'P1+P2')
+                : (maxEvt.fastestLap > 0 ? 'P1 + Fastest Lap' : 'P1');
+            const nonScoreLabel = isConstructors ? 'double-DNF' : 'DNF';
 
             const scenarios = [];
             if (isTitleClinched) {
@@ -10560,7 +10783,12 @@
                         html: `💡 <strong>Interactive Replay Tip:</strong> Click <em>"🎲 Load 2024 Pre-Vegas (R21) Title Fight"</em> above to explore live clinch permutations with 3 Grands Prix &amp; 1 Sprint remaining!`
                     });
                 }
-            } else if (netPointsGainNeededNextRound <= 26) {
+            } else if (effRaces === 0) {
+                scenarios.push({
+                    gold: false,
+                    html: `⚖️ <strong>DEADLOCKED AT SEASON END:</strong> <strong>${leader.name}</strong> and <strong>${p2.name}</strong> are tied on <strong>${leader.projectedPoints} pts</strong> with identical FIA countback and 0 remaining rounds — title cannot be awarded by countback tie-breaker.`
+                });
+            } else if (netPointsGainNeededNextRound <= nextRoundMaxPts) {
                 // Leader CAN clinch at the very next Grand Prix!
                 scenarios.push({
                     gold: true,
@@ -10585,15 +10813,16 @@
                         gold: false,
                         html: `🎯 <strong>Required Swing:</strong> ${leader.name} must outscore ${p2.name} by at least <strong>+${netPointsGainNeededNextRound} pts</strong> at ${nextRaceTitle} to seal the title early.`
                     });
+                    const winDesc = isConstructors ? `maximizes P1+P2 (${nextRoundNoFlPts} pts)` : `wins (P1, ${nextRoundNoFlPts} pts)`;
                     scenarios.push({
                         gold: false,
-                        html: `🏁 <strong>Victory Permutation:</strong> If ${leader.name} wins (P1, 25 pts), ${p2.name} must finish yielding ≤ ${Math.max(0, 25 - netPointsGainNeededNextRound)} pts for an immediate clinch.`
+                        html: `🏁 <strong>Victory Permutation:</strong> If ${leader.name} ${winDesc}, ${p2.name} must finish yielding ≤ ${Math.max(0, nextRoundNoFlPts - netPointsGainNeededNextRound)} pts for an immediate clinch.`
                     });
                 }
             } else {
                 scenarios.push({
                     gold: false,
-                    html: `🔒 <strong>NO MATHEMATICAL CLINCH AT ${nextRaceTitle.toUpperCase()}:</strong> Even with a P1 + Fastest Lap (+26 pts) and a ${p2.name} DNF, ${leader.name}'s maximum lead (${currentLead + 26} pts) would remain below the ${leadNeededAfterNext} pts threshold required after this round.`
+                    html: `🔒 <strong>NO MATHEMATICAL CLINCH AT ${nextRaceTitle.toUpperCase()}:</strong> Even with a ${bestHaulLabel} (+${nextRoundMaxPts} pts) and a ${p2.name} ${nonScoreLabel}, ${leader.name}'s maximum lead (${currentLead + nextRoundMaxPts} pts) would remain below the ${leadNeededAfterNext} pts threshold required after this round.`
                 });
                 scenarios.push({
                     gold: false,
@@ -10604,9 +10833,23 @@
             listEl.innerHTML = scenarios.map(s => `<li class="clinch-scenario-item ${s.gold ? 'gold-item' : ''}">${s.html}</li>`).join('');
 
             // Render Tie-Breaker Countback Analysis
-            const tieWinner = (leader.wins !== p2.wins)
-                ? (leader.wins > p2.wins ? leader : p2)
-                : (leader.p2 >= p2.p2 ? leader : p2);
+            const leaderWinsCb = winsTieBreaker(leader, p2, 0);
+            const p2WinsCb = winsTieBreaker(p2, leader, 0);
+            const tieWinner = leaderWinsCb ? leader : (p2WinsCb ? p2 : null);
+
+            let countbackVerdictHtml;
+            if (tieWinner) {
+                const reason = (leader.wins !== p2.wins)
+                    ? `${tieWinner.wins} GP victories`
+                    : (leader.p2 !== p2.p2
+                        ? `${tieWinner.p2} P2 finishes (tied on ${tieWinner.wins} wins)`
+                        : (leader.p3 !== p2.p3
+                            ? `${tieWinner.p3} P3 finishes (tied on ${tieWinner.wins} wins, ${tieWinner.p2} P2s)`
+                            : `superior lower-position countback (tied on ${tieWinner.wins} wins, ${tieWinner.p2} P2s, ${tieWinner.p3} P3s)`));
+                countbackVerdictHtml = `If tied on points at season end, <strong>${tieWinner.name}</strong> holds the countback advantage (${reason}).`;
+            } else {
+                countbackVerdictHtml = `Both <strong>${leader.name}</strong> and <strong>${p2.name}</strong> are deadlocked on countback (${leader.wins} GP wins, ${leader.p2} P2s, ${leader.p3} P3s); neither holds an automatic countback edge.`;
+            }
 
             tieEl.innerHTML = `
                 <div style="background: #111723; border: 1px solid #222C40; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
@@ -10620,10 +10863,12 @@
                     </div>
                 </div>
                 <p style="font-size: 0.8rem; color: #94A3B8;">
-                    <strong>Countback Verdict:</strong> If tied on points at season end, <strong>${tieWinner.name}</strong> holds the countback advantage (${tieWinner.wins} GP victories).
+                    <strong>Countback Verdict:</strong> ${countbackVerdictHtml}
                     ${leaderGuaranteedTiebreak
                         ? `<span style="color: var(--clinch-gold);">Because ${p2.name} cannot surpass ${leader.name}'s win tally in ${effRaces} remaining GP(s), ${leader.name} clinches on an exact points tie.</span>`
-                        : `<span style="color: #CBD5E1;">With ${effRaces} GP(s) left, ${p2.name} could theoretically reach ${p2.wins + effRaces} wins, so ${leader.name} needs +1 pt above a tie to guarantee the title unconditionally.</span>`
+                        : (effRaces === 0
+                            ? `<span style="color: #CBD5E1;">With 0 GP(s) left and ${tieWinner === p2 ? `${p2.name} ahead on countback` : 'identical countback'}, ${leader.name} needs +1 pt above a tie to clinch outright.</span>`
+                            : `<span style="color: #CBD5E1;">With ${effRaces} GP(s) left, ${p2.name} could theoretically reach ${p2.wins + effRaces} wins, so ${leader.name} needs +1 pt above a tie to guarantee the title unconditionally.</span>`)
                     }
                 </p>
             `;
@@ -23131,6 +23376,17 @@
             window.renderClinchScenariosAndTiebreaker = renderClinchScenariosAndTiebreaker;
             window.renderClinchScenarioMatrixTable = renderClinchScenarioMatrixTable;
             window.CLINCH_FALLBACK_2024 = CLINCH_FALLBACK_2024;
+            window.getClinchPointsSystem = getClinchPointsSystem;
+            window.getClinchMaxEventPoints = getClinchMaxEventPoints;
+            window.getClinchPositionPoints = getClinchPositionPoints;
+            window.computeClinchCountbackCounts = computeClinchCountbackCounts;
+            window.compareClinchCountback = compareClinchCountback;
+            window.winsTieBreaker = winsTieBreaker;
+            window.getSimulatedDeltaPoints = getSimulatedDeltaPoints;
+            window.getClinchSimSlots = getClinchSimSlots;
+            window.isClinchSimulationAvailable = isClinchSimulationAvailable;
+            window.isClinchSimActive = isClinchSimActive;
+            window.onClinchSimPos2Change = onClinchSimPos2Change;
             window.renderTeammateH2H = renderTeammateH2H;
             window.processSeasonTelemetry = processSeasonTelemetry;
             window.computePairTelemetry = computePairTelemetry;
@@ -23337,6 +23593,17 @@
                 renderClinchScenariosAndTiebreaker,
                 renderClinchScenarioMatrixTable,
                 CLINCH_FALLBACK_2024,
+                getClinchPointsSystem,
+                getClinchMaxEventPoints,
+                getClinchPositionPoints,
+                computeClinchCountbackCounts,
+                compareClinchCountback,
+                winsTieBreaker,
+                getSimulatedDeltaPoints,
+                getClinchSimSlots,
+                isClinchSimulationAvailable,
+                isClinchSimActive,
+                onClinchSimPos2Change,
                 categorizeReliabilityStatus,
                 categorizeStatus,
                 RELIABILITY_BUCKETS,
