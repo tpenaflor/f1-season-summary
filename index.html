@@ -17961,6 +17961,23 @@
             }
         }
 
+        // Issue #37: reject empty or offline-fallback reliability payloads for localStorage.
+        let _reliabilityFallbackSignature = null;
+        function isValidReliabilityCache(metrics) {
+            if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) return false;
+            if (metrics.isFallback || metrics === RELIABILITY_FALLBACK_2024) return false;
+            if (!(Number(metrics.totalRaces) > 0)) return false;
+            if (!(Number(metrics.totalEntries) > 0)) return false;
+            if (!Array.isArray(metrics.constructors) || !Array.isArray(metrics.drivers)) return false;
+            try {
+                if (_reliabilityFallbackSignature === null) {
+                    _reliabilityFallbackSignature = JSON.stringify(RELIABILITY_FALLBACK_2024);
+                }
+                if (JSON.stringify(metrics) === _reliabilityFallbackSignature) return false;
+            } catch (e) {}
+            return true;
+        }
+
         async function loadReliabilityData(season = '2024', forceRefresh = false) {
             const seasonStr = String(season || reliabilityState.season || '2024');
             reliabilityState.season = seasonStr;
@@ -17970,8 +17987,11 @@
             if (!forceRefresh && typeof localStorage !== 'undefined') {
                 try {
                     const cached = localStorage.getItem(cacheKey);
-                    if (cached) {
-                        const parsed = JSON.parse(cached);
+                    const parsed = cached ? JSON.parse(cached) : null;
+                    if (cached && !isValidReliabilityCache(parsed)) {
+                        // Issue #37: purge empty/fallback entries written by older builds.
+                        localStorage.removeItem(cacheKey);
+                    } else if (parsed) {
                         reliabilityState.metrics = parsed;
                         reliabilityState.loading = false;
                         reliabilityState.dataLoaded = true;
@@ -18006,7 +18026,10 @@
 
                 reliabilityState.metrics = metrics;
 
-                if (metrics && typeof localStorage !== 'undefined') {
+                // Issue #37: only persist metrics computed from a non-empty live Jolpica
+                // results payload. Offline fallback / zeroed metrics are rendered only.
+                const hasLiveResults = Array.isArray(results) && results.length > 0;
+                if (hasLiveResults && isValidReliabilityCache(metrics) && typeof localStorage !== 'undefined') {
                     try {
                         localStorage.setItem(cacheKey, JSON.stringify(metrics));
                     } catch (e) {}
@@ -20191,6 +20214,27 @@
             };
         }
 
+        // Issue #37: guards that keep empty, partial or offline-fallback payloads out of
+        // localStorage (and purge any such entries persisted by earlier builds).
+        let _qualifyingFallbackSignature = null;
+        function isValidQualifyingCorrelationCache(metrics) {
+            if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) return false;
+            if (metrics.isFallback) return false;
+            if (!(Number(metrics.totalRaces) > 0)) return false;
+            if (!Array.isArray(metrics.points)) return false;
+            try {
+                if (_qualifyingFallbackSignature === null) {
+                    _qualifyingFallbackSignature = JSON.stringify(computeQualifyingCorrelationMetrics(
+                        QUALIFYING_CORRELATION_FALLBACK_2024.qualifying,
+                        QUALIFYING_CORRELATION_FALLBACK_2024.results,
+                        { season: '2024' }
+                    ));
+                }
+                if (JSON.stringify(metrics) === _qualifyingFallbackSignature) return false;
+            } catch (e) {}
+            return true;
+        }
+
         async function loadQualifyingCorrelationData(season = '2024', forceRefresh = false) {
             const seasonStr = String(season || qualifyingCorrelationState.season || '2024');
             qualifyingCorrelationState.season = seasonStr;
@@ -20202,8 +20246,11 @@
             if (!forceRefresh && typeof localStorage !== 'undefined') {
                 try {
                     const cached = localStorage.getItem(cacheKey);
-                    if (cached) {
-                        const parsed = JSON.parse(cached);
+                    const parsed = cached ? JSON.parse(cached) : null;
+                    if (cached && !isValidQualifyingCorrelationCache(parsed)) {
+                        // Issue #37: purge empty/fallback entries written by older builds.
+                        localStorage.removeItem(cacheKey);
+                    } else if (parsed) {
                         qualifyingCorrelationState.metrics = parsed;
                         qualifyingCorrelationState.loading = false;
                         qualifyingCorrelationState.dataLoaded = true;
@@ -20238,12 +20285,16 @@
                 qualRounds = qData || [];
                 resRounds = rData || [];
 
+                // Issue #37: only a complete live payload (both qualifying AND race results
+                // returned rounds) is eligible for localStorage. Partial, empty or failed
+                // responses are rendered but never persisted, so they cannot poison the cache.
+                const hasCompleteLiveData = qualRounds.length > 0 && resRounds.length > 0;
                 let metrics = null;
                 if ((qualRounds && qualRounds.length > 0) || (resRounds && resRounds.length > 0)) {
                     metrics = computeQualifyingCorrelationMetrics(qualRounds, resRounds, { season: seasonStr });
                     if (badge) {
                         badge.className = 'cache-badge cached';
-                        badge.textContent = '🌐 Live Jolpica API';
+                        badge.textContent = hasCompleteLiveData ? '🌐 Live Jolpica API' : '⚠️ Partial Jolpica Data';
                     }
                 } else if (seasonStr === '2024' || !seasonStr) {
                     metrics = computeQualifyingCorrelationMetrics(
@@ -20266,7 +20317,7 @@
                 qualifyingCorrelationState.metrics = metrics;
                 qualifyingCorrelationState.dataLoaded = true;
 
-                if (metrics && typeof localStorage !== 'undefined') {
+                if (hasCompleteLiveData && isValidQualifyingCorrelationCache(metrics) && typeof localStorage !== 'undefined') {
                     try {
                         localStorage.setItem(cacheKey, JSON.stringify(metrics));
                     } catch (e) {}
@@ -22831,6 +22882,7 @@
             window.overtakeIndexState = overtakeIndexState;
             window.OVERTAKE_INDEX_FALLBACK_2024 = OVERTAKE_INDEX_FALLBACK_2024;
             window.loadQualifyingCorrelationData = loadQualifyingCorrelationData;
+            window.isValidQualifyingCorrelationCache = isValidQualifyingCorrelationCache;
             window.computeQualifyingCorrelationMetrics = computeQualifyingCorrelationMetrics;
             window.renderQualifyingCorrelationView = renderQualifyingCorrelationView;
             window.renderQualifyingScatterChart = renderQualifyingScatterChart;
@@ -22901,6 +22953,7 @@
             window.reliabilityState = reliabilityState;
             window.computeReliabilityMetrics = computeReliabilityMetrics;
             window.loadReliabilityData = loadReliabilityData;
+            window.isValidReliabilityCache = isValidReliabilityCache;
             window.onReliabilitySeasonChange = onReliabilitySeasonChange;
             window.refreshReliabilityData = refreshReliabilityData;
             window.setReliabilityViewScope = setReliabilityViewScope;
@@ -23255,6 +23308,7 @@
                 reliabilityState,
                 computeReliabilityMetrics,
                 loadReliabilityData,
+                isValidReliabilityCache,
                 onReliabilitySeasonChange,
                 refreshReliabilityData,
                 setReliabilityViewScope,
@@ -23291,6 +23345,7 @@
                 stintDegradationState,
                 STINT_DEGRADATION_FALLBACK_2024,
                 loadQualifyingCorrelationData,
+                isValidQualifyingCorrelationCache,
                 computeQualifyingCorrelationMetrics,
                 renderQualifyingCorrelationView,
                 renderQualifyingScatterChart,
