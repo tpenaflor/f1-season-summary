@@ -2860,7 +2860,10 @@
 
         /* Scenario Matrix Table & Status Pills */
         .clinch-table-wrapper {
+            width: 100%;
+            max-width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             border: 1px solid var(--clinch-border);
             border-radius: 10px;
             background: var(--clinch-bg);
@@ -4204,10 +4207,15 @@
             .sprint-disparity-layout {
                 flex-direction: column !important;
             }
-            .table-responsive {
+            .table-responsive,
+            .clinch-table-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 width: 100%;
+                max-width: 100%;
+            }
+            .clinch-table {
+                min-width: 640px;
             }
             .telemetry-delta-value,
             .tabular-num-timing {
@@ -6679,7 +6687,7 @@
                     </h3>
                     <span style="font-size: 0.76rem; color: #94A3B8;">Live Contention Status, Max Possible Ceiling &amp; Magic Numbers</span>
                 </div>
-                <div class="clinch-table-wrapper">
+                <div class="clinch-table-wrapper table-responsive">
                     <table class="clinch-table" id="clinchScenarioMatrixTable">
                         <thead>
                             <tr>
